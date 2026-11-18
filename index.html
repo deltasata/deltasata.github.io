@@ -125,7 +125,7 @@
   <header class="section__head reveal">
     <p class="eyebrow">02 · Work</p>
     <h2>Selected projects</h2>
-    <p class="section__lead">Three highlights first, then the code behind the rare-event search I lead, then earlier research software. Every repository is public.</p>
+    <p class="section__lead">Three highlights first: an Earth-observation agent, the real-time pipeline behind the rare-event search I lead, and the transformer search that found its best models. Every repository is public.</p>
   </header>
 
   <article class="card feature reveal" id="project-eo_agent">
@@ -158,64 +158,69 @@
       <div class="anim-slot anim-slot--wide" data-anim="eo-flood-map" aria-hidden="true"><span class="anim-slot__art anim-slot__art--earth"></span></div>
     </div>
   </article>
-  <article class="card feature reveal feature--flip" id="project-oasis">
+  <article class="card feature reveal feature--flip" id="project-lenssn">
+    <div class="feature__body">
+      <p class="tag">Production · built for the rare-event search I lead</p>
+      <h3 class="feature__title">Real-time event pipeline</h3>
+      <p class="feature__text">Stream and archive pipelines that pull events from six external data providers through REST APIs and Kafka (retries with back-off), cross-match them with a space-time SQL join that runs on both BigQuery and DuckDB, and store them as Parquet; cost-guarded BigQuery layer, typed config, CLI and 500+ automated tests (ruff, mypy) run in CI.</p>
+      <ul class="chips"><li>Python</li><li>REST APIs</li><li>Kafka (Avro)</li><li>SQL (BigQuery</li><li>DuckDB)</li><li>Google Cloud Storage</li><li>Parquet</li><li>pytest</li></ul>
+<a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/LSST_alert_pipeline_LSN_search</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
+    <div class="feature__visual">
+      <ul class="statgrid">
+<li><span class="statgrid__value">~10M</span><span class="statgrid__label">events per night, about 1 TB</span></li><li><span class="statgrid__value">6</span><span class="statgrid__label">external data providers (REST APIs and Kafka)</span></li><li><span class="statgrid__value">500+</span><span class="statgrid__label">automated tests, run in CI</span></li>      </ul>
+      <div class="dash anim-slot" data-anim="pipeline-dashboard" aria-hidden="true">
+        <div class="dash__bar"><i></i><i></i><i></i><span>live dashboard</span><b class="pulse"></b></div>
+        <div class="dash__body"><span class="anim-slot__art anim-slot__art--dash"></span></div>
+      </div>
+    </div>
+  </article>
+  <article class="card feature reveal" id="project-oasis">
     <div class="feature__body">
       <p class="tag">Research · paper on arXiv</p>
       <h3 class="feature__title">OASIS, transformers for asynchronous image streams</h3>
-      <p class="feature__text">Seven transformer architectures that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style latent readout, with Time2Vec time embeddings and causal masking; evaluated at the real 8.5% positive rate; paper on arXiv (2610.17168).</p>
+      <p class="feature__text">Seven transformer architectures, chosen from 227 training runs across 19 architecture families, that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style readout, with Time2Vec and causal masking; the best cut the recurrent baseline&#39;s loss by 30%; paper on arXiv (2610.17168).</p>
       <ul class="chips"><li>PyTorch</li><li>Transformers</li><li>GPU</li></ul>
 <a class="link" href="https://github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
     <div class="feature__visual">
       <ul class="statgrid">
-<li><span class="statgrid__value">7</span><span class="statgrid__label">transformer designs compared on the same data</span></li><li><span class="statgrid__value">30%</span><span class="statgrid__label">lower validation loss than the ConvLSTM baseline</span></li><li><span class="statgrid__value">8.5%</span><span class="statgrid__label">real positive rate in validation and test</span></li>      </ul>
+<li><span class="statgrid__value">227</span><span class="statgrid__label">GPU training runs in the model search</span></li><li><span class="statgrid__value">19</span><span class="statgrid__label">architecture families compared</span></li><li><span class="statgrid__value">30%</span><span class="statgrid__label">lower loss than the recurrent baseline</span></li>      </ul>
       <div class="anim-slot anim-slot--wide" data-anim="oasis-results" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
     </div>
   </article>
-  <article class="card feature reveal feature--compact" id="project-lens_vit">
-    <div class="feature__body">
-      <p class="tag">Personal project</p>
-      <h3 class="feature__title">Self-supervised ViTs for rare-object detection</h3>
-      <p class="feature__text">Finds rare objects (1 in thousands) in 5-band survey images. In-domain masked-autoencoder pretraining halved the loss; a ViT + ConvNeXtV2 ensemble reached AUC 0.9998 on a locked 30,000-object holdout, finding 90.6% at a 0.1% false-positive rate.</p>
-      <ul class="chips"><li>PyTorch</li><li>ViT</li><li>ConvNeXtV2</li><li>MAE</li><li>AMD MI300A</li></ul>
-<a class="link" href="https://github.com/deltasata/self-supervised-vit-lsst-lenses" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/self-supervised-vit-lsst-lenses</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
-    <div class="feature__visual">
-      <ul class="statgrid">
-<li><span class="statgrid__value">0.9998</span><span class="statgrid__label">AUC on a locked 30,000-object holdout</span></li><li><span class="statgrid__value">90.6%</span><span class="statgrid__label">found at a 0.1% false-positive rate</span></li><li><span class="statgrid__value">~60</span><span class="statgrid__label">architectures compared</span></li>      </ul>
-      <div class="anim-slot anim-slot--wide anim-slot--thin" data-anim="vit-attention" aria-hidden="true"><span class="anim-slot__art anim-slot__art--grid"></span></div>
-    </div>
-  </article>
 
-  <h3 class="subhead reveal">Built for the rare-event search I lead</h3>
+  <h3 class="subhead reveal">More projects</h3>
   <div class="grid">
-    <article class="card tile reveal" id="project-lenssn">
-      <div class="anim-slot tile__art" data-anim="project-lenssn" aria-hidden="true"><span class="anim-slot__art anim-slot__art--1"></span></div>
-      <h4>Real-time event pipeline</h4>
-      <p>Stream and archive pipelines that pull events from six external data providers through REST APIs and Kafka (retries with back-off), cross-match them with a space-time SQL join that runs on both BigQuery and DuckDB, and store them as Parquet; cost-guarded BigQuery layer, typed config, CLI and 500+ automated tests (ruff, mypy) run in CI.</p>
-      <ul class="chips chips--small"><li>Python</li><li>REST APIs</li><li>Kafka (Avro)</li><li>SQL (BigQuery</li><li>DuckDB)</li><li>Google Cloud Storage</li><li>Parquet</li><li>pytest</li></ul>
-<a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
-    <article class="card tile reveal" id="project-aplite">
-      <div class="anim-slot tile__art" data-anim="project-aplite" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
-      <h4>Lean image-processing pipeline</h4>
-      <p>The production pipeline&#39;s PSF-matched image differencing (change detection), object detection and measurement, and cross-frame association (tracking), run on small simulated cutouts to generate labelled training data at scale; every detection scored by two CNN quality models, with documented checks against production behaviour.</p>
-      <ul class="chips chips--small"><li>Python</li><li>PyTorch</li><li>NumPy / SciPy</li><li>Apptainer</li></ul>
-<a class="link" href="https://github.com/deltasata/Stripped_down_LSST_Alert_Production_pipeline" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
-  </div>
-  <h3 class="subhead reveal">Earlier research code</h3>
-  <div class="grid">
+    <article class="card tile reveal tile--wide" id="project-lens_vit">
+      <div class="anim-slot tile__art" data-anim="vit-attention" aria-hidden="true"><span class="anim-slot__art anim-slot__art--grid"></span></div>
+      <p class="tile__tag">Personal project</p>
+      <h4>Self-supervised ViTs for rare-object detection</h4>
+<ul class="ministats"><li><b>0.9998</b> AUC on a locked 30,000-object holdout</li><li><b>90.6%</b> found at a 0.1% false-positive rate</li><li><b>~60</b> architectures compared</li></ul>      <p>Finds rare objects (1 in thousands) in 5-band survey images. Automated model search (~60 architectures, ~300 GPU runs) with pre-registered comparisons; in-domain masked-autoencoder pretraining halved the loss; a ViT + ConvNeXtV2 ensemble reached AUC 0.9998 on a locked 30,000-object holdout, finding 90.6% at a 0.1% false-positive rate.</p>
+      <ul class="chips chips--small"><li>PyTorch</li><li>ViT</li><li>ConvNeXtV2</li><li>MAE</li><li>AMD MI300A</li></ul>
+<a class="link" href="https://github.com/deltasata/self-supervised-vit-lsst-lenses" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
     <article class="card tile reveal" id="project-convlstm">
-      <div class="anim-slot tile__art" data-anim="project-convlstm" aria-hidden="true"><span class="anim-slot__art anim-slot__art--1"></span></div>
+      <div class="anim-slot tile__art" data-anim="project-convlstm" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+      <p class="tile__tag">Research code</p>
       <h4>ConvLSTM rare-event detector</h4>
       <p>Spatio-temporal classifier for multi-band image time series (128,000 training sequences); A&amp;A (2026), follow-up on arXiv.</p>
       <ul class="chips chips--small"><li>TensorFlow / Keras</li></ul>
 <a class="link" href="https://github.com/deltasata/ConvLSTM-LSNe-Detection" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
+    <article class="card tile reveal" id="project-aplite">
+      <div class="anim-slot tile__art" data-anim="project-aplite" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
+      <p class="tile__tag">Built for the search I lead</p>
+      <h4>Lean image-processing pipeline</h4>
+      <p>The production pipeline&#39;s PSF-matched image differencing (change detection), object detection and measurement, and cross-frame association (tracking), run on small simulated cutouts to generate labelled training data at scale; every detection scored by two CNN quality models, with documented checks against production behaviour.</p>
+      <ul class="chips chips--small"><li>Python</li><li>PyTorch</li><li>NumPy / SciPy</li><li>Apptainer</li></ul>
+<a class="link" href="https://github.com/deltasata/Stripped_down_LSST_Alert_Production_pipeline" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
     <article class="card tile reveal" id="project-surfgen">
-      <div class="anim-slot tile__art" data-anim="project-surfgen" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+      <div class="anim-slot tile__art" data-anim="project-surfgen" aria-hidden="true"><span class="anim-slot__art anim-slot__art--1"></span></div>
+      <p class="tile__tag">Research code</p>
       <h4>SURFGEN2 / Shapefinders</h4>
       <p>3D surface reconstruction and shape statistics on large 3D grids, used by several research groups.</p>
       <ul class="chips chips--small"><li>C</li><li>MPI</li></ul>
 <a class="link" href="https://github.com/deltasata/Shapefinders" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
     <article class="card tile reveal" id="project-unresolved">
-      <div class="anim-slot tile__art" data-anim="project-unresolved" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
+      <div class="anim-slot tile__art" data-anim="project-unresolved" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+      <p class="tile__tag">Research code</p>
       <h4>Overlapping-signal 1D CNN</h4>
       <p>Simulated overlapping-signal time series and a 1D CNN that detects them; data on Zenodo.</p>
       <ul class="chips chips--small"><li>Python</li><li>TensorFlow</li><li>emcee</li></ul>
@@ -236,7 +241,7 @@
       <div class="card timeline__card">
         <h3>Data Scientist / ML Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
-<p class="timeline__context">Leads the search for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead the rare-event search of a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud: <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, seven transformer architectures (PyTorch) that classify irregular multi-band image sequences after every new frame; the best (factorized attention) <strong>beat the ConvLSTM baseline by 30%</strong> in validation loss.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, tracking across frames, two CNN quality scorers) as a lean containerized version that runs on small image tiles instead of full frames, making training-data generation at scale feasible on HPC.</li></ul>
+<p class="timeline__context">Leads the search for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead the rare-event search of a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud: <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences after every new frame: an automated search of <strong>227 GPU training runs</strong> (100 configurations, 19 architecture families, effects confirmed over 3–11 seeds), seven designs published; the best <strong>beat the ConvLSTM baseline by 30%</strong> in loss.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, tracking across frames, two CNN quality scorers) as a lean containerized version that runs on small image tiles instead of full frames, making training-data generation at scale feasible on HPC.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
