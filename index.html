@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Satadru Bag · Data Scientist</title>
+<meta name="description" content="Data scientist in Munich: machine learning for images and time series, real-time pipelines, Earth observation.">
+<meta name="author" content="Satadru Bag">
+<meta property="og:title" content="Satadru Bag · Data Scientist">
+<meta property="og:description" content="Data scientist in Munich: machine learning for images and time series, real-time pipelines, Earth observation.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://deltasata.github.io">
+<meta name="theme-color" content="#05070f">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Person","name":"Satadru Bag","jobTitle":"Data Scientist","email":"mailto:satadru.iucaa@gmail.com","address":{"@type":"PostalAddress","addressLocality":"Munich","addressCountry":"DE"},"sameAs":["https://github.com/deltasata","https://www.linkedin.com/in/satadru-bag","https://scholar.google.com/citations?user=tD5KssAAAAAJ&amp;hl=en"]}
+</script>
+</head>
+<body>
+<script>document.documentElement.classList.add('js'); if (/[?&]static\b/.test(location.search)) document.documentElement.classList.add('static');</script>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="horizon" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><span></span></div>
+
+<header class="nav" id="top">
+  <a class="nav__brand" href="#hero" aria-label="Satadru Bag, back to top">
+    <span class="nav__mark">SB</span><span class="nav__name">Satadru Bag</span>
+  </a>
+  <button class="nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Menu"><span></span><span></span></button>
+  <nav class="nav__links" id="nav-links">
+    <a href="#story">Story</a>
+    <a href="#work">Work</a>
+    <a href="#experience">Experience</a>
+    <a href="#toolkit">Toolkit</a>
+    <a href="#research">Research</a>
+    <a href="#life">Life</a>
+    <a href="#contact">Contact</a>
+    <a class="btn btn--small" href="Satadru_resume2.pdf" target="_blank" rel="noopener">CV <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+
+<main>
+<!-- ================================================================ HERO -->
+<section class="hero" id="hero">
+  <div class="hero__text">
+    <p class="kicker reveal"><span class="pulse"></span>Data Scientist · Munich</p>
+    <h1 class="hero__name reveal">Satadru<br><em>Bag</em></h1>
+    <p class="hero__tagline reveal">Finding the one in ten million.</p>
+    <p class="hero__intro reveal">Real-time pipelines and deep-learning models for images and time series, built for a survey that streams ten million events a night. For more than twelve years the data came from the sky. Now I point the same methods at the Earth.</p>
+    <div class="hero__cta reveal">
+      <a class="btn" href="#work">See the work</a>
+      <a class="btn btn--ghost" href="Satadru_resume2.pdf" target="_blank" rel="noopener">Download CV</a>
+    </div>
+    <ul class="chips chips--hero reveal">
+      <li>EU Blue Card holder (Germany)</li><li>Available at short notice</li>
+    </ul>
+  </div>
+
+  <div class="hero__visual reveal">
+    <div class="orbit anim-slot" data-anim="hero-orbit">
+      <div class="orbit__ring orbit__ring--1"><i class="sat"></i></div>
+      <div class="orbit__ring orbit__ring--2"><i class="sat sat--amber"></i></div>
+      <div class="orbit__ring orbit__ring--3"><i class="sat sat--violet"></i></div>
+      <figure class="orbit__photo is-placeholder">
+        <span class="placeholder-mark">SB</span>
+      </figure>
+    </div>
+  </div>
+
+  <ul class="metrics reveal" aria-label="Key results">
+    <li class="metric"><span class="metric__value" data-count="10" data-suffix="M">10M</span><span class="metric__label">events per night through a real-time pipeline</span></li>
+    <li class="metric"><span class="metric__value" data-count="110" data-suffix="M">110M</span><span class="metric__label">images screened by a CNN ensemble</span></li>
+    <li class="metric"><span class="metric__value" data-count="70" data-suffix="%+">70%+</span><span class="metric__label">recall at a 0.01% false-positive rate</span></li>
+    <li class="metric"><span class="metric__value" data-count="12" data-suffix="+">12+</span><span class="metric__label">years of analysing large, noisy datasets</span></li>
+  </ul>
+  <a class="scroll-cue" href="#story" aria-label="Scroll down"><span></span></a>
+</section>
+
+<!-- ================================================================ STORY -->
+<section class="section" id="story">
+  <header class="section__head reveal">
+    <p class="eyebrow">01 · Story</p>
+    <h2>From the cosmos to the planet</h2>
+  </header>
+  <div class="story">
+    <div class="story__text">
+      <p class="reveal">I build machine-learning systems that find rare events in large streams of images and time series. That rests on 12+ years of analysing large, noisy datasets, 7+ of them with hands-on machine learning.</p>
+      <p class="reveal">Right now that means a real-time pipeline on Google Cloud that ingests ~10 million events (~1 TB) every night, and deep-learning models (transformers, ConvLSTMs, CNN ensembles) that pick out the handful that matter, at false-positive rates around 0.01%. Before that I spent three years on time-series methods and Bayesian inference for noisy, overlapping signals, and wrote a C package for 3D shape analysis that other research groups have used.</p>
+      <p class="reveal">The data has been astronomical, but the problems are the ones industry has: irregular multi-band image sequences, sensor fusion, extreme class imbalance, predictions that must update with every new observation, and pipelines that must run unattended every night. They map directly onto Earth observation, forecasting, anomaly detection and computer vision.</p>
+      <p class="reveal">I lead the rare-event search in a 10,000-member international collaboration (working-group lead since 2025); the pipeline and models above are built for that search. Alongside: generative models (diffusion, normalizing flows), simulation-based inference and LLM agents (EO-Agent, satellite-image question answering).</p>
+    </div>
+    <ul class="focus">
+      <li class="card focus__item reveal">
+        <span class="focus__num">01</span>
+        <h3>Computer vision</h3>
+        <p>Classification, segmentation, detection and tracking in image sequences that arrive one frame at a time.</p>
+      </li>
+      <li class="card focus__item reveal">
+        <span class="focus__num">02</span>
+        <h3>Time series &amp; forecasting</h3>
+        <p>Irregular, gappy, multi-band series; predictions that update with every new observation.</p>
+      </li>
+      <li class="card focus__item reveal">
+        <span class="focus__num">03</span>
+        <h3>Earth observation</h3>
+        <p>Sentinel-1/2 imagery, flood and change mapping, geospatial foundation models.</p>
+      </li>
+      <li class="card focus__item reveal">
+        <span class="focus__num">04</span>
+        <h3>Uncertainty &amp; Bayesian modelling</h3>
+        <p>Calibrated probabilities, MCMC and simulation-based inference when the answer has to come with error bars.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ WORK -->
+<section class="section" id="work">
+  <header class="section__head reveal">
+    <p class="eyebrow">02 · Work</p>
+    <h2>Selected projects</h2>
+    <p class="section__lead">Two personal projects first, then the code behind the rare-event search I lead, then earlier research software. Every repository is public.</p>
+  </header>
+
+  <article class="card feature reveal" id="project-eo_agent">
+    <div class="feature__body">
+      <p class="tag">Personal project</p>
+      <h3 class="feature__title">EO-Agent, conversational Earth-observation analyst</h3>
+      <p class="feature__text">LLM agent that answers &#34;was this place flooded / built on?&#34; from free satellite images, every number checked against deterministic code. Learned models replace rules only if they win on held-out flood events (pre-registered): water IoU 0.833 vs 0.690 (U-Net), flood questions answered correctly 0.889 vs 0.722; on par with the published state of the art.</p>
+      <ul class="chips"><li>PyTorch</li><li>TerraMind</li><li>Prithvi-EO</li><li>MCP</li><li>LangGraph</li><li>vLLM</li></ul>
+<a class="link" href="https://github.com/deltasata/satellite-change-agent" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/satellite-change-agent</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
+    <div class="feature__visual">
+      <div class="results">
+        <p class="results__title">Learned models vs rules, on held-out flood events</p>
+        <div class="bar">
+          <p class="bar__label">Water mapping, optical (IoU)</p>
+          <div class="bar__row"><span class="bar__name">U-Net</span><span class="bar__track"><span class="bar__fill" style="--v: 0.833"></span></span><span class="bar__val">0.833</span></div>
+          <div class="bar__row bar__row--base"><span class="bar__name">NDWI rule</span><span class="bar__track"><span class="bar__fill" style="--v: 0.69"></span></span><span class="bar__val">0.690</span></div>
+        </div>
+        <div class="bar">
+          <p class="bar__label">Water mapping, radar (IoU)</p>
+          <div class="bar__row"><span class="bar__name">TerraMind</span><span class="bar__track"><span class="bar__fill" style="--v: 0.611"></span></span><span class="bar__val">0.611</span></div>
+          <div class="bar__row bar__row--base"><span class="bar__name">VH threshold</span><span class="bar__track"><span class="bar__fill" style="--v: 0.477"></span></span><span class="bar__val">0.477</span></div>
+        </div>
+        <div class="bar">
+          <p class="bar__label">Flood questions answered correctly</p>
+          <div class="bar__row"><span class="bar__name">learned models</span><span class="bar__track"><span class="bar__fill" style="--v: 0.889"></span></span><span class="bar__val">0.889</span></div>
+          <div class="bar__row bar__row--base"><span class="bar__name">rules</span><span class="bar__track"><span class="bar__fill" style="--v: 0.722"></span></span><span class="bar__val">0.722</span></div>
+        </div>
+        <ul class="notes"><li>A 14M-parameter U-Net trained from scratch beat fine-tuned foundation models of 100 to 300M parameters on optical water.</li><li>Radar answered 14 of 19 flood questions under full cloud cover, 12 of them correctly.</li><li>Every comparison was fixed before scoring and tested on flood events the models never saw.</li></ul>
+      </div>
+      <div class="anim-slot anim-slot--wide" data-anim="eo-flood-map" aria-hidden="true"><span class="anim-slot__art anim-slot__art--earth"></span></div>
+    </div>
+  </article>
+  <article class="card feature reveal feature--flip" id="project-lens_vit">
+    <div class="feature__body">
+      <p class="tag">Personal project</p>
+      <h3 class="feature__title">Self-supervised ViTs for rare-object detection</h3>
+      <p class="feature__text">Finds rare objects (1 in thousands) in 5-band survey images. In-domain masked-autoencoder pretraining halved the loss; a ViT + ConvNeXtV2 ensemble reached AUC 0.9998 on a locked 30,000-object holdout, finding 90.6% at a 0.1% false-positive rate.</p>
+      <ul class="chips"><li>PyTorch</li><li>ViT</li><li>ConvNeXtV2</li><li>MAE</li><li>AMD MI300A</li></ul>
+<a class="link" href="https://github.com/deltasata/self-supervised-vit-lsst-lenses" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/self-supervised-vit-lsst-lenses</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
+    <div class="feature__visual">
+      <ul class="statgrid">
+<li><span class="statgrid__value">0.9998</span><span class="statgrid__label">AUC on a locked 30,000-object holdout</span></li><li><span class="statgrid__value">90.6%</span><span class="statgrid__label">found at a 0.1% false-positive rate</span></li><li><span class="statgrid__value">~60</span><span class="statgrid__label">architectures compared</span></li>      </ul>
+      <div class="anim-slot anim-slot--wide" data-anim="vit-attention" aria-hidden="true"><span class="anim-slot__art anim-slot__art--grid"></span></div>
+    </div>
+  </article>
+
+  <h3 class="subhead reveal">Built for the rare-event search I lead</h3>
+  <div class="grid">
+    <article class="card tile reveal" id="project-lenssn">
+      <div class="anim-slot tile__art" data-anim="project-lenssn" aria-hidden="true"><span class="anim-slot__art anim-slot__art--1"></span></div>
+      <h4>Real-time event pipeline</h4>
+      <p>Stream and archive pipelines that pull events from six external data providers through REST APIs and Kafka (retries with back-off), cross-match them with a space-time SQL join that runs on both BigQuery and DuckDB, and store them as Parquet; cost-guarded BigQuery layer, typed config, CLI and 500+ automated tests (ruff, mypy) run in CI.</p>
+      <ul class="chips chips--small"><li>Python</li><li>REST APIs</li><li>Kafka (Avro)</li><li>SQL (BigQuery</li><li>DuckDB)</li><li>Google Cloud Storage</li><li>Parquet</li><li>pytest</li></ul>
+<a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
+    <article class="card tile reveal" id="project-oasis">
+      <div class="anim-slot tile__art" data-anim="project-oasis" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+      <h4>OASIS, transformers for asynchronous image streams</h4>
+      <p>Seven transformer architectures that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style latent readout, with Time2Vec time embeddings and causal masking; evaluated at the real 8.5% positive rate; paper on arXiv (2610.17168).</p>
+      <ul class="chips chips--small"><li>PyTorch</li><li>Transformers</li><li>GPU</li></ul>
+<a class="link" href="https://github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
+    <article class="card tile reveal" id="project-aplite">
+      <div class="anim-slot tile__art" data-anim="project-aplite" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
+      <h4>Lean image-processing pipeline</h4>
+      <p>The production pipeline&#39;s PSF-matched image differencing (change detection), object detection and measurement, and cross-frame association (tracking), run on small simulated cutouts to generate labelled training data at scale; every detection scored by two CNN quality models, with documented checks against production behaviour.</p>
+      <ul class="chips chips--small"><li>Python</li><li>PyTorch</li><li>NumPy / SciPy</li><li>Apptainer</li></ul>
+<a class="link" href="https://github.com/deltasata/Stripped_down_LSST_Alert_Production_pipeline" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
+  </div>
+  <h3 class="subhead reveal">Earlier research code</h3>
+  <div class="grid">
+    <article class="card tile reveal" id="project-convlstm">
+      <div class="anim-slot tile__art" data-anim="project-convlstm" aria-hidden="true"><span class="anim-slot__art anim-slot__art--1"></span></div>
+      <h4>ConvLSTM rare-event detector</h4>
+      <p>Spatio-temporal classifier for multi-band image time series (128,000 training sequences); A&amp;A (2026), follow-up on arXiv.</p>
+      <ul class="chips chips--small"><li>TensorFlow / Keras</li></ul>
+<a class="link" href="https://github.com/deltasata/ConvLSTM-LSNe-Detection" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
+    <article class="card tile reveal" id="project-surfgen">
+      <div class="anim-slot tile__art" data-anim="project-surfgen" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+      <h4>SURFGEN2 / Shapefinders</h4>
+      <p>3D surface reconstruction and shape statistics on large 3D grids, used by several research groups.</p>
+      <ul class="chips chips--small"><li>C</li><li>MPI</li></ul>
+<a class="link" href="https://github.com/deltasata/Shapefinders" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
+    <article class="card tile reveal" id="project-unresolved">
+      <div class="anim-slot tile__art" data-anim="project-unresolved" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
+      <h4>Overlapping-signal 1D CNN</h4>
+      <p>Simulated overlapping-signal time series and a 1D CNN that detects them; data on Zenodo.</p>
+      <ul class="chips chips--small"><li>Python</li><li>TensorFlow</li><li>emcee</li></ul>
+<a class="link" href="https://github.com/deltasata/Unresolved_LSNeIa_in_LSST" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
+  </div>
+</section>
+
+<!-- ================================================================ EXPERIENCE -->
+<section class="section" id="experience">
+  <header class="section__head reveal">
+    <p class="eyebrow">03 · Experience</p>
+    <h2>Where the work happened</h2>
+  </header>
+  <ol class="timeline">
+    <li class="timeline__item reveal">
+      <span class="timeline__node" aria-hidden="true"></span>
+      <p class="timeline__date">Jun 2025 – present</p>
+      <div class="card timeline__card">
+        <h3>Data Scientist / ML Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
+        <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
+<p class="timeline__context">Leads the search for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead the rare-event search of a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud: <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, seven transformer architectures (PyTorch) that classify irregular multi-band image sequences after every new frame; the best (factorized attention) <strong>beat the ConvLSTM baseline by 30%</strong> in validation loss.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, tracking across frames, two CNN quality scorers) as a lean containerized version that runs on small image tiles instead of full frames, making training-data generation at scale feasible on HPC.</li></ul>
+      </div>
+    </li>
+    <li class="timeline__item reveal">
+      <span class="timeline__node" aria-hidden="true"></span>
+      <p class="timeline__date">Mar 2023 – May 2025</p>
+      <div class="card timeline__card">
+        <h3>ML Research Scientist <span class="official">(Alexander von Humboldt Postdoctoral Fellow)</span></h3>
+        <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
+<p class="timeline__context">Competitive personal fellowship: deep learning and probabilistic modelling for rare-object detection in large imaging datasets.</p>        <ul class="bullets"><li>Built a ConvLSTM (TensorFlow) that flags rare events in multi-band image time series, rescoring each frame: <strong>70%+ recall at a 0.01% false-positive rate</strong> by frame 9; trained on 128,000 simulated sequences (~200 GB).</li><li>Co-developed an ensemble of five CNNs that screened <strong>110M images</strong>: 75% recall at a 0.01% false-positive rate; post-processing removed 29% of false candidates with no loss in recall, surfacing 92 previously unknown objects.</li><li>Co-authored a multi-sensor fusion study: a two-branch ResNet on high- and low-resolution imagery raised recall from 41% to <strong>55%</strong> at a 0.01% false-positive rate.</li><li>Contributed to a physics-informed variational autoencoder that classifies and models each object in milliseconds on one CPU, narrowing 80M objects to 13,831 candidates.</li><li>Detected overlapping events from 1D time series alone with a 1D CNN at a 3% false-positive rate, as early as 20 days after first detection.</li></ul>
+      </div>
+    </li>
+    <li class="timeline__item reveal">
+      <span class="timeline__node" aria-hidden="true"></span>
+      <p class="timeline__date">Sep 2019 – Nov 2022</p>
+      <div class="card timeline__card">
+        <h3>Machine Learning Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
+        <p class="timeline__org">Korea Astronomy and Space Science Institute (KASI) · Daejeon, South Korea</p>
+<p class="timeline__context">Time-series machine learning and Bayesian inference on noisy, blended signals.</p>        <ul class="bullets"><li>Developed a template-free method that finds overlapping, time-shifted copies of a signal in one noisy time series and measures the delays: <strong>under 5% false positives, 93%+ of delays recovered, under 0.5% bias</strong>.</li><li>Extended it to stochastic signals: ~100% precision and ~60% recall at realistic noise, confirmed on real data.</li><li>Built LSTM and 1D-CNN time-series classifiers, and Bayesian models with full uncertainties fitted by Hamiltonian Monte Carlo (Stan).</li><li>Received the institute's Best Postdoc Award (2022); the work was covered by national media in South Korea.</li></ul>
+      </div>
+    </li>
+    <li class="timeline__item reveal">
+      <span class="timeline__node" aria-hidden="true"></span>
+      <p class="timeline__date">Apr 2019 – Jul 2019</p>
+      <div class="card timeline__card">
+        <h3>Visiting Researcher, Data Analysis <span class="official">(Guest Postdoctoral Researcher)</span></h3>
+        <p class="timeline__org">Tartu Observatory, University of Tartu · Tartu, Estonia</p>
+<p class="timeline__context">Short research visit on 3D spatial data analysis.</p>        <ul class="bullets"><li>Measured the 3D shape and connectivity of 956 large-scale clusters in a 3D point cloud of 584,449 galaxies, with SURFGEN2; results released as open data.</li></ul>
+      </div>
+    </li>
+    <li class="timeline__item reveal">
+      <span class="timeline__node" aria-hidden="true"></span>
+      <p class="timeline__date">Jul 2012 – Mar 2019</p>
+      <div class="card timeline__card">
+        <h3>Researcher, Statistics &amp; Data Analysis <span class="official">(PhD Research Scholar in Astrophysics)</span></h3>
+        <p class="timeline__org">Inter-University Centre for Astronomy and Astrophysics (IUCAA) · Pune, India</p>
+<p class="timeline__context">Statistics, scientific computing and Bayesian modelling of large physical datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/MPI package for 3D surface modelling and shape statistics, with unsupervised-learning components; used by several international research groups.</li><li>Published 8 peer-reviewed papers (6 first-author) on Bayesian inference, statistical modelling and shape analysis.</li></ul>
+      </div>
+    </li>
+  </ol>
+  <div class="edu reveal">
+    <p class="eyebrow">Education</p>
+    <ul>
+      <li><span class="edu__year">2019</span><strong>PhD in Astrophysics</strong><span>Inter-University Centre for Astronomy and Astrophysics (IUCAA), Pune, India</span></li>
+      <li><span class="edu__year">2012</span><strong>M.Sc. in Physics</strong><span>Indian Institute of Technology (IIT) Kanpur, Kanpur, India</span></li>
+      <li><span class="edu__year">2010</span><strong>B.Sc. in Physics (Hons.)</strong><span>St. Paul&#39;s Cathedral Mission College, University of Calcutta, Kolkata, India</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ TOOLKIT -->
+<section class="section" id="toolkit">
+  <header class="section__head reveal">
+    <p class="eyebrow">04 · Toolkit</p>
+    <h2>What I work with</h2>
+  </header>
+  <div class="toolkit">
+    <div class="card toolkit__group reveal">
+      <h3>Machine learning</h3>
+      <ul class="chips chips--small"><li>PyTorch</li><li>TensorFlow / Keras</li><li>scikit-learn</li><li>Vision Transformers</li><li>CNN / ResNet / ConvNeXt / U-Net</li><li>ConvLSTM / LSTM</li><li>Graph neural networks</li><li>Multi-task learning</li><li>Ensembles &amp; gradient boosting (LightGBM)</li></ul>
+    </div>
+    <div class="card toolkit__group reveal">
+      <h3>Generative AI</h3>
+      <ul class="chips chips--small"><li>Generative models (diffusion, normalizing flows, VAEs)</li><li>Self-supervised pretraining (MAE, masked-image modelling)</li><li>Foundation-model fine-tuning</li><li>Clustering &amp; k-NN</li></ul>
+    </div>
+    <div class="card toolkit__group reveal">
+      <h3>Vision &amp; time series</h3>
+      <ul class="chips chips--small"><li>Image classification &amp; segmentation</li><li>Object detection &amp; tracking</li><li>Change detection (image differencing)</li><li>Multi-sensor image fusion</li><li>Satellite imagery (Sentinel-1/2, STAC)</li><li>Image time series</li><li>Online (per-frame) prediction</li><li>Time-series forecasting</li><li>Rare-event &amp; anomaly detection</li><li>Synthetic data generation</li></ul>
+    </div>
+    <div class="card toolkit__group reveal">
+      <h3>Statistics</h3>
+      <ul class="chips chips--small"><li>Bayesian inference</li><li>MCMC / Hamiltonian Monte Carlo (Stan, emcee)</li><li>Simulation-based inference</li><li>Uncertainty quantification</li><li>Probabilistic modelling</li><li>Hypothesis testing</li><li>Feature engineering &amp; EDA</li></ul>
+    </div>
+    <div class="card toolkit__group reveal">
+      <h3>LLMs &amp; agents</h3>
+      <ul class="chips chips--small"><li>Large language models</li><li>RAG</li><li>Agentic AI (LangGraph</li><li>OpenAI Agents SDK)</li><li>Model Context Protocol (MCP)</li></ul>
+    </div>
+    <div class="card toolkit__group reveal">
+      <h3>Data &amp; MLOps</h3>
+      <ul class="chips chips--small"><li>Google Cloud (GCP)</li><li>AWS</li><li>BigQuery / SQL</li><li>DuckDB</li><li>REST APIs</li><li>Kafka (Avro)</li><li>Parquet / pandas</li><li>Docker / Apptainer</li><li>Kubernetes</li><li>CI/CD</li><li>DVC</li><li>FastAPI</li><li>ONNX</li><li>Git</li><li>Linux</li><li>HPC (SLURM, NVIDIA &amp; AMD GPUs)</li></ul>
+    </div>
+    <div class="card toolkit__group reveal">
+      <h3>Programming</h3>
+      <ul class="chips chips--small"><li>Python</li><li>SQL</li><li>C / C++ (MPI)</li><li>R / Stan</li><li>Bash</li><li>Testing (pytest, ruff, mypy)</li></ul>
+    </div>
+    <div class="card toolkit__group toolkit__group--learning reveal">
+      <h3><span class="pulse"></span>Currently learning</h3>
+      <ul class="chips chips--small"><li>MLflow</li><li>Apache Spark</li><li>Google Earth Engine</li></ul>
+      <h3 class="toolkit__lang">Languages</h3>
+      <ul class="chips chips--small"><li>English <em>fluent</em></li><li>German <em>basic</em></li><li>Bengali <em>native</em></li><li>Hindi <em>fluent</em></li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ RESEARCH -->
+<section class="section" id="research">
+  <header class="section__head reveal">
+    <p class="eyebrow">05 · Research</p>
+    <h2>A research record behind the methods</h2>
+  </header>
+  <ul class="metrics metrics--research reveal">
+    <li class="metric"><span class="metric__value" data-count="35" data-suffix="+">35+</span><span class="metric__label">research papers</span></li>
+    <li class="metric"><span class="metric__value" data-count="30" data-suffix="+">30+</span><span class="metric__label">peer-reviewed in Q1 journals</span></li>
+    <li class="metric"><span class="metric__value" data-count="570" data-suffix="+">570+</span><span class="metric__label">citations</span></li>
+    <li class="metric"><span class="metric__value" data-count="14" data-suffix="">14</span><span class="metric__label">h-index</span></li>
+  </ul>
+  <div class="research">
+    <div class="card research__pubs reveal">
+      <h3>Selected first-author papers</h3>
+      <ol class="pubs">
+        <li><span class="pubs__title">HOLISMOKES XVII: Detecting strongly lensed SNe Ia from time series of multi-band LSST-like imaging data</span><span class="pubs__venue">Bag et al., A&amp;A 707, A123 (2026)</span></li>
+        <li><span class="pubs__title">OASIS: On-the-fly ASynchronous Image Stream classification</span><span class="pubs__venue">Bag et al., arXiv:2610.17168 (2026)</span></li>
+        <li><span class="pubs__title">Detecting unresolved lensed SNe Ia in LSST using blended light curves</span><span class="pubs__venue">Bag et al., A&amp;A 691, A100 (2024)</span></li>
+        <li><span class="pubs__title">Identifying lensed quasars and measuring their time delays from unresolved light curves</span><span class="pubs__venue">Bag et al., ApJ 927, 191 (2022)</span></li>
+        <li><span class="pubs__title">Be it unresolved: measuring time delays from lensed supernovae</span><span class="pubs__venue">Bag et al., ApJ 910, 65 (2021)</span></li>
+      </ol>
+      <a class="link" href="https://scholar.google.com/citations?user=tD5KssAAAAAJ&amp;hl=en" target="_blank" rel="noopener">All papers on Google Scholar <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="card research__lead reveal">
+      <h3>Leadership &amp; recognition</h3>
+      <ul class="bullets">
+        <li><strong>Lead of the rare-event search</strong> and working-group lead in a 10,000-member international collaboration (2025 – present)</li>
+<li><strong>Fellowships, grants &amp; awards:</strong> Alexander von Humboldt Fellowship (2023 – 2025); Wenner-Gren Fellowship (2023, Sweden); co-secured a DFG collaborative research centre grant (2024 – 2029); Best Postdoc Award, KASI (2022).</li><li><strong>Talks, reviewing &amp; mentoring:</strong> 50+ talks, including Stanford, Harvard, Imperial College and the University of Tokyo; reviewer for six journals, incl. Scientific Reports (Nature Portfolio); mentor and guest lecturer at TUM.</li>      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ LIFE -->
+<section class="section" id="life">
+  <header class="section__head reveal">
+    <p class="eyebrow">06 · Life</p>
+    <h2>Beyond the screen</h2>
+    <p class="section__lead">Away from the data, family comes first.</p>
+  </header>
+  <div class="gallery anim-slot" data-anim="life-gallery">
+    <figure class="gallery__item is-placeholder reveal is-wide" aria-hidden="true"><span></span></figure>
+    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
+    <figure class="gallery__item is-placeholder reveal is-tall" aria-hidden="true"><span></span></figure>
+    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
+    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
+    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
+  </div>
+</section>
+
+<!-- ================================================================ CONTACT -->
+<section class="section contact" id="contact">
+  <div class="card contact__card reveal">
+    <p class="eyebrow">07 · Contact</p>
+    <h2>Let&#39;s find the needle together.</h2>
+    <p class="section__lead">Open to Data Scientist and ML roles in Germany. EU Blue Card holder, based in Munich, available at short notice.</p>
+    <div class="contact__actions">
+      <a class="btn" href="mailto:satadru.iucaa@gmail.com">satadru.iucaa@gmail.com</a>
+      <button class="btn btn--ghost" type="button" data-copy="satadru.iucaa@gmail.com">Copy email</button>
+    </div>
+    <ul class="social">
+      <li><a href="https://www.linkedin.com/in/satadru-bag" target="_blank" rel="noopener">LinkedIn <span aria-hidden="true">↗</span></a></li>
+      <li><a href="https://github.com/deltasata" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a></li>
+      <li><a href="https://scholar.google.com/citations?user=tD5KssAAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar <span aria-hidden="true">↗</span></a></li>
+      <li><a href="Satadru_resume2.pdf" target="_blank" rel="noopener">CV (PDF) <span aria-hidden="true">↗</span></a></li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <p>© 2026 Satadru Bag · Munich, Germany</p>
+  <a href="#hero">Back to top ↑</a>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>
