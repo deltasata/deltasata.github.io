@@ -125,7 +125,7 @@
   <header class="section__head reveal">
     <p class="eyebrow">02 · Work</p>
     <h2>Selected projects</h2>
-    <p class="section__lead">Two personal projects first, then the code behind the rare-event search I lead, then earlier research software. Every repository is public.</p>
+    <p class="section__lead">Three highlights first, then the code behind the rare-event search I lead, then earlier research software. Every repository is public.</p>
   </header>
 
   <article class="card feature reveal" id="project-eo_agent">
@@ -158,7 +158,20 @@
       <div class="anim-slot anim-slot--wide" data-anim="eo-flood-map" aria-hidden="true"><span class="anim-slot__art anim-slot__art--earth"></span></div>
     </div>
   </article>
-  <article class="card feature reveal feature--flip" id="project-lens_vit">
+  <article class="card feature reveal feature--flip" id="project-oasis">
+    <div class="feature__body">
+      <p class="tag">Research · paper on arXiv</p>
+      <h3 class="feature__title">OASIS, transformers for asynchronous image streams</h3>
+      <p class="feature__text">Seven transformer architectures that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style latent readout, with Time2Vec time embeddings and causal masking; evaluated at the real 8.5% positive rate; paper on arXiv (2610.17168).</p>
+      <ul class="chips"><li>PyTorch</li><li>Transformers</li><li>GPU</li></ul>
+<a class="link" href="https://github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
+    <div class="feature__visual">
+      <ul class="statgrid">
+<li><span class="statgrid__value">7</span><span class="statgrid__label">transformer designs compared on the same data</span></li><li><span class="statgrid__value">30%</span><span class="statgrid__label">lower validation loss than the ConvLSTM baseline</span></li><li><span class="statgrid__value">8.5%</span><span class="statgrid__label">real positive rate in validation and test</span></li>      </ul>
+      <div class="anim-slot anim-slot--wide" data-anim="oasis-results" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+    </div>
+  </article>
+  <article class="card feature reveal feature--compact" id="project-lens_vit">
     <div class="feature__body">
       <p class="tag">Personal project</p>
       <h3 class="feature__title">Self-supervised ViTs for rare-object detection</h3>
@@ -168,7 +181,7 @@
     <div class="feature__visual">
       <ul class="statgrid">
 <li><span class="statgrid__value">0.9998</span><span class="statgrid__label">AUC on a locked 30,000-object holdout</span></li><li><span class="statgrid__value">90.6%</span><span class="statgrid__label">found at a 0.1% false-positive rate</span></li><li><span class="statgrid__value">~60</span><span class="statgrid__label">architectures compared</span></li>      </ul>
-      <div class="anim-slot anim-slot--wide" data-anim="vit-attention" aria-hidden="true"><span class="anim-slot__art anim-slot__art--grid"></span></div>
+      <div class="anim-slot anim-slot--wide anim-slot--thin" data-anim="vit-attention" aria-hidden="true"><span class="anim-slot__art anim-slot__art--grid"></span></div>
     </div>
   </article>
 
@@ -180,14 +193,8 @@
       <p>Stream and archive pipelines that pull events from six external data providers through REST APIs and Kafka (retries with back-off), cross-match them with a space-time SQL join that runs on both BigQuery and DuckDB, and store them as Parquet; cost-guarded BigQuery layer, typed config, CLI and 500+ automated tests (ruff, mypy) run in CI.</p>
       <ul class="chips chips--small"><li>Python</li><li>REST APIs</li><li>Kafka (Avro)</li><li>SQL (BigQuery</li><li>DuckDB)</li><li>Google Cloud Storage</li><li>Parquet</li><li>pytest</li></ul>
 <a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
-    <article class="card tile reveal" id="project-oasis">
-      <div class="anim-slot tile__art" data-anim="project-oasis" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
-      <h4>OASIS, transformers for asynchronous image streams</h4>
-      <p>Seven transformer architectures that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style latent readout, with Time2Vec time embeddings and causal masking; evaluated at the real 8.5% positive rate; paper on arXiv (2610.17168).</p>
-      <ul class="chips chips--small"><li>PyTorch</li><li>Transformers</li><li>GPU</li></ul>
-<a class="link" href="https://github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
     <article class="card tile reveal" id="project-aplite">
-      <div class="anim-slot tile__art" data-anim="project-aplite" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
+      <div class="anim-slot tile__art" data-anim="project-aplite" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
       <h4>Lean image-processing pipeline</h4>
       <p>The production pipeline&#39;s PSF-matched image differencing (change detection), object detection and measurement, and cross-frame association (tracking), run on small simulated cutouts to generate labelled training data at scale; every detection scored by two CNN quality models, with documented checks against production behaviour.</p>
       <ul class="chips chips--small"><li>Python</li><li>PyTorch</li><li>NumPy / SciPy</li><li>Apptainer</li></ul>

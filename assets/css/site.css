@@ -221,6 +221,12 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
 .feature__visual { position: relative; padding: clamp(24px, 3.5vw, 40px); border-left: 1px solid var(--line);
   background: linear-gradient(160deg, rgba(62, 230, 200, .05), rgba(155, 140, 255, .04) 60%, transparent); display: flex; flex-direction: column; gap: 22px; }
 .feature--flip .feature__body { order: 2; }
+.feature--compact { grid-template-columns: 1.15fr .85fr; }
+.feature--compact .feature__body { padding: clamp(24px, 3vw, 34px); }
+.feature--compact .feature__title { font-size: clamp(24px, 2.4vw, 30px); }
+.feature--compact .feature__text { font-size: 16px; }
+.feature--compact .feature__visual { padding: clamp(20px, 2.6vw, 30px); justify-content: center; }
+.anim-slot--thin { min-height: 64px; flex: 0 0 64px; }
 .feature--flip .feature__visual { border-left: 0; border-right: 1px solid var(--line); }
 
 .results__title { font: 500 12px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
@@ -245,7 +251,7 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
 .statgrid__value { display: block; font: 300 clamp(26px, 2.8vw, 36px)/1 var(--display); color: var(--ink); }
 .statgrid__label { display: block; margin-top: 8px; font-size: 13px; line-height: 1.4; color: var(--muted); }
 
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }   /* 2 tiles fill the row too */
 .tile { padding: 0 24px 26px; display: flex; flex-direction: column; }
 .tile h4 { font-size: 19px; font-weight: 600; margin-top: 22px; }
 .tile p { color: var(--muted); font-size: 15px; line-height: 1.6; margin: 10px 0 0; }
@@ -355,7 +361,6 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
 /* ------------------------------------------------------------------ responsive */
 @media (max-width: 1080px) {
   .nav__name { display: none; }
-  .grid { grid-template-columns: repeat(2, 1fr); }
   .toolkit { grid-template-columns: repeat(2, 1fr); }
   .toolkit__group:nth-child(n) { grid-column: span 1; }
   .toolkit__group:nth-child(1), .toolkit__group:nth-child(6) { grid-column: span 2; }
