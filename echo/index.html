@@ -344,7 +344,7 @@ function drawBlend(){
   for (let i = 1; i < r.length; i++){ ctx.strokeStyle = ramp(Math.abs(r[i] - r[i - 1]) / (2.5 * refRough));
     ctx.beginPath(); ctx.moveTo(X(sim.t[i - 1]), Y(r[i - 1])); ctx.lineTo(X(sim.t[i]), Y(r[i])); ctx.stroke(); }
   ctx.restore();
-  const k = Math.round((st.trial - DGRID[0]) / 0.5);
+  const k = Math.max(0, Math.min(DGRID.length - 1, Math.round((st.trial - DGRID[0]) / 0.5)));
   $("rDt").textContent = (st.trial >= 0 ? "+" : "") + st.trial.toFixed(1); $("rEps").textContent = an.S[k].toFixed(2) + "σ";
   document.querySelector(".truthL").style.display = st.truth ? "" : "none";
 }
@@ -363,7 +363,7 @@ function drawFluct(){
   if (showH) line(ctx, X, Y, DGRID, acfH, C.violet, 1.3, .95);   // drawn on top: it should trace Σ
   const d = classify(an.S);
   if (d.pair && d.label !== "none") for (const i of d.pair){ ctx.strokeStyle = C.coral; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X(DGRID[i]), Y(an.S[i]), 9, 0, 7); ctx.stroke(); }
-  const k = Math.round((st.trial - DGRID[0]) / 0.5);
+  const k = Math.max(0, Math.min(DGRID.length - 1, Math.round((st.trial - DGRID[0]) / 0.5)));
   ctx.strokeStyle = "rgba(238,241,248,.35)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(st.trial), Y(hi)); ctx.lineTo(X(st.trial), Y(lo)); ctx.stroke();
   ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(X(st.trial), Y(an.S[k]), 4.5, 0, 7); ctx.fill();
 }
@@ -397,14 +397,14 @@ $("echoOff").onclick = () => { st.echo = false; $("echoOff").setAttribute("aria-
 document.querySelectorAll("[data-noise]").forEach(b => b.onclick = () => {
   st.noise = +b.dataset.noise; document.querySelectorAll("[data-noise]").forEach(o => o.setAttribute("aria-pressed", String(o === b))); schedule(); });
 $("reroll").onclick = () => { st.seed = (Math.random() * 1e9) | 0; schedule(); };
-$("trial").addEventListener("input", e => { st.trial = +e.target.value; stopPlay(); drawAll(); });
+$("trial").addEventListener("input", e => { st.trial = Math.max(-120, Math.min(120, +e.target.value || 0)); stopPlay(); drawAll(); });
 function stopPlay(){ playing = false; $("play").textContent = "▶ Sweep"; if (raf) cancelAnimationFrame(raf); }
 $("play").onclick = () => {
   if (playing) return stopPlay();
   playing = true; $("play").textContent = "❚❚ Pause"; let last = performance.now();
   if (st.trial >= 119.5) st.trial = -120;
   const tick = now => { if (!playing) return; const dtms = now - last; last = now;
-    st.trial = Math.min(120, st.trial + Math.min(dtms, 50) * 0.024); $("trial").value = st.trial;
+    st.trial = Math.max(-120, Math.min(120, st.trial + Math.max(0, Math.min(dtms, 120)) * 0.024)); $("trial").value = st.trial;   // rAF time can precede the click: clamp
     try { drawAll(); } catch (err){ stopPlay(); showError(err); return; }
     if (st.trial >= 120) return stopPlay(); raf = requestAnimationFrame(tick); };
   raf = requestAnimationFrame(tick);
