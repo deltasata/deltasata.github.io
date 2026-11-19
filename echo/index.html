@@ -7,6 +7,19 @@
 <meta name="description" content="Interactive demo: detect a hidden, time-delayed copy of a random signal inside one blended time series, with the fluctuation-curve statistic of Bag et al. (2022, 2023).">
 <meta name="author" content="Satadru Bag">
 <meta name="theme-color" content="#05070f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Satadru Bag">
+<meta property="og:title" content="Find the hidden echo: an interactive explorer">
+<meta property="og:description" content="Detect a hidden, time-delayed copy of a random signal inside one blended time series, with no model of the signal. A model-free statistic from Bag et al., ApJ 2022 and 2023.">
+<meta property="og:url" content="https://deltasata.github.io/echo/">
+<meta property="og:image" content="https://deltasata.github.io/echo/echo-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A blended random signal, the signal rebuilt from it, and a roughness curve with a symmetric pair of dips at plus and minus 42 days that reveals a hidden echo.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Find the hidden echo: an interactive explorer">
+<meta name="twitter:description" content="Detect a hidden, time-delayed copy of a random signal inside one blended time series, with no model of the signal.">
+<meta name="twitter:image" content="https://deltasata.github.io/echo/echo-og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -27,6 +40,10 @@ html{background:var(--bg)}
 body{min-height:100vh; background:radial-gradient(1200px 700px at 15% -10%, var(--bg-2), var(--bg) 60%) no-repeat, var(--bg);
   color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased}
 .wrap{max-width:1200px; margin:0 auto; padding:clamp(20px,4vw,48px) clamp(16px,4vw,48px) 64px}
+.back{display:inline-block; font:12px var(--mono); color:var(--muted); text-decoration:none; margin:0 0 18px}
+.back:hover{color:var(--ink)}
+.note{font-size:12.5px; color:var(--muted); margin:10px 0 0; line-height:1.5}
+.note b{color:var(--ink-2); font-weight:600}
 .kicker{font-family:var(--mono); font-size:13px; letter-spacing:.12em; color:var(--teal); text-transform:uppercase}
 h1{font-family:var(--display); font-weight:300; font-size:clamp(32px,5vw,56px); line-height:1.05; margin:.25em 0 .3em}
 h1 em{font-style:italic; color:var(--teal)}
@@ -85,8 +102,8 @@ details[open] summary::before{content:"– "}
 </style>
 </head>
 <body>
-<a href="../" style="position:absolute;top:14px;left:16px;font:500 12px/1 'JetBrains Mono',monospace;letter-spacing:.08em;color:#8a93a9;text-decoration:none">← deltasata.github.io</a>
 <div class="wrap">
+  <a class="back" href="../">← deltasata.github.io</a>
   <div class="kicker">Interactive · model-free echo detection</div>
   <h1>Find the <em>hidden echo</em>.</h1>
   <p class="lede">The white curve is one blended signal: a random process plus a dimmer, delayed copy of itself, as when gravitational lensing makes two images of a quasar that a telescope cannot separate. Drag the trial delay. Wrong guesses rebuild a <em>rough</em> signal; the right one comes out smooth. The roughness curve below finds the echo with no template, no training data and no model of the signal.</p>
@@ -129,6 +146,8 @@ details[open] summary::before{content:"– "}
         <div class="stats" aria-live="polite">
           <div><b id="sP">–</b>precision</div><div><b id="sR">–</b>recall</div><div><b id="sE">–</b>median delay error</div>
         </div>
+        <p class="note"><b>Illustrative:</b> this demo's noise levels are not calibrated to the papers, so its numbers are not results.
+          Papers: 92% precision / 60% recall at survey-grade noise (autocorrelation: 53% / 40%).</p>
         <div class="key"><span><i style="background:var(--teal)"></i>echo found</span><span><i style="background:#3b4566"></i>correctly rejected</span><span><i style="background:var(--amber)"></i>echo missed</span><span><i style="background:var(--coral)"></i>false alarm</span></div>
       </section>
     </div>
