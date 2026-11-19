@@ -10,7 +10,7 @@
  *   });
  *
  * Put the code in its own file (e.g. assets/js/anim-eo-flood-map.js) and load it after site.js.
- * Slots: hero-orbit, eo-flood-map, vit-attention, project-<id>, life-gallery.
+ * Slots: hero-orbit, eo-flood-map, oasis-results, pipeline-dashboard, hidden-echo, vit-attention, project-<id>, life-gallery.
  * Add ?dev to the URL to see every slot labelled; ?static shows the page without scroll effects.
  */
 (() => {

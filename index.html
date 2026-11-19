@@ -91,7 +91,8 @@
   <div class="story">
     <div class="story__text">
       <p class="reveal">I build machine-learning systems that find rare events in large streams of images and time series. That rests on 12+ years of analysing large, noisy datasets, 7+ of them with hands-on machine learning.</p>
-      <p class="reveal">Right now that means a real-time pipeline on Google Cloud that ingests ~10 million events (~1 TB) every night, and deep-learning models (transformers, ConvLSTMs, CNN ensembles) that pick out the handful that matter, at false-positive rates around 0.01%. Before that I spent three years on time-series methods and Bayesian inference for noisy, overlapping signals, and wrote a C package for 3D shape analysis that other research groups have used.</p>
+      <p class="reveal">Right now that means a real-time pipeline on Google Cloud that ingests ~10 million events (~1 TB) every night, and deep-learning models (transformers, ConvLSTMs, CNN ensembles) that pick out the handful that matter, at false-positive rates around 0.01%.</p>
+      <p class="reveal">I came to data from theory: theoretical physics and higher mathematics first, then code, statistics and data analysis. It shows in the problems I like most, the ones with no off-the-shelf method. When a random signal overlaps with its own delayed copy, the data allow infinitely many exact ways to split them, and since 1996 the delay was thought impossible to find without a model of the signal. I showed that every wrong split comes out rougher, turned that into a new statistic and proved why it works. With no template and no training data it finds hidden time-delayed copies at 92% precision under survey-grade noise (53% for the standard autocorrelation), confirmed on real telescope data.</p>
       <p class="reveal">The data has been astronomical, but the problems are the ones industry has: irregular multi-band image sequences, sensor fusion, extreme class imbalance, predictions that must update with every new observation, and pipelines that must run unattended every night. They map directly onto Earth observation, forecasting, anomaly detection and computer vision.</p>
       <p class="reveal">I lead the rare-event search in a 10,000-member international collaboration (working-group lead since 2025); the pipeline and models above are built for that search. Alongside: generative models (diffusion, normalizing flows), simulation-based inference and LLM agents (EO-Agent, satellite-image question answering).</p>
       <p class="reveal">A large part of my time now goes into agentic AI for scientific research: agents propose, run and log hundreds of experiments, while every claim has to pass quality checks I set in advance (pre-registered comparisons, repeated seeds, locked holdout data, explainability tests that catch false positives and shortcuts).</p>
@@ -136,7 +137,7 @@
   <header class="section__head reveal">
     <p class="eyebrow">02 · Work</p>
     <h2>Selected projects</h2>
-    <p class="section__lead">Three highlights first: an Earth-observation agent, the real-time pipeline behind the rare-event search I lead, and the transformer search that found its best models. Every repository is public.</p>
+    <p class="section__lead">Four highlights first: an Earth-observation agent, the real-time pipeline behind the rare-event search I lead, the transformer search that found its best models, and a new statistic for a problem long thought impossible. Every repository is public.</p>
   </header>
 
   <article class="card feature reveal" id="project-eo_agent">
@@ -196,6 +197,19 @@
       <ul class="statgrid">
 <li><span class="statgrid__value">227</span><span class="statgrid__label">GPU training runs in the model search</span></li><li><span class="statgrid__value">19</span><span class="statgrid__label">architecture families compared</span></li><li><span class="statgrid__value">30%</span><span class="statgrid__label">lower loss than the recurrent baseline</span></li>      </ul>
       <div class="anim-slot anim-slot--wide" data-anim="oasis-results" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+    </div>
+  </article>
+  <article class="card feature reveal feature--flip" id="project-echo">
+    <div class="feature__body">
+      <p class="tag">Research · a new statistical method</p>
+      <h3 class="feature__title">Hidden echoes, a model-free statistic</h3>
+      <p class="feature__text">When a random signal overlaps with its own delayed copy, the data allow infinitely many exact ways to split them, and since 1996 the delay was thought impossible to find without a model of the signal. I showed that every wrong split comes out rougher, turned that into a new statistic, and proved why it works: it is driven by the autocorrelation of the signal&#39;s derivative, plus higher-order terms that sharpen the answer. No template, no prior, no training data. It finds hidden gravitationally lensed quasars in data too blurred to separate them: 92% precision at survey-grade noise (53% for the standard autocorrelation), confirmed on real telescope data.</p>
+      <ul class="chips"><li>Time-series statistics</li><li>Autocorrelation</li><li>Spectral analysis</li><li>Inverse filtering</li><li>Blind validation</li></ul>
+<a class="link" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): the method <span aria-hidden="true">↗</span></a><br><a class="link" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): the proof <span aria-hidden="true">↗</span></a><br>    </div>
+    <div class="feature__visual">
+      <ul class="statgrid">
+<li><span class="statgrid__value">92%</span><span class="statgrid__label">precision at survey-grade noise (autocorrelation: 53%)</span></li><li><span class="statgrid__value">100%</span><span class="statgrid__label">precision on clean blind tests, 95% recall</span></li><li><span class="statgrid__value">0</span><span class="statgrid__label">templates, priors or training data needed</span></li>      </ul>
+      <div class="anim-slot anim-slot--wide" data-anim="hidden-echo" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
     </div>
   </article>
 
@@ -270,7 +284,7 @@
       <div class="card timeline__card">
         <h3>Machine Learning Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Korea Astronomy and Space Science Institute (KASI) · Daejeon, South Korea</p>
-<p class="timeline__context">Time-series machine learning and Bayesian inference on noisy, blended signals.</p>        <ul class="bullets"><li>Developed a template-free method that finds overlapping, time-shifted copies of a signal in one noisy time series and measures the delays: <strong>under 5% false positives, 93%+ of delays recovered, under 0.5% bias</strong>.</li><li>Extended it to stochastic signals: ~100% precision and ~60% recall at realistic noise, confirmed on real data.</li><li>Built LSTM and 1D-CNN time-series classifiers and Bayesian models fitted with Hamiltonian Monte Carlo (Stan).</li><li>Received the institute's Best Postdoc Award (2022); the work was covered by national media in South Korea.</li></ul>
+<p class="timeline__context">New statistical methods, time-series machine learning and Bayesian inference for noisy, blended signals.</p>        <ul class="bullets"><li>Invented a <strong>model-free statistic</strong> that finds a hidden, time-delayed copy of a random signal in one blended time series, a problem held unsolvable without a signal model since 1996, and proved why it works: <strong>92% precision</strong> at survey-grade noise vs 53% for autocorrelation, delays within 3%, confirmed on real data.</li><li>A companion method for short transient signals finds overlapping copies and their delays: <strong>under 5% false positives, 93%+ of delays recovered, under 0.5% bias</strong>.</li><li>Designed a model-independent way to measure how galaxies rotate from noisy imaging spectroscopy (cross-correlation and iterative smoothing), later extended to low signal-to-noise data with a student I mentored.</li><li>Built LSTM and 1D-CNN time-series classifiers and Bayesian models fitted with Hamiltonian Monte Carlo (Stan).</li><li>Received the institute's Best Postdoc Award (2022); the work was covered by national media in South Korea.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -288,7 +302,7 @@
       <div class="card timeline__card">
         <h3>Researcher, Statistics &amp; Data Analysis <span class="official">(PhD Research Scholar in Astrophysics)</span></h3>
         <p class="timeline__org">Inter-University Centre for Astronomy and Astrophysics (IUCAA) · Pune, India</p>
-<p class="timeline__context">Statistics, scientific computing and Bayesian modelling of large physical datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/MPI package for 3D surface modelling and shape statistics, with unsupervised-learning components; used by several international research groups.</li><li>Published 8 peer-reviewed papers (6 first-author) on Bayesian inference, statistical modelling and shape analysis.</li></ul>
+<p class="timeline__context">From theoretical physics and higher mathematics to statistics, scientific computing and Bayesian modelling of large datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/MPI package for 3D surface modelling and shape statistics, with unsupervised-learning components; used by several international research groups.</li><li>Published 8 peer-reviewed papers (6 first-author) on theoretical physics, Bayesian inference and shape statistics.</li></ul>
       </div>
     </li>
   </ol>
@@ -323,7 +337,7 @@
     </div>
     <div class="card toolkit__group reveal">
       <h3>Statistics</h3>
-      <ul class="chips chips--small"><li>Bayesian inference</li><li>MCMC / Hamiltonian Monte Carlo (Stan, emcee)</li><li>Simulation-based inference</li><li>Uncertainty quantification</li><li>Probabilistic modelling</li><li>Hypothesis testing</li><li>Feature engineering &amp; EDA</li></ul>
+      <ul class="chips chips--small"><li>Bayesian inference</li><li>MCMC / Hamiltonian Monte Carlo (Stan, emcee)</li><li>Simulation-based inference</li><li>Uncertainty quantification</li><li>Probabilistic modelling</li><li>Hypothesis testing</li><li>Time-series statistics (autocorrelation, spectral analysis)</li><li>Feature engineering &amp; EDA</li></ul>
     </div>
     <div class="card toolkit__group reveal">
       <h3>LLMs &amp; agents</h3>
@@ -366,6 +380,7 @@
         <li><span class="pubs__title">OASIS: On-the-fly ASynchronous Image Stream classification</span><span class="pubs__venue">Bag et al., arXiv:2610.17168 (2026)</span></li>
         <li><span class="pubs__title">Detecting unresolved lensed SNe Ia in LSST using blended light curves</span><span class="pubs__venue">Bag et al., A&amp;A 691, A100 (2024)</span></li>
         <li><span class="pubs__title">Identifying lensed quasars and measuring their time delays from unresolved light curves</span><span class="pubs__venue">Bag et al., ApJ 927, 191 (2022)</span></li>
+        <li><span class="pubs__title">Harnessing unresolved lensed quasars: the mathematical foundation of the fluctuation curve</span><span class="pubs__venue">Bag et al., ApJ 950, 158 (2023)</span></li>
         <li><span class="pubs__title">Be it unresolved: measuring time delays from lensed supernovae</span><span class="pubs__venue">Bag et al., ApJ 910, 65 (2021)</span></li>
       </ol>
       <a class="link" href="https://scholar.google.com/citations?user=tD5KssAAAAAJ&amp;hl=en" target="_blank" rel="noopener">All papers on Google Scholar <span aria-hidden="true">↗</span></a>
