@@ -286,7 +286,9 @@ function classify(S){                               // Bag+22 conservative (C.1,
 }
 
 // ----------------------------------------------------------------- canvas charts
-function setupCanvas(cv){ const dpr = Math.min(window.devicePixelRatio || 1, 2), w = cv.clientWidth, h = +cv.getAttribute("height");
+function setupCanvas(cv){                           // CSS height read ONCE from the markup: cv.height is later in device pixels
+  if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), w = cv.clientWidth, h = +cv.dataset.h;
   const W = Math.round(w * dpr), H = Math.round(h * dpr);
   if (cv.width !== W || cv.height !== H){ cv.style.height = h + "px"; cv.width = W; cv.height = H; }   // resize only on change
   const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return {ctx, w, h}; }
