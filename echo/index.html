@@ -140,7 +140,7 @@ details[open] summary::before{content:"– "}
 
       <section class="card" aria-labelledby="h-blind">
         <h2 id="h-blind">Run your own blind test</h2>
-        <p class="sub">40 fresh random systems at the current noise, cadence and span: 20 with an echo (delay 10–100 d, ratio 0.3–0.9), 20 without. Same frozen selection rules for all.</p>
+        <p class="sub"><span id="nSys">40</span> fresh random systems at the current noise, cadence and span: <span id="nHalf">20</span> with an echo (delay 10–100 d, ratio 0.3–0.9), <span id="nHalf2">20</span> without. Same frozen selection rules for all. Runs in the background, so the page stays responsive.</p>
         <div class="row"><button id="runBlind">Run 40 systems</button><span id="blindNote" class="readout"></span></div>
         <div id="tally" class="tally" aria-hidden="true"></div>
         <div class="stats" aria-live="polite">
@@ -411,28 +411,51 @@ $("play").onclick = () => {
 };
 let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(drawAll, 120); });
 
-// ----------------------------------------------------------------- blind test
-const tally = $("tally"); for (let i = 0; i < 40; i++) tally.appendChild(document.createElement("span"));
-$("runBlind").onclick = () => {
+// ----------------------------------------------------------------- blind test (Web Worker, main-thread fallback)
+const NSYS = window.matchMedia("(max-width: 500px)").matches ? 20 : 40, NHALF = NSYS / 2;
+$("nSys").textContent = NSYS; $("nHalf").textContent = NHALF; $("nHalf2").textContent = NHALF;
+$("runBlind").textContent = `Run ${NSYS} systems`;
+const tally = $("tally"); for (let i = 0; i < NSYS; i++) tally.appendChild(document.createElement("span"));
+const WORKER_SRC = `"use strict";
+const TAU = ${TAU}, AMP = ${AMP}, MEAN = ${MEAN}, MU_TRY = ${MU_TRY};
+const DGRID = ${JSON.stringify(DGRID)};
+${[mulberry32, gauss, simulate, smooth, evalFlat, roughnessAt, zscore, deltasFor, analyse, classify].map(f => f.toString()).join("\n")}
+onmessage = (e) => { const {id, p, seed, noise} = e.data;
+  try { const d = classify(analyse(simulate(p, seed), noise).S); postMessage({id, label: d.label, est: d.est}); }
+  catch (err){ postMessage({id, error: String((err && err.message) || err)}); } };`;
+let worker = null;
+try { worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], {type: "text/javascript"}))); } catch (err){ worker = null; }
+function judge(p, seed, noise){                     // resolves to {label, est}; worker if possible, else inline
+  if (worker) return new Promise((res, rej) => {
+    const id = Math.random(); const h = e => { if (e.data.id !== id) return; worker.removeEventListener("message", h);
+      e.data.error ? rej(new Error(e.data.error)) : res(e.data); };
+    worker.addEventListener("message", h); worker.postMessage({id, p, seed, noise}); });
+  return new Promise(res => setTimeout(() => { const d = classify(analyse(simulate(p, seed), noise).S); res({label: d.label, est: d.est}); }, 0));
+}
+$("runBlind").onclick = async () => {
   const btn = $("runBlind"); btn.disabled = true; const dots = [...tally.children]; dots.forEach(d => d.className = "");
-  const order = [...Array(40).keys()].sort(() => Math.random() - .5); const base = (Math.random() * 1e9) | 0;
-  let tp = 0, fp = 0, fn = 0, tn = 0, errs = [], k = 0;
-  const step = () => { try { stepInner(); } catch (err){ btn.disabled = false; showError(err); } };
-  const stepInner = () => {
-    const i = order[k], echo = i < 20, r = mulberry32(base + i);
-    const p = {echo, dt: 10 + 90 * r(), mu: 0.3 + 0.6 * r(), noise: st.noise, cad: st.cad, span: st.span};
-    const s = simulate(p, base * 7 + i), a = analyse(s, st.noise), d = classify(a.S), found = d.label !== "none";
-    const ok = found && echo && Math.abs(d.est - p.dt) <= Math.max(3, 0.1 * p.dt);
-    let cls; if (echo){ if (ok){ tp++; cls = "tp"; errs.push(Math.abs(d.est - p.dt) / p.dt); } else if (found){ fp++; fn++; cls = "fp"; } else { fn++; cls = "fn"; } }
-    else { if (found){ fp++; cls = "fp"; } else { tn++; cls = "tn"; } }
-    dots[k].className = cls; k++;
-    $("sP").textContent = tp + fp ? Math.round(100 * tp / (tp + fp)) + "%" : "–";
-    $("sR").textContent = Math.round(100 * tp / 20) + "%";
-    errs.sort((x, y) => x - y); $("sE").textContent = errs.length ? (100 * errs[errs.length >> 1]).toFixed(1) + "%" : "–";
-    $("blindNote").textContent = `${k}/40`;
-    if (k < 40) setTimeout(step, 0); else { btn.disabled = false; $("blindNote").textContent = `noise ${st.noise || "none"} · cadence ${st.cad} d · span ${st.span} d`; }
-  };
-  setTimeout(step, 0);
+  const order = [...Array(NSYS).keys()].sort(() => Math.random() - .5); const base = (Math.random() * 1e9) | 0;
+  const noise = st.noise, cad = st.cad, span = st.span;
+  let tp = 0, fp = 0, fn = 0, tn = 0, errs = [];
+  try {
+    for (let k = 0; k < NSYS; k++){
+      const i = order[k], echo = i < NHALF, r = mulberry32(base + i);
+      const p = {echo, dt: 10 + 90 * r(), mu: 0.3 + 0.6 * r(), noise, cad, span};
+      let d;
+      try { d = await judge(p, base * 7 + i, noise); }
+      catch (err){ if (!worker) throw err; worker.terminate(); worker = null; d = await judge(p, base * 7 + i, noise); }
+      const found = d.label !== "none", ok = found && echo && Math.abs(d.est - p.dt) <= Math.max(3, 0.1 * p.dt);
+      let cls; if (echo){ if (ok){ tp++; cls = "tp"; errs.push(Math.abs(d.est - p.dt) / p.dt); } else if (found){ fp++; fn++; cls = "fp"; } else { fn++; cls = "fn"; } }
+      else { if (found){ fp++; cls = "fp"; } else { tn++; cls = "tn"; } }
+      dots[k].className = cls;
+      $("sP").textContent = tp + fp ? Math.round(100 * tp / (tp + fp)) + "%" : "–";
+      $("sR").textContent = Math.round(100 * tp / NHALF) + "%";
+      errs.sort((x, y) => x - y); $("sE").textContent = errs.length ? (100 * errs[errs.length >> 1]).toFixed(1) + "%" : "–";
+      $("blindNote").textContent = `${k + 1}/${NSYS}`;
+    }
+    $("blindNote").textContent = `noise ${noise || "none"} · cadence ${cad} d · span ${span} d`;
+  } catch (err){ showError(err); }
+  btn.disabled = false;
 };
 
 labels(); recompute();

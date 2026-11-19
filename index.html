@@ -203,24 +203,21 @@
     <div class="feature__body">
       <p class="tag">Research · a new statistical method</p>
       <h3 class="feature__title">Hidden echoes, a model-free statistic</h3>
-      <p class="feature__text">When a random signal overlaps with its own delayed copy, the data allow infinitely many exact ways to split them, and since 1996 the delay was thought impossible to find without a model of the signal. I showed that every wrong split comes out rougher, turned that into a new statistic, and proved why it works: it is driven by the autocorrelation of the signal&#39;s derivative, plus higher-order terms that sharpen the answer. No template, no prior, no training data. It finds hidden gravitationally lensed quasars in data too blurred to separate them: 92% precision at survey-grade noise (53% for the standard autocorrelation), confirmed on real telescope data.</p>
-      <ul class="chips"><li>Time-series statistics</li><li>Autocorrelation</li><li>Spectral analysis</li><li>Inverse filtering</li><li>Blind validation</li></ul>
-<a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><a class="link" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): the method <span aria-hidden="true">↗</span></a><br><a class="link" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): the proof <span aria-hidden="true">↗</span></a><br>    </div>
+      <p class="feature__text">When a random signal overlaps with its own delayed copy, infinitely many exact splits fit the data, and since 1996 the delay was thought impossible to find without a model of the signal. I showed that every wrong split comes out rougher, turned that into a new statistic and proved why it works. It finds hidden lensed quasars at 92% precision under survey-grade noise (53% for the standard autocorrelation).</p>
+      <ul class="chips"><li>Time-series statistics</li><li>Autocorrelation</li><li>Inverse filtering</li><li>Blind validation</li></ul>
+<a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>    </div>
     <div class="feature__visual">
       <ul class="statgrid">
-<li><span class="statgrid__value">92%</span><span class="statgrid__label">precision at survey-grade noise (autocorrelation: 53%)</span></li><li><span class="statgrid__value">100%</span><span class="statgrid__label">precision on clean blind tests, 95% recall</span></li><li><span class="statgrid__value">0</span><span class="statgrid__label">templates, priors or training data needed</span></li>      </ul>
-      <p class="echo-note">On real telescope data the method found a delay of 29.6 ± 1.5 days, against 33.7 ± 2.7 days measured from the separated images.</p>
-      <a class="link echo-try" href="echo/" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
-    </div>
-    <div class="feature__wide">
+<li><span class="statgrid__value">92%</span><span class="statgrid__label">precision under survey-grade noise</span></li><li><span class="statgrid__value">53%</span><span class="statgrid__label">the standard autocorrelation, same data</span></li><li><span class="statgrid__value">0</span><span class="statgrid__label">templates or training data needed</span></li>      </ul>
       <div class="anim-slot echo-video" data-anim="hidden-echo">
-        <video muted loop playsinline preload="none" poster="media/hero_echo_poster.jpg"
-               aria-label="Animation: a random signal and its dimmer, delayed echo merge into one observed curve. Sweeping a trial delay, the rebuilt signal turns rough for wrong guesses and smooth at the true delay, where the roughness curve shows a symmetric pair of dips, revealing the hidden echo.">
-          <source src="media/hero_echo.webm" type="video/webm">
-          <source src="media/hero_echo.mp4" type="video/mp4">
+        <video muted loop playsinline preload="none" poster="media/echo_story_poster.jpg"
+               aria-label="Animation in five steps: a random signal and its dimmer echo 30 days later; a telescope records only their sum; the signal is rebuilt for each guessed delay, rough when wrong and smooth when right; the roughness of each rebuild is measured; two dips at plus and minus 30 days reveal the echo.">
+          <source src="media/echo_story_1920.webm" type="video/webm">
+          <source src="media/echo_story_1920.mp4" type="video/mp4">
         </video>
       </div>
-      <p class="echo-note">Simulated data. The animation shows the method step by step: the hidden signal and its delayed echo, the single curve a telescope records, the rebuild at each trial delay (rough when wrong, smooth when right), and the roughness curve whose two dips give the delay.</p>
+      <p class="echo-note">Simulated, 30-day echo. On real data: 29.6 ± 1.5 days, against 33.7 ± 2.7 from the separated images.</p>
+      <a class="link echo-try" href="echo/?v=202611191153" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
     </div>
   </article>
 
