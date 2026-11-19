@@ -41,6 +41,16 @@
     slots: () => [...document.querySelectorAll('[data-anim]')].map((el) => el.dataset.anim),
   };
 
+  /* ------------------------------------------------------------ hidden-echo video: play only while visible */
+  SiteAnims.register('hidden-echo', (el, { reduce }) => {
+    const v = el.querySelector('video');
+    if (!v) return;
+    if (reduce || isStatic) { v.controls = true; return; }   // no autoplay: poster + controls
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => { v.controls = true; }); else v.pause(); },
+                                        { threshold: 0.25 });
+    io.observe(el);
+  });
+
   /* ------------------------------------------------------------ starfield */
   const canvas = document.getElementById('sky');
   const ctx = canvas.getContext('2d');

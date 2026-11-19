@@ -209,7 +209,15 @@
     <div class="feature__visual">
       <ul class="statgrid">
 <li><span class="statgrid__value">92%</span><span class="statgrid__label">precision at survey-grade noise (autocorrelation: 53%)</span></li><li><span class="statgrid__value">100%</span><span class="statgrid__label">precision on clean blind tests, 95% recall</span></li><li><span class="statgrid__value">0</span><span class="statgrid__label">templates, priors or training data needed</span></li>      </ul>
-      <div class="anim-slot anim-slot--wide" data-anim="hidden-echo" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+      <div class="anim-slot echo-video" data-anim="hidden-echo">
+        <video muted loop playsinline preload="none" poster="media/hero_echo_poster.jpg"
+               aria-label="Animation: a random signal and its dimmer, 42-day-delayed echo merge into one curve. Sweeping a trial delay, the rebuilt signal turns rough for wrong guesses and smooth at plus or minus 42 days, where the roughness curve shows a symmetric pair of dips, revealing the hidden echo.">
+          <source src="media/hero_echo.webm" type="video/webm">
+          <source src="media/hero_echo.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="echo-note">Simulated, noise-free data. On real telescope data the method found a delay of 29.6 ± 1.5 days, against 33.7 ± 2.7 days measured from the separated images.</p>
+      <a class="link echo-try" href="echo/" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
     </div>
   </article>
 
@@ -302,7 +310,7 @@
       <div class="card timeline__card">
         <h3>Researcher, Statistics &amp; Data Analysis <span class="official">(PhD Research Scholar in Astrophysics)</span></h3>
         <p class="timeline__org">Inter-University Centre for Astronomy and Astrophysics (IUCAA) · Pune, India</p>
-<p class="timeline__context">From theoretical physics and higher mathematics to statistics, scientific computing and Bayesian modelling of large datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/MPI package for 3D surface modelling and shape statistics, with unsupervised-learning components; used by several international research groups.</li><li>Published 8 peer-reviewed papers (6 first-author) on theoretical physics, Bayesian inference and shape statistics.</li></ul>
+<p class="timeline__context">From theoretical physics and higher mathematics to statistics, scientific computing and Bayesian modelling of large datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/MPI package for 3D surface modelling and shape statistics, with unsupervised-learning components; used by several international research groups.</li><li>Strong foundation in mathematics and statistics (differential equations, topology, Bayesian inference); 8 papers.</li></ul>
       </div>
     </li>
   </ol>

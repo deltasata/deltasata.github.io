@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hidden Echo Explorer</title>
+<meta name="description" content="Interactive demo: detect a hidden, time-delayed copy of a random signal inside one blended time series, with the fluctuation-curve statistic of Bag et al. (2022, 2023).">
+<meta name="author" content="Satadru Bag">
+<meta name="theme-color" content="#05070f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070f; --bg-2:#0a1026; --ink:#eef1f8; --ink-2:#c3c9d8; --muted:#8a93a9;
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
+  --glass:rgba(16,22,44,.55); --glass-2:rgba(22,30,58,.7);
+  --teal:#3ee6c8; --violet:#9b8cff; --amber:#ffb547; --coral:#ff7a59; --earth:#2f7bff;
+  --radius:22px; --radius-s:12px;
+  --display:"Fraunces","Iowan Old Style",Georgia,serif;
+  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{background:var(--bg)}
+body{min-height:100vh; background:radial-gradient(1200px 700px at 15% -10%, var(--bg-2), var(--bg) 60%) no-repeat, var(--bg);
+  color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px; margin:0 auto; padding:clamp(20px,4vw,48px) clamp(16px,4vw,48px) 64px}
+.kicker{font-family:var(--mono); font-size:13px; letter-spacing:.12em; color:var(--teal); text-transform:uppercase}
+h1{font-family:var(--display); font-weight:300; font-size:clamp(32px,5vw,56px); line-height:1.05; margin:.25em 0 .3em}
+h1 em{font-style:italic; color:var(--teal)}
+.lede{color:var(--ink-2); font-size:clamp(16px,1.6vw,19px); max-width:62ch; margin:0 0 28px}
+.grid{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:20px; align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 14px;
+  backdrop-filter:blur(8px)}
+.card + .card{margin-top:20px}
+.card h2{font-family:var(--sans); font-size:15px; font-weight:600; margin:0 0 2px; color:var(--ink)}
+.card .sub{font-size:13.5px; color:var(--muted); margin:0 0 10px}
+canvas{display:block; width:100%; border-radius:var(--radius-s)}
+.row{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2); margin:6px 2px 0}
+.legend i{display:inline-block; width:18px; height:3px; border-radius:2px; vertical-align:middle; margin-right:6px}
+.legend i.dash{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)!important; height:2px}
+.scrub{display:flex; align-items:center; gap:12px; margin:12px 2px 4px}
+.scrub input{flex:1; min-width:0}
+@media (max-width:600px){.scrub{flex-wrap:wrap}.scrub input{order:3; flex-basis:100%}}
+.readout{font-family:var(--mono); font-size:13.5px; color:var(--ink); white-space:nowrap}
+.readout span{color:var(--muted)}
+button{font:600 13.5px var(--sans); color:var(--bg); background:var(--teal); border:0; border-radius:999px;
+  padding:9px 16px; cursor:pointer; transition:transform .15s, opacity .15s}
+button.ghost{background:rgba(255,255,255,.06); color:var(--ink); border:1px solid var(--line-2)}
+button:hover{transform:translateY(-1px)} button:disabled{opacity:.5; cursor:default; transform:none}
+.ctrl{margin:0 0 16px}
+.ctrl label{display:flex; justify-content:space-between; font-size:13.5px; color:var(--ink-2); margin-bottom:6px}
+.ctrl label b{font:500 13px var(--mono); color:var(--ink)}
+input[type=range]{width:100%; accent-color:var(--teal); height:22px}
+.seg{display:flex; background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:999px; padding:3px}
+.seg button{flex:1; background:transparent; color:var(--ink-2); padding:6px 8px; font-weight:500; font-size:12.5px}
+.seg button[aria-pressed=true]{background:var(--glass-2); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line-2)}
+.check{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-2); margin:6px 0; cursor:pointer}
+.check input{accent-color:var(--teal); width:16px; height:16px}
+.verdict{border-radius:var(--radius-s); padding:12px 14px; margin-top:12px; border:1px solid var(--line-2);
+  background:rgba(255,255,255,.03)}
+.verdict .v{font-family:var(--display); font-size:22px; font-weight:400}
+.verdict .d{font:13px var(--mono); color:var(--ink-2); margin-top:2px}
+.verdict.yes .v{color:var(--coral)} .verdict.no .v{color:var(--ink-2)}
+.tally{display:grid; grid-template-columns:repeat(20,1fr); gap:5px; margin:12px 0 8px}
+.tally span{aspect-ratio:1; border-radius:50%; background:rgba(255,255,255,.07); transition:background .25s}
+.tally .tp{background:var(--teal)} .tally .tn{background:#3b4566} .tally .fp{background:var(--coral)} .tally .fn{background:var(--amber)}
+.stats{display:flex; gap:22px; flex-wrap:wrap; font-family:var(--mono); font-size:13px; color:var(--ink-2)}
+.stats b{display:block; font-family:var(--display); font-weight:400; font-size:28px; color:var(--ink)}
+.key{display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-top:8px}
+.key i{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle}
+details{margin-top:20px}
+summary{cursor:pointer; font-weight:600; color:var(--ink); list-style:none}
+summary::before{content:"+ "; color:var(--teal); font-family:var(--mono)}
+details[open] summary::before{content:"– "}
+.math{color:var(--ink-2); font-size:15px; max-width:80ch}
+.math code,.eq{font-family:var(--mono); font-size:13.5px; color:var(--ink)}
+.eq{display:block; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin:8px 0; overflow-x:auto; white-space:pre}
+.foot{margin-top:28px; font:12.5px var(--mono); color:var(--muted)}
+.foot a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+<a href="../" style="position:absolute;top:14px;left:16px;font:500 12px/1 'JetBrains Mono',monospace;letter-spacing:.08em;color:#8a93a9;text-decoration:none">← deltasata.github.io</a>
+<div class="wrap">
+  <div class="kicker">Interactive · model-free echo detection</div>
+  <h1>Find the <em>hidden echo</em>.</h1>
+  <p class="lede">The white curve is one blended signal: a random process plus a dimmer, delayed copy of itself, as when gravitational lensing makes two images of a quasar that a telescope cannot separate. Drag the trial delay. Wrong guesses rebuild a <em>rough</em> signal; the right one comes out smooth. The roughness curve below finds the echo with no template, no training data and no model of the signal.</p>
+
+  <div class="grid">
+    <div>
+      <section class="card" aria-labelledby="h-blend">
+        <h2 id="h-blend">The observed blend, un-mixed at the trial delay</h2>
+        <p class="sub">Rebuilt signal f<sub>rec</sub>(t) = F(t) − μF(t−Δt) + μ²F(t−2Δt) − …, coloured by local roughness (drawn with μ = 0.7 so the ghosts are visible; detection uses μ = 0.3, and the dips barely depend on μ).</p>
+        <canvas id="cBlend" height="300" aria-label="Light-curve chart"></canvas>
+        <div class="legend">
+          <span><i style="background:var(--ink)"></i>observed blend</span>
+          <span><i style="background:linear-gradient(90deg,var(--teal),var(--amber),var(--coral))"></i>rebuilt signal (smooth → rough)</span>
+          <span class="truthL" style="color:var(--teal)"><i class="dash"></i>hidden signal (truth)</span>
+        </div>
+        <div class="scrub">
+          <button id="play" class="ghost" aria-label="Sweep trial delay">▶ Sweep</button>
+          <input id="trial" type="range" min="-120" max="120" step="0.5" value="0" aria-label="Trial delay in days">
+          <div class="readout">Δt <b id="rDt">+0.0</b><span> d · Σ </span><b id="rEps">–</b></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-fc">
+        <h2 id="h-fc">Roughness of the rebuild vs trial delay: the fluctuation curve Σ(Δt)</h2>
+        <p class="sub">A symmetric pair of dips (besides the trivial one at 0) means an echo; their position is the delay.</p>
+        <canvas id="cFluct" height="250" aria-label="Fluctuation curve chart"></canvas>
+        <div class="legend">
+          <span><i style="background:var(--amber)"></i>Σ(Δt), fluctuation curve (Bag et al. 2022)</span>
+          <label class="check" style="margin:0"><input type="checkbox" id="oH"> <span><i style="background:var(--violet)"></i>−ACF of the derivative (the proof's leading term)</span></label>
+          <label class="check" style="margin:0"><input type="checkbox" id="oF"> <span><i style="background:var(--earth)"></i>−ACF of the raw blend (naive)</span></label>
+        </div>
+        <div id="verdict" class="verdict" aria-live="polite"><div class="v">–</div><div class="d"></div></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-blind">
+        <h2 id="h-blind">Run your own blind test</h2>
+        <p class="sub">40 fresh random systems at the current noise, cadence and span: 20 with an echo (delay 10–100 d, ratio 0.3–0.9), 20 without. Same frozen selection rules for all.</p>
+        <div class="row"><button id="runBlind">Run 40 systems</button><span id="blindNote" class="readout"></span></div>
+        <div id="tally" class="tally" aria-hidden="true"></div>
+        <div class="stats" aria-live="polite">
+          <div><b id="sP">–</b>precision</div><div><b id="sR">–</b>recall</div><div><b id="sE">–</b>median delay error</div>
+        </div>
+        <div class="key"><span><i style="background:var(--teal)"></i>echo found</span><span><i style="background:#3b4566"></i>correctly rejected</span><span><i style="background:var(--amber)"></i>echo missed</span><span><i style="background:var(--coral)"></i>false alarm</span></div>
+      </section>
+    </div>
+
+    <aside class="card" aria-label="Simulation controls">
+      <h2>The hidden truth</h2>
+      <p class="sub">What the method never sees.</p>
+      <div class="ctrl"><div class="seg" role="group" aria-label="Echo present">
+        <button id="echoOn" aria-pressed="true">Echo</button><button id="echoOff" aria-pressed="false">No echo</button></div></div>
+      <div class="ctrl"><label for="dt">true delay <b id="vDt"></b></label><input id="dt" type="range" min="5" max="100" step="0.5" value="42"></div>
+      <div class="ctrl"><label for="mu">echo brightness ratio <b id="vMu"></b></label><input id="mu" type="range" min="0.1" max="0.95" step="0.01" value="0.75"></div>
+      <h2 style="margin-top:6px">The telescope</h2>
+      <p class="sub">How the blend is observed.</p>
+      <div class="ctrl"><label>noise level <b id="vNs"></b></label><div class="seg" role="group" aria-label="Noise level">
+        <button data-noise="0" aria-pressed="true">none</button><button data-noise="0.05" aria-pressed="false">low</button><button data-noise="0.15" aria-pressed="false">high</button></div></div>
+      <div class="ctrl"><label for="cad">cadence <b id="vCad"></b></label><input id="cad" type="range" min="1" max="6" step="1" value="1"></div>
+      <div class="ctrl"><label for="span">observing span <b id="vSpan"></b></label><input id="span" type="range" min="250" max="1200" step="50" value="500"></div>
+      <label class="check"><input type="checkbox" id="truth" checked> reveal the hidden truth</label>
+      <div class="row" style="margin-top:12px"><button id="reroll" class="ghost">New random signal</button></div>
+      <p class="sub" style="margin-top:14px">Signal: damped random walk (τ ≈ 316 d), the standard model for quasar variability. Trial ratio μ fixed at 0.3. With noise, the blend is pre-smoothed at three scales and the curves are combined, as in the paper.</p>
+    </aside>
+  </div>
+
+  <details>
+    <summary>The statistics, in four lines</summary>
+    <div class="math">
+      <p><b>Model.</b> Only the sum is observed:</p>
+      <span class="eq">F(t) = f(t) + μ̂ · f(t − Δt̂)        f: unknown random signal, μ̂ ≤ 1, Δt̂: delay</span>
+      <p><b>Degeneracy.</b> For <em>any</em> trial (μ, Δt) the blend inverts exactly, so every guess fits the data perfectly:</p>
+      <span class="eq">f_rec(t) = Σₙ (−μ)ⁿ F(t − nΔt)</span>
+      <p><b>The statistic.</b> Score each guess by the roughness of its rebuild, then standardise across guesses:</p>
+      <span class="eq">ε(Δt) = Σᵢ [f_rec(tᵢ₊₁) − f_rec(tᵢ)]²        Σ(Δt) = (ε − ⟨ε⟩) / σ_ε</span>
+      <p><b>Why it works (the proof).</b> With H the difference series of F, ε expands as a power series in μ whose leading term is the autocorrelation of the derivative. Differencing whitens the slowly varying signal, so the echo shows up as sharp dips at ±Δt̂, and the odd higher-order terms deepen them further:</p>
+      <span class="eq">ε(Δt) ≈ ε₀ [1 − 2μ · ACF(H; Δt)] + O(μ²)        ε(0) = ε₀ / (1+μ)²</span>
+      <p>Toggle the two autocorrelation overlays above to see it: the derivative ACF tracks Σ, while the raw-blend ACF is swamped by the signal's long memory.</p>
+    </div>
+  </details>
+
+  <p class="foot">Method: S. Bag, A. Shafieloo, K. Liao &amp; T. Treu, <a href="https://arxiv.org/abs/2110.15315">ApJ 927, 191 (2022)</a> · S. Bag, W. Sohn, A. Shafieloo &amp; K. Liao, <a href="https://arxiv.org/abs/2209.11078">ApJ 950, 158 (2023)</a>. Simulated data, computed live in your browser.</p>
+</div>
+
+<script>
+(() => {
+"use strict";
+const C = {ink:"#eef1f8", ink2:"#c3c9d8", muted:"#8a93a9", teal:"#3ee6c8", violet:"#9b8cff", amber:"#ffb547",
+           coral:"#ff7a59", earth:"#2f7bff", grid:"rgba(255,255,255,.07)"};
+const TAU = 316.2, AMP = 1.0, MEAN = 10.0, MU_TRY = 0.3, MU_SHOW = 0.7;
+const DGRID = []; for (let d = -120; d <= 120.0001; d += 0.5) DGRID.push(+d.toFixed(2));
+
+// ----------------------------------------------------------------- random numbers
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r){ let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }
+
+// ----------------------------------------------------------------- simulation
+function simulate(p, seed){
+  const r = mulberry32(seed), step = 0.25, pad = 105;
+  const n = Math.ceil((p.span + 2 * pad) / step) + 1, g0 = -pad;
+  const f = new Float64Array(n); const a = Math.exp(-step / TAU), s = AMP * Math.sqrt(1 - a * a);
+  f[0] = gauss(r) * AMP; for (let i = 1; i < n; i++) f[i] = a * f[i - 1] + s * gauss(r);
+  const at = (t) => { const x = (t - g0) / step, i = Math.floor(x), w = x - i; return MEAN + f[i] * (1 - w) + f[i + 1] * w; };
+  const N = Math.floor(p.span / p.cad) + 1, t = new Float64Array(N), F = new Float64Array(N),
+        f1 = new Float64Array(N), f2 = new Float64Array(N);
+  const nr = mulberry32(seed ^ 0x9e3779b9);
+  for (let i = 0; i < N; i++){
+    t[i] = i * p.cad; f1[i] = at(t[i]); f2[i] = p.echo ? p.mu * at(t[i] - p.dt) : 0;
+    F[i] = f1[i] + f2[i] + p.noise * gauss(nr);
+  }
+  return {t, F, f1, f2, cad: p.cad};
+}
+
+// ----------------------------------------------------------------- statistics
+function smooth(t, F, delta, nit = 10){            // iterative Gaussian smoothing (Bag+22, App. A)
+  const N = F.length, w = Math.ceil(4 * delta / (t[1] - t[0]));
+  let mean = 0; for (let i = 0; i < N; i++) mean += F[i]; mean /= N;
+  let S = new Float64Array(N).fill(mean); const K = []; const norm = new Float64Array(N);
+  for (let j = 0; j < N; j++){ const lo = Math.max(0, j - w), hi = Math.min(N - 1, j + w), k = [];
+    for (let i = lo; i <= hi; i++){ const v = Math.exp(-((t[j] - t[i]) ** 2) / (2 * delta * delta)); k.push(v); norm[j] += v; }
+    K.push([lo, k]); }
+  for (let it = 0; it < nit; it++){ const R = new Float64Array(N); for (let i = 0; i < N; i++) R[i] = F[i] - S[i];
+    const S2 = new Float64Array(N);
+    for (let j = 0; j < N; j++){ const [lo, k] = K[j]; let acc = 0; for (let q = 0; q < k.length; q++) acc += k[q] * R[lo + q];
+      S2[j] = S[j] + acc / norm[j]; }
+    S = S2; }
+  return S;
+}
+function evalFlat(t0, dtc, F, s){                   // linear interpolation, flat outside the observed range
+  const N = F.length, x = (s - t0) / dtc;
+  if (x <= 0) return F[0]; if (x >= N - 1) return F[N - 1];
+  const i = x | 0, w = x - i; return F[i] * (1 - w) + F[i + 1] * w;
+}
+function reconstruct(t, F, mu, d){
+  const N = F.length, out = new Float64Array(N), t0 = t[0], c = t[1] - t[0];
+  const nt = Math.ceil(Math.log(1e-7) / Math.log(mu)) + 1;
+  for (let i = 0; i < N; i++){ let acc = 0, m = 1;
+    for (let n = 0; n < nt; n++){ acc += m * evalFlat(t0, c, F, t[i] - n * d); m *= -mu; }
+    out[i] = acc; }
+  return out;
+}
+function roughness(r){ let e = 0; for (let i = 1; i < r.length; i++){ const q = r[i] - r[i - 1]; e += q * q; } return e; }
+function zscore(a){ const n = a.length; let m = 0; for (const v of a) m += v; m /= n; let s = 0; for (const v of a) s += (v - m) ** 2;
+  s = Math.sqrt(s / n) || 1; return a.map(v => (v - m) / s); }
+function deltasFor(cad){ const k = Math.max(1, cad / 3); return [3 * k, 4 * k, 5 * k]; }
+function analyse(sim, noise){
+  const versions = noise > 0 ? deltasFor(sim.cad).map(d => smooth(sim.t, sim.F, d)) : [sim.F];
+  const eps = DGRID.map(d => versions.reduce((acc, Fv) => acc + roughness(reconstruct(sim.t, Fv, MU_TRY, d)), 0));
+  return {versions, eps, S: zscore(eps)};
+}
+function acf(t, x, d){                              // Pearson ACF over the overlap, linear-interpolated lag
+  const c = t[1] - t[0], N = x.length; let a = [], b = [];
+  for (let i = 0; i < N; i++){ const s = t[i] - d; if (s < t[0] || s > t[N - 1]) continue; a.push(x[i]); b.push(evalFlat(t[0], c, x, s)); }
+  if (a.length < 3) return 0; const ma = a.reduce((p, v) => p + v, 0) / a.length, mb = b.reduce((p, v) => p + v, 0) / b.length;
+  let sab = 0, saa = 0, sbb = 0; for (let i = 0; i < a.length; i++){ const u = a[i] - ma, v = b[i] - mb; sab += u * v; saa += u * u; sbb += v * v; }
+  return sab / Math.sqrt(saa * sbb);
+}
+function classify(S){                               // Bag+22 conservative (C.1, C.2) + relaxed rules
+  const mins = []; for (let i = 1; i < S.length - 1; i++) if (S[i] < S[i - 1] && S[i] <= S[i + 1] && Math.abs(DGRID[i]) > 1.5) mins.push(i);
+  const neg = mins.filter(i => DGRID[i] < 0).sort((a, b) => S[a] - S[b]), pos = mins.filter(i => DGRID[i] > 0).sort((a, b) => S[a] - S[b]);
+  if (!neg.length || !pos.length) return {label: "none"};
+  const a = neg[0], b = pos[0], da = -DGRID[a], db = DGRID[b];
+  if (Math.abs(da - db) > Math.max(3, 0.15 * Math.max(da, db))) return {label: "none"};
+  const est = (da + db) / 2, pair = [a, b], others = mins.filter(i => i !== a && i !== b).map(i => S[i]);
+  if (S[a] < -2 && S[b] < -2 && !others.some(o => o <= -2)) return {label: "confirmed", est, pair};
+  if (S[a] > -1 || S[b] > -1) return {label: "none", pair};
+  const tn = neg.length > 1 ? S[neg[1]] : 0, tp = pos.length > 1 ? S[pos[1]] : 0;
+  if (S[a] <= 1.5 * tn && S[b] <= 1.5 * tp) return {label: (tn > -1 && tp > -1) ? "highly probable" : "probable", est, pair};
+  return {label: "none", pair};
+}
+
+// ----------------------------------------------------------------- canvas charts
+function setupCanvas(cv){ const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = +cv.getAttribute("height");
+  cv.style.height = h + "px"; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return {ctx, w, h}; }
+function frame(ctx, w, h, xl, yl, opt){
+  const m = {l: opt.yTicks ? 44 : 10, r: 10, t: 10, b: 40}, pw = w - m.l - m.r, ph = h - m.t - m.b;
+  const X = x => m.l + (x - xl[0]) / (xl[1] - xl[0]) * pw, Y = y => m.t + (1 - (y - yl[0]) / (yl[1] - yl[0])) * ph;
+  ctx.clearRect(0, 0, w, h); ctx.font = "11.5px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.fillStyle = C.muted;
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+  for (const x of opt.xTicks){ ctx.beginPath(); ctx.moveTo(X(x), m.t); ctx.lineTo(X(x), m.t + ph); ctx.stroke(); ctx.fillText(x, X(x), m.t + ph + 16); }
+  if (opt.yTicks){ ctx.textAlign = "right"; for (const y of opt.yTicks){ ctx.beginPath(); ctx.moveTo(m.l, Y(y)); ctx.lineTo(m.l + pw, Y(y)); ctx.stroke(); ctx.fillText(y, m.l - 8, Y(y) + 4); } }
+  ctx.textAlign = "center"; ctx.font = "12.5px Manrope, sans-serif"; ctx.fillText(opt.xLabel, m.l + pw / 2, h - 4);
+  return {X, Y, m, pw, ph};
+}
+function line(ctx, X, Y, xs, ys, color, lw = 2, alpha = 1, dash = null){
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineJoin = "round"; if (dash) ctx.setLineDash(dash);
+  ctx.beginPath(); for (let i = 0; i < xs.length; i++){ const px = X(xs[i]), py = Y(ys[i]); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke(); ctx.restore();
+}
+function glow(ctx, X, Y, xs, ys, color, lw = 2){ line(ctx, X, Y, xs, ys, color, lw * 4, .07); line(ctx, X, Y, xs, ys, color, lw * 2, .12); line(ctx, X, Y, xs, ys, color, lw, 1); }
+function hex(c){ return [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)); }
+const RAMP = [C.teal, "#b8f0e6", C.amber, C.coral].map(hex);
+function ramp(u){ u = Math.min(1, Math.max(0, u)) * (RAMP.length - 1); const i = Math.min(RAMP.length - 2, Math.floor(u)), w = u - i;
+  const c = RAMP[i].map((v, k) => Math.round(v * (1 - w) + RAMP[i + 1][k] * w)); return `rgb(${c})`; }
+
+// ----------------------------------------------------------------- state & UI
+const $ = id => document.getElementById(id);
+const st = {echo: true, dt: 42, mu: 0.75, noise: 0, cad: 1, span: 500, seed: 28, trial: 0, truth: true};
+let sim, an, refRough, acfH = null, acfF = null, playing = false, raf = null;
+
+function recompute(){
+  sim = simulate(st, st.seed); an = analyse(sim, st.noise); acfH = acfF = null;
+  const shown = an.versions[Math.floor(an.versions.length / 2)];
+  let s = 0; for (let i = 1; i < sim.f1.length; i++) s += (sim.f1[i] - sim.f1[i - 1]) ** 2;
+  refRough = Math.sqrt(s / (sim.f1.length - 1)) || 1; an.shown = shown;
+  if ($("oH").checked) computeACF();
+  drawAll(); verdict();
+}
+function computeACF(){
+  if (!acfH){ const H = new Float64Array(an.shown.length - 1); for (let i = 0; i < H.length; i++) H[i] = an.shown[i + 1] - an.shown[i];
+    const tH = sim.t.slice(0, -1); acfH = zscore(DGRID.map(d => acf(tH, H, d))).map(v => -v); }
+  if (!acfF) acfF = zscore(DGRID.map(d => acf(sim.t, an.shown, d))).map(v => -v);
+}
+function drawBlend(){
+  const cv = $("cBlend"), {ctx, w, h} = setupCanvas(cv);
+  const all = [...sim.F, ...sim.f1]; const lo = Math.min(...all) - 0.6, hi = Math.max(...sim.F) + 0.6;
+  const xt = []; for (let x = 0; x <= st.span; x += st.span > 700 ? 200 : 100) xt.push(x);
+  const {X, Y} = frame(ctx, w, h, [0, st.span], [lo, hi], {xTicks: xt, xLabel: "time (days)"});
+  if (st.noise > 0){ ctx.fillStyle = "rgba(238,241,248,.28)"; for (let i = 0; i < sim.t.length; i++){ ctx.beginPath(); ctx.arc(X(sim.t[i]), Y(sim.F[i]), 1.4, 0, 7); ctx.fill(); } }
+  glow(ctx, X, Y, sim.t, an.shown, C.ink, 1.6);
+  if (st.truth){ line(ctx, X, Y, sim.t, sim.f1, C.teal, 1.5, .7, [3, 4]); }
+  const r = reconstruct(sim.t, an.shown, MU_SHOW, st.trial);
+  ctx.save(); ctx.lineWidth = 2.4; ctx.lineCap = "round";
+  for (let i = 1; i < r.length; i++){ ctx.strokeStyle = ramp(Math.abs(r[i] - r[i - 1]) / (2.5 * refRough));
+    ctx.beginPath(); ctx.moveTo(X(sim.t[i - 1]), Y(r[i - 1])); ctx.lineTo(X(sim.t[i]), Y(r[i])); ctx.stroke(); }
+  ctx.restore();
+  const k = Math.round((st.trial - DGRID[0]) / 0.5);
+  $("rDt").textContent = (st.trial >= 0 ? "+" : "") + st.trial.toFixed(1); $("rEps").textContent = an.S[k].toFixed(2) + "σ";
+  document.querySelector(".truthL").style.display = st.truth ? "" : "none";
+}
+function drawFluct(){
+  const cv = $("cFluct"), {ctx, w, h} = setupCanvas(cv);
+  let lo = Math.min(...an.S), hi = Math.max(...an.S);
+  const showH = $("oH").checked, showF = $("oF").checked; if (showH || showF) computeACF();
+  if (showH){ lo = Math.min(lo, ...acfH); hi = Math.max(hi, ...acfH); } if (showF){ lo = Math.min(lo, ...acfF); hi = Math.max(hi, ...acfF); }
+  lo = Math.floor(lo - .5); hi = Math.ceil(hi + .5);
+  const yt = []; for (let y = Math.ceil(lo / 2) * 2; y <= hi; y += 2) yt.push(y);
+  const {X, Y, m, pw} = frame(ctx, w, h, [-120, 120], [lo, hi], {xTicks: [-100, -50, 0, 50, 100], yTicks: yt, xLabel: "trial delay Δt (days)"});
+  ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(138,147,169,.6)"; ctx.beginPath(); ctx.moveTo(m.l, Y(-2)); ctx.lineTo(m.l + pw, Y(-2)); ctx.stroke(); ctx.restore();
+  if (st.truth && st.echo){ for (const s of [-1, 1]){ ctx.save(); ctx.setLineDash([2, 5]); ctx.strokeStyle = "rgba(255,122,89,.55)"; ctx.beginPath(); ctx.moveTo(X(s * st.dt), Y(hi)); ctx.lineTo(X(s * st.dt), Y(lo)); ctx.stroke(); ctx.restore(); } }
+  if (showF) line(ctx, X, Y, DGRID, acfF, C.earth, 1.4, .85);
+  glow(ctx, X, Y, DGRID, an.S, C.amber, 1.8);
+  if (showH) line(ctx, X, Y, DGRID, acfH, C.violet, 1.3, .95);   // drawn on top: it should trace Σ
+  const d = classify(an.S);
+  if (d.pair && d.label !== "none") for (const i of d.pair){ ctx.strokeStyle = C.coral; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X(DGRID[i]), Y(an.S[i]), 9, 0, 7); ctx.stroke(); }
+  const k = Math.round((st.trial - DGRID[0]) / 0.5);
+  ctx.strokeStyle = "rgba(238,241,248,.35)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(st.trial), Y(hi)); ctx.lineTo(X(st.trial), Y(lo)); ctx.stroke();
+  ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(X(st.trial), Y(an.S[k]), 4.5, 0, 7); ctx.fill();
+}
+function drawAll(){ drawBlend(); drawFluct(); }
+function verdict(){
+  const d = classify(an.S), el = $("verdict");
+  const yes = d.label !== "none";
+  el.className = "verdict " + (yes ? "yes" : "no");
+  el.querySelector(".v").textContent = yes ? `Echo detected · ${d.label}` : "No echo detected";
+  let s = yes ? `estimated |Δt| = ${d.est.toFixed(1)} d` : "no symmetric pair of significant dips";
+  if (st.truth) s += st.echo ? `  ·  truth: ${st.dt.toFixed(1)} d, ratio ${st.mu.toFixed(2)}` : "  ·  truth: no echo";
+  el.querySelector(".d").textContent = s;
+}
+function labels(){
+  $("vDt").textContent = st.dt.toFixed(1) + " d"; $("vMu").textContent = st.mu.toFixed(2);
+  $("vCad").textContent = st.cad + (st.cad === 1 ? " day" : " days"); $("vSpan").textContent = st.span + " d";
+  $("vNs").textContent = st.noise ? `rms ${st.noise}` : "none";
+  $("dt").disabled = $("mu").disabled = !st.echo;
+}
+
+let pending = null;
+function schedule(){ labels(); if (pending) cancelAnimationFrame(pending); pending = requestAnimationFrame(() => { pending = null; recompute(); }); }
+$("dt").addEventListener("input", e => { st.dt = +e.target.value; schedule(); });
+$("mu").addEventListener("input", e => { st.mu = +e.target.value; schedule(); });
+$("cad").addEventListener("input", e => { st.cad = +e.target.value; schedule(); });
+$("span").addEventListener("input", e => { st.span = +e.target.value; schedule(); });
+$("truth").addEventListener("change", e => { st.truth = e.target.checked; drawAll(); verdict(); });
+$("oH").addEventListener("change", drawFluct); $("oF").addEventListener("change", drawFluct);
+$("echoOn").onclick = () => { st.echo = true; $("echoOn").setAttribute("aria-pressed", "true"); $("echoOff").setAttribute("aria-pressed", "false"); schedule(); };
+$("echoOff").onclick = () => { st.echo = false; $("echoOff").setAttribute("aria-pressed", "true"); $("echoOn").setAttribute("aria-pressed", "false"); schedule(); };
+document.querySelectorAll("[data-noise]").forEach(b => b.onclick = () => {
+  st.noise = +b.dataset.noise; document.querySelectorAll("[data-noise]").forEach(o => o.setAttribute("aria-pressed", String(o === b))); schedule(); });
+$("reroll").onclick = () => { st.seed = (Math.random() * 1e9) | 0; schedule(); };
+$("trial").addEventListener("input", e => { st.trial = +e.target.value; stopPlay(); drawAll(); });
+function stopPlay(){ playing = false; $("play").textContent = "▶ Sweep"; if (raf) cancelAnimationFrame(raf); }
+$("play").onclick = () => {
+  if (playing) return stopPlay();
+  playing = true; $("play").textContent = "❚❚ Pause"; let last = performance.now();
+  if (st.trial >= 119.5) st.trial = -120;
+  const tick = now => { if (!playing) return; const dtms = now - last; last = now;
+    st.trial = Math.min(120, st.trial + dtms * 0.024); $("trial").value = st.trial; drawAll();
+    if (st.trial >= 120) return stopPlay(); raf = requestAnimationFrame(tick); };
+  raf = requestAnimationFrame(tick);
+};
+let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(drawAll, 120); });
+
+// ----------------------------------------------------------------- blind test
+const tally = $("tally"); for (let i = 0; i < 40; i++) tally.appendChild(document.createElement("span"));
+$("runBlind").onclick = () => {
+  const btn = $("runBlind"); btn.disabled = true; const dots = [...tally.children]; dots.forEach(d => d.className = "");
+  const order = [...Array(40).keys()].sort(() => Math.random() - .5); const base = (Math.random() * 1e9) | 0;
+  let tp = 0, fp = 0, fn = 0, tn = 0, errs = [], k = 0;
+  const step = () => {
+    const i = order[k], echo = i < 20, r = mulberry32(base + i);
+    const p = {echo, dt: 10 + 90 * r(), mu: 0.3 + 0.6 * r(), noise: st.noise, cad: st.cad, span: st.span};
+    const s = simulate(p, base * 7 + i), a = analyse(s, st.noise), d = classify(a.S), found = d.label !== "none";
+    const ok = found && echo && Math.abs(d.est - p.dt) <= Math.max(3, 0.1 * p.dt);
+    let cls; if (echo){ if (ok){ tp++; cls = "tp"; errs.push(Math.abs(d.est - p.dt) / p.dt); } else if (found){ fp++; fn++; cls = "fp"; } else { fn++; cls = "fn"; } }
+    else { if (found){ fp++; cls = "fp"; } else { tn++; cls = "tn"; } }
+    dots[k].className = cls; k++;
+    $("sP").textContent = tp + fp ? Math.round(100 * tp / (tp + fp)) + "%" : "–";
+    $("sR").textContent = Math.round(100 * tp / 20) + "%";
+    errs.sort((x, y) => x - y); $("sE").textContent = errs.length ? (100 * errs[errs.length >> 1]).toFixed(1) + "%" : "–";
+    $("blindNote").textContent = `${k}/40`;
+    if (k < 40) setTimeout(step, 0); else { btn.disabled = false; $("blindNote").textContent = `noise ${st.noise || "none"} · cadence ${st.cad} d · span ${st.span} d`; }
+  };
+  setTimeout(step, 0);
+};
+
+labels(); recompute();
+})();
+</script>
+</body>
+</html>

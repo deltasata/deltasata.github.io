@@ -435,3 +435,9 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
 
 /* preview mode (?static): fixed hero height so full-page screenshots in a tall window look like a real screen */
 .static .hero { min-height: 900px; }
+
+/* ------------------------------------------------------------------ hidden-echo video */
+.echo-video { aspect-ratio: 16 / 9; border-radius: var(--radius-s); border: 1px solid var(--line); overflow: hidden; background: #05070f; }
+.echo-video video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.echo-try { margin-top: 14px; }
+.echo-note { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
