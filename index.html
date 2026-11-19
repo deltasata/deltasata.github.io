@@ -39,7 +39,6 @@
     <a href="#experience">Experience</a>
     <a href="#toolkit">Toolkit</a>
     <a href="#research">Research</a>
-    <a href="#life">Life</a>
     <a href="#contact">Contact</a>
     <a class="btn btn--small" href="Satadru_resume2.pdf" target="_blank" rel="noopener">CV <span aria-hidden="true">↗</span></a>
   </nav>
@@ -92,7 +91,7 @@
     <div class="story__text">
       <p class="reveal">I build machine-learning systems that find rare events in large streams of images and time series. That rests on 12+ years of analysing large, noisy datasets, 7+ of them with hands-on machine learning.</p>
       <p class="reveal">Right now that means a real-time pipeline on Google Cloud that ingests ~10 million events (~1 TB) every night, and deep-learning models (transformers, ConvLSTMs, CNN ensembles) that pick out the handful that matter, at false-positive rates around 0.01%.</p>
-      <p class="reveal">I came to data from theory: theoretical physics and higher mathematics first, then code, statistics and data analysis. It shows in the problems I like most, the ones with no off-the-shelf method. When a random signal overlaps with its own delayed copy, the data allow infinitely many exact ways to split them, and since 1996 the delay was thought impossible to find without a model of the signal. I showed that every wrong split comes out rougher, turned that into a new statistic and proved why it works. With no template and no training data it finds hidden time-delayed copies at 92% precision under survey-grade noise (53% for the standard autocorrelation), confirmed on real telescope data.</p>
+      <p class="reveal">I came to data from theory: theoretical physics and higher mathematics first, then code, statistics and data analysis. It shows in the problems I like most, the ones with no off-the-shelf method. When a random signal overlaps with its own delayed copy, the data allow infinitely many exact ways to split them, and since 1996 the delay was thought impossible to find without a model of the signal. I showed that every wrong split comes out rougher, turned that into a new statistic and proved why it works. With no template and no training data it finds hidden time-delayed copies at 92% precision under survey-grade noise (53% for the standard autocorrelation), confirmed on real data.</p>
       <p class="reveal">The data has been astronomical, but the problems are the ones industry has: irregular multi-band image sequences, sensor fusion, extreme class imbalance, predictions that must update with every new observation, and pipelines that must run unattended every night. They map directly onto Earth observation, forecasting, anomaly detection and computer vision.</p>
       <p class="reveal">I lead the rare-event search in a 10,000-member international collaboration (working-group lead since 2025); the pipeline and models above are built for that search. Alongside: generative models (diffusion, normalizing flows), simulation-based inference and LLM agents (EO-Agent, satellite-image question answering).</p>
       <p class="reveal">A large part of my time now goes into agentic AI for scientific research: agents propose, run and log hundreds of experiments, while every claim has to pass quality checks I set in advance (pre-registered comparisons, repeated seeds, locked holdout data, explainability tests that catch false positives and shortcuts).</p>
@@ -174,7 +173,7 @@
     <div class="feature__body">
       <p class="tag">Production · built for the rare-event search I lead</p>
       <h3 class="feature__title">Real-time event pipeline</h3>
-      <p class="feature__text">Stream and archive pipelines that pull events from six external data providers through REST APIs and Kafka (retries with back-off), cross-match them with a space-time SQL join that runs on both BigQuery and DuckDB, and store them as Parquet; cost-guarded BigQuery layer, typed config, CLI and 500+ automated tests (ruff, mypy) run in CI.</p>
+      <p class="feature__text">Stream and archive pipelines over six external data providers (REST APIs and Kafka, retries with back-off), a space-time SQL join on BigQuery and DuckDB, Parquet storage, a cost-guarded BigQuery layer and 500+ automated tests (ruff, mypy) in CI.</p>
       <ul class="chips"><li>Python</li><li>REST APIs</li><li>Kafka (Avro)</li><li>SQL (BigQuery</li><li>DuckDB)</li><li>Google Cloud Storage</li><li>Parquet</li><li>pytest</li></ul>
 <a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/LSST_alert_pipeline_LSN_search</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
     <div class="feature__visual">
@@ -203,12 +202,10 @@
     <div class="feature__body">
       <p class="tag">Research · a new statistical method</p>
       <h3 class="feature__title">Hidden echoes, a model-free statistic</h3>
-      <p class="feature__text">When a random signal overlaps with its own delayed copy, infinitely many exact splits fit the data, and since 1996 the delay was thought impossible to find without a model of the signal. I showed that every wrong split comes out rougher, turned that into a new statistic and proved why it works. It finds hidden lensed quasars at 92% precision under survey-grade noise (53% for the standard autocorrelation).</p>
-      <ul class="chips"><li>Time-series statistics</li><li>Autocorrelation</li><li>Inverse filtering</li><li>Blind validation</li></ul>
-<a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>    </div>
+      <p class="feature__text">A random signal overlapping with its own delayed copy admits infinitely many exact splits; since 1996 the delay was thought impossible to find without a model of the signal. Every wrong split comes out rougher: that became a new statistic, with a proof of why it works. 92% precision under survey-grade noise, against 53% for autocorrelation.</p>
+      <ul class="chips"><li>Time-series statistics</li><li>Blind validation</li></ul>
+<a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><a class="link echo-try" href="echo/?v=202611191323" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>    </div>
     <div class="feature__visual">
-      <ul class="statgrid">
-<li><span class="statgrid__value">92%</span><span class="statgrid__label">precision under survey-grade noise</span></li><li><span class="statgrid__value">53%</span><span class="statgrid__label">the standard autocorrelation, same data</span></li><li><span class="statgrid__value">0</span><span class="statgrid__label">templates or training data needed</span></li>      </ul>
       <div class="anim-slot echo-video" data-anim="hidden-echo">
         <video muted loop playsinline preload="none" poster="media/echo_story_poster.jpg"
                aria-label="Animation in five steps: a random signal and its dimmer echo 30 days later; a telescope records only their sum; the signal is rebuilt for each guessed delay, rough when wrong and smooth when right; the roughness of each rebuild is measured; two dips at plus and minus 30 days reveal the echo.">
@@ -216,8 +213,7 @@
           <source src="media/echo_story_1920.mp4" type="video/mp4">
         </video>
       </div>
-      <p class="echo-note">Simulated, 30-day echo. On real data: 29.6 ± 1.5 days, against 33.7 ± 2.7 from the separated images.</p>
-      <a class="link echo-try" href="echo/?v=202611191232" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+      <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
     </div>
   </article>
 
@@ -234,9 +230,9 @@
       <div class="anim-slot tile__art" data-anim="project-convlstm" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
       <p class="tile__tag">Research code</p>
       <h4>ConvLSTM rare-event detector</h4>
-      <p>Spatio-temporal classifier for multi-band image time series that rescores every new frame: 70%+ recall at a 0.01% false-positive rate by frame 9 (128,000 training sequences).</p>
+      <p>Spatio-temporal classifier for multi-band image time series that rescores every new frame: 70%+ recall at a 0.01% false-positive rate by the 9th image (128,000 training sequences).</p>
       <ul class="chips chips--small"><li>TensorFlow / Keras</li></ul>
-<a class="link" href="https://github.com/deltasata/ConvLSTM-LSNe-Detection" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a><br><a class="link" href="https://arxiv.org/abs/2506.22076" target="_blank" rel="noopener">A&amp;A 707, A123 (2026), arXiv:2506.22076 <span aria-hidden="true">↗</span></a><br><a class="link" href="https://arxiv.org/abs/2605.05318" target="_blank" rel="noopener">Part II, A&amp;A in press, arXiv:2605.05318 <span aria-hidden="true">↗</span></a>    </article>
+<a class="link" href="https://github.com/deltasata/ConvLSTM-LSNe-Detection" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a><br><a class="link link--paper" href="https://arxiv.org/abs/2506.22076" target="_blank" rel="noopener">A&amp;A 707, A123 (2026), arXiv:2506.22076 <span aria-hidden="true">↗</span></a><br><a class="link link--paper" href="https://arxiv.org/abs/2605.05318" target="_blank" rel="noopener">Part II, A&amp;A in press, arXiv:2605.05318 <span aria-hidden="true">↗</span></a>    </article>
     <article class="card tile reveal" id="project-aplite">
       <div class="anim-slot tile__art" data-anim="project-aplite" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
       <p class="tile__tag">Built for the search I lead</p>
@@ -274,7 +270,7 @@
       <div class="card timeline__card">
         <h3>Data Scientist / ML Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
-<p class="timeline__context">Leads the search for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead the rare-event search of a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud: <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences after every new frame: an automated search of <strong>227 GPU training runs</strong> (100 configurations, 19 architecture families, effects confirmed over 3–11 seeds), seven designs published; the best <strong>beat the ConvLSTM baseline by 30%</strong> in loss.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, tracking across frames, two CNN quality scorers) as a lean containerized version that runs on small image tiles instead of full frames, making training-data generation at scale feasible on HPC.</li></ul>
+<p class="timeline__context">Leads the search for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead the rare-event search of a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud: <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences after every new frame: an automated search of <strong>227 GPU training runs</strong> (100 configurations, 19 architecture families, effects confirmed over 3–11 seeds), seven designs published; the best reached <strong>30% lower loss than the ConvLSTM baseline</strong>.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, cross-frame tracking, two CNN quality scorers) as a lean container that runs on small image tiles, making training-data generation at scale feasible on HPC.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -283,7 +279,7 @@
       <div class="card timeline__card">
         <h3>ML Research Scientist <span class="official">(Alexander von Humboldt Postdoctoral Fellow)</span></h3>
         <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
-<p class="timeline__context">Competitive personal fellowship: deep learning and probabilistic modelling for rare-object detection in large imaging datasets.</p>        <ul class="bullets"><li>Built a ConvLSTM (TensorFlow) that flags rare events in multi-band image time series, rescoring each frame: <strong>70%+ recall at a 0.01% false-positive rate</strong> by frame 9; trained on 128,000 simulated sequences (~200 GB).</li><li>Co-developed an ensemble of five CNNs that screened <strong>110M images</strong>: 75% recall at a 0.01% false-positive rate; post-processing removed 29% of false candidates with no loss in recall, surfacing 92 previously unknown objects.</li><li>Co-authored a multi-sensor fusion study: a two-branch ResNet on high- and low-resolution imagery raised recall from 41% to <strong>55%</strong> at a 0.01% false-positive rate.</li><li>Contributed to a physics-informed variational autoencoder that classifies and models each object in milliseconds on one CPU, narrowing 80M objects to 13,831 candidates.</li><li>Detected overlapping events from 1D time series alone with a 1D CNN at a 3% false-positive rate, as early as 20 days after first detection.</li></ul>
+<p class="timeline__context">Competitive personal fellowship: deep learning and probabilistic modelling for rare-object detection in large imaging datasets.</p>        <ul class="bullets"><li>Built a ConvLSTM (TensorFlow) that flags rare events in multi-band image time series, rescoring each frame: <strong>70%+ recall at a 0.01% false-positive rate</strong> by the 9th image; trained on 128,000 simulated sequences (~200 GB).</li><li>Co-developed an ensemble of five CNNs that screened <strong>110M images</strong>: 75% recall at a 0.01% false-positive rate; post-processing removed 29% of false candidates with no loss in recall, surfacing 92 previously unknown objects.</li><li>Co-authored a multi-sensor fusion study: a two-branch ResNet on high- and low-resolution imagery raised recall from 41% to <strong>55%</strong> at a 0.01% false-positive rate.</li><li>Contributed to a physics-informed variational autoencoder that classifies and models each object in milliseconds on one CPU, narrowing 80M objects to 13,831 candidates.</li><li>Detected overlapping events from 1D time series alone with a 1D CNN at a 3% false-positive rate, as early as 20 days after first detection.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -292,7 +288,7 @@
       <div class="card timeline__card">
         <h3>Machine Learning Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Korea Astronomy and Space Science Institute (KASI) · Daejeon, South Korea</p>
-<p class="timeline__context">New statistical methods, time-series machine learning and Bayesian inference for noisy, blended signals.</p>        <ul class="bullets"><li>Invented <strong>new statistical methods</strong> that detect a hidden, time-delayed copy of a signal in one blended time series and measure the delay: transients at under 5% false positives; random signals with no signal model, held impossible since 1996, at <strong>92% precision</strong> vs 53% for autocorrelation, with a proof and real-data confirmation.</li><li>Built LSTM and 1D-CNN time-series classifiers and Bayesian models fitted with Hamiltonian Monte Carlo (Stan).</li><li>Designed a model-independent way to measure how galaxies rotate from noisy imaging spectroscopy (cross-correlation and iterative smoothing), later extended to low signal-to-noise data with a student I mentored.</li><li>Received the institute's Best Postdoc Award (2022); the work was covered by national media in South Korea.</li></ul>
+<p class="timeline__context">New statistical methods, time-series machine learning and Bayesian inference for noisy, blended signals.</p>        <ul class="bullets"><li>Invented <strong>new statistical methods</strong> that detect a hidden, time-delayed copy of a signal in one blended time series and measure the delay: transients at under 5% false positives; random signals with no signal model, held impossible since 1996, at <strong>92% precision</strong> vs 53% for autocorrelation, with a proof and real-data confirmation.</li><li>Built LSTM and 1D-CNN time-series classifiers and Bayesian models fitted with Hamiltonian Monte Carlo (Stan).</li><li>Designed a model-independent way to measure how galaxies rotate from noisy imaging spectroscopy (cross-correlation and iterative smoothing), later extended to low signal-to-noise data with a mentored student.</li><li>Received the institute's Best Postdoc Award (2022); the work was covered by national media in South Korea.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -301,7 +297,7 @@
       <div class="card timeline__card">
         <h3>Visiting Researcher, Data Analysis <span class="official">(Guest Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Tartu Observatory, University of Tartu · Tartu, Estonia</p>
-<p class="timeline__context">Short research visit on 3D spatial data analysis.</p>        <ul class="bullets"><li>Measured the 3D shape and connectivity of 956 large-scale clusters in a 3D point cloud of 584,449 galaxies, with SURFGEN2; results released as open data.</li></ul>
+<p class="timeline__context">Short research visit on 3D spatial data analysis.</p>        <ul class="bullets"><li>Measured the 3D shape of 956 large-scale clusters in a point cloud of 584,449 galaxies; open data.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -310,7 +306,7 @@
       <div class="card timeline__card">
         <h3>Researcher, Statistics &amp; Data Analysis <span class="official">(PhD Research Scholar in Astrophysics)</span></h3>
         <p class="timeline__org">Inter-University Centre for Astronomy and Astrophysics (IUCAA) · Pune, India</p>
-<p class="timeline__context">From theoretical physics and higher mathematics to statistics, scientific computing and Bayesian modelling of large datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/MPI package for 3D surface modelling and shape statistics, with unsupervised-learning components; used by several international research groups.</li><li>Strong foundation in mathematics and statistics (differential equations, topology, Bayesian inference); 8 papers.</li></ul>
+<p class="timeline__context">From theoretical physics and higher mathematics to statistics, scientific computing and Bayesian modelling of large datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/MPI package for 3D surface modelling and shape statistics, used by several research groups.</li><li>Strong foundation in mathematics and statistics (differential equations, topology, Bayesian inference); 8 papers.</li></ul>
       </div>
     </li>
   </ol>
@@ -349,11 +345,11 @@
     </div>
     <div class="card toolkit__group reveal">
       <h3>LLMs &amp; agents</h3>
-      <ul class="chips chips--small"><li>Large language models</li><li>RAG</li><li>Agentic AI (LangGraph</li><li>OpenAI Agents SDK)</li><li>Model Context Protocol (MCP)</li></ul>
+      <ul class="chips chips--small"><li>Large language models</li><li>RAG</li><li>Agentic AI (LangGraph, OpenAI Agents SDK)</li><li>Model Context Protocol (MCP)</li></ul>
     </div>
     <div class="card toolkit__group reveal">
       <h3>Data &amp; MLOps</h3>
-      <ul class="chips chips--small"><li>Google Cloud (GCP)</li><li>AWS</li><li>BigQuery / SQL</li><li>DuckDB</li><li>REST APIs</li><li>Kafka (Avro)</li><li>Parquet / pandas</li><li>Docker / Apptainer</li><li>Kubernetes</li><li>CI/CD</li><li>DVC</li><li>FastAPI</li><li>ONNX</li><li>Git</li><li>Linux</li><li>HPC (SLURM; CUDA / ROCm on NVIDIA &amp; AMD GPUs)</li></ul>
+      <ul class="chips chips--small"><li>Google Cloud (GCP)</li><li>AWS</li><li>BigQuery / SQL</li><li>DuckDB</li><li>REST APIs</li><li>Kafka (Avro)</li><li>Parquet / pandas</li><li>Docker / Apptainer</li><li>Kubernetes</li><li>CI/CD</li><li>DVC</li><li>FastAPI</li><li>Git</li><li>Linux</li><li>HPC (SLURM, CUDA / ROCm)</li></ul>
     </div>
     <div class="card toolkit__group reveal">
       <h3>Programming</h3>
@@ -376,7 +372,7 @@
   </header>
   <ul class="metrics metrics--research reveal">
     <li class="metric"><span class="metric__value" data-count="35" data-suffix="+">35+</span><span class="metric__label">research papers</span></li>
-    <li class="metric"><span class="metric__value" data-count="30" data-suffix="+">30+</span><span class="metric__label">peer-reviewed in Q1 journals</span></li>
+    <li class="metric"><span class="metric__value" data-count="30" data-suffix="+">30+</span><span class="metric__label">peer-reviewed in Q1 journals (some in press)</span></li>
     <li class="metric"><span class="metric__value" data-count="50" data-suffix="+">50+</span><span class="metric__label">talks, incl. Stanford and Harvard</span></li>
     <li class="metric"><span class="metric__value" data-count="3" data-suffix="">3</span><span class="metric__label">competitive fellowships and grants</span></li>
   </ul>
@@ -398,27 +394,12 @@
       <h3>Leadership &amp; recognition</h3>
       <ul class="bullets">
         <li><strong>Lead of the rare-event search</strong>, 10,000-member collaboration (2025 – present)</li>
-<li><strong>Fellowships, grants &amp; awards:</strong> Alexander von Humboldt Fellowship (2023 – 2025); Wenner-Gren Fellowship (2023, Sweden); co-secured a DFG collaborative research centre grant (2024 – 2029); Best Postdoc Award, KASI (2022).</li><li><strong>Talks, reviewing &amp; mentoring:</strong> 50+ talks, including Stanford, Harvard, Imperial College and the University of Tokyo; reviewer for six journals, incl. Scientific Reports (Nature Portfolio); mentor and guest lecturer at TUM.</li>      </ul>
+<li><strong>Fellowships, grants &amp; awards:</strong> Alexander von Humboldt Fellowship (2023 – 2025); Wenner-Gren Fellowship (2023, Sweden); co-secured a DFG collaborative research centre grant (2024 – 2029); Best Postdoc Award, KASI (2022).</li><li><strong>Talks, reviewing &amp; mentoring:</strong> 50+ talks (Stanford, Harvard, Imperial College, Tokyo); reviewer for six journals, incl. Scientific Reports; mentored five students (bachelor to PhD level), three of whom lead-authored papers; guest lecturer at TUM.</li>      </ul>
     </div>
   </div>
 </section>
 
 <!-- ================================================================ LIFE -->
-<section class="section" id="life">
-  <header class="section__head reveal">
-    <p class="eyebrow">06 · Life</p>
-    <h2>Beyond the screen</h2>
-    <p class="section__lead">Away from the data, family comes first.</p>
-  </header>
-  <div class="gallery anim-slot" data-anim="life-gallery">
-    <figure class="gallery__item is-placeholder reveal is-wide" aria-hidden="true"><span></span></figure>
-    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
-    <figure class="gallery__item is-placeholder reveal is-tall" aria-hidden="true"><span></span></figure>
-    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
-    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
-    <figure class="gallery__item is-placeholder reveal" aria-hidden="true"><span></span></figure>
-  </div>
-</section>
 
 <!-- ================================================================ CONTACT -->
 <section class="section contact" id="contact">
