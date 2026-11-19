@@ -15,7 +15,7 @@
 <meta property="og:image" content="https://deltasata.github.io/echo/echo-og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="A blended random signal, the signal rebuilt from it, and a roughness curve with a symmetric pair of dips at plus and minus 42 days that reveals a hidden echo.">
+<meta property="og:image:alt" content="A blended random signal, the signal rebuilt from it, and a roughness curve with a symmetric pair of dips at plus and minus the true delay that reveals a hidden echo.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Find the hidden echo: an interactive explorer">
 <meta name="twitter:description" content="Detect a hidden, time-delayed copy of a random signal inside one blended time series, with no model of the signal.">
@@ -157,7 +157,7 @@ details[open] summary::before{content:"– "}
       <p class="sub">What the method never sees.</p>
       <div class="ctrl"><div class="seg" role="group" aria-label="Echo present">
         <button id="echoOn" aria-pressed="true">Echo</button><button id="echoOff" aria-pressed="false">No echo</button></div></div>
-      <div class="ctrl"><label for="dt">true delay <b id="vDt"></b></label><input id="dt" type="range" min="5" max="100" step="0.5" value="42"></div>
+      <div class="ctrl"><label for="dt">true delay <b id="vDt"></b></label><input id="dt" type="range" min="5" max="100" step="0.5" value="30"></div>
       <div class="ctrl"><label for="mu">echo brightness ratio <b id="vMu"></b></label><input id="mu" type="range" min="0.1" max="0.95" step="0.01" value="0.75"></div>
       <h2 style="margin-top:6px">The telescope</h2>
       <p class="sub">How the blend is observed.</p>
@@ -241,11 +241,19 @@ function evalFlat(t0, dtc, F, s){                   // linear interpolation, fla
 }
 function reconstruct(t, F, mu, d){
   const N = F.length, out = new Float64Array(N), t0 = t[0], c = t[1] - t[0];
-  const nt = Math.ceil(Math.log(1e-7) / Math.log(mu)) + 1;
+  const nt = Math.ceil(Math.log(1e-5) / Math.log(mu)) + 1;
   for (let i = 0; i < N; i++){ let acc = 0, m = 1;
     for (let n = 0; n < nt; n++){ acc += m * evalFlat(t0, c, F, t[i] - n * d); m *= -mu; }
     out[i] = acc; }
   return out;
+}
+function roughnessAt(t, F, mu, d){                   // sum of squared steps of the rebuild, no temporary arrays
+  const N = F.length, t0 = t[0], c = t[1] - t[0], nt = Math.ceil(Math.log(1e-5) / Math.log(mu)) + 1;
+  let e = 0, prev = 0;
+  for (let i = 0; i < N; i++){ let acc = 0, m = 1;
+    for (let n = 0; n < nt; n++){ acc += m * evalFlat(t0, c, F, t[i] - n * d); m *= -mu; }
+    if (i) e += (acc - prev) * (acc - prev); prev = acc; }
+  return e;
 }
 function roughness(r){ let e = 0; for (let i = 1; i < r.length; i++){ const q = r[i] - r[i - 1]; e += q * q; } return e; }
 function zscore(a){ const n = a.length; let m = 0; for (const v of a) m += v; m /= n; let s = 0; for (const v of a) s += (v - m) ** 2;
@@ -253,7 +261,7 @@ function zscore(a){ const n = a.length; let m = 0; for (const v of a) m += v; m 
 function deltasFor(cad){ const k = Math.max(1, cad / 3); return [3 * k, 4 * k, 5 * k]; }
 function analyse(sim, noise){
   const versions = noise > 0 ? deltasFor(sim.cad).map(d => smooth(sim.t, sim.F, d)) : [sim.F];
-  const eps = DGRID.map(d => versions.reduce((acc, Fv) => acc + roughness(reconstruct(sim.t, Fv, MU_TRY, d)), 0));
+  const eps = DGRID.map(d => versions.reduce((acc, Fv) => acc + roughnessAt(sim.t, Fv, MU_TRY, d), 0));
   return {versions, eps, S: zscore(eps)};
 }
 function acf(t, x, d){                              // Pearson ACF over the overlap, linear-interpolated lag
@@ -278,8 +286,9 @@ function classify(S){                               // Bag+22 conservative (C.1,
 }
 
 // ----------------------------------------------------------------- canvas charts
-function setupCanvas(cv){ const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = +cv.getAttribute("height");
-  cv.style.height = h + "px"; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+function setupCanvas(cv){ const dpr = Math.min(window.devicePixelRatio || 1, 2), w = cv.clientWidth, h = +cv.getAttribute("height");
+  const W = Math.round(w * dpr), H = Math.round(h * dpr);
+  if (cv.width !== W || cv.height !== H){ cv.style.height = h + "px"; cv.width = W; cv.height = H; }   // resize only on change
   const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return {ctx, w, h}; }
 function frame(ctx, w, h, xl, yl, opt){
   const m = {l: opt.yTicks ? 44 : 10, r: 10, t: 10, b: 40}, pw = w - m.l - m.r, ph = h - m.t - m.b;
@@ -303,10 +312,13 @@ function ramp(u){ u = Math.min(1, Math.max(0, u)) * (RAMP.length - 1); const i =
 
 // ----------------------------------------------------------------- state & UI
 const $ = id => document.getElementById(id);
-const st = {echo: true, dt: 42, mu: 0.75, noise: 0, cad: 1, span: 500, seed: 28, trial: 0, truth: true};
+const st = {echo: true, dt: 30, mu: 0.75, noise: 0, cad: 1, span: 500, seed: 28, trial: 0, truth: true};
 let sim, an, refRough, acfH = null, acfF = null, playing = false, raf = null;
 
-function recompute(){
+function recompute(){ try { recomputeInner(); } catch (err){ showError(err); } }
+function showError(err){ const el = $("verdict"); el.className = "verdict no";
+  el.querySelector(".v").textContent = "Something went wrong"; el.querySelector(".d").textContent = "Please reload the page. (" + (err && err.message || err) + ")"; }
+function recomputeInner(){
   sim = simulate(st, st.seed); an = analyse(sim, st.noise); acfH = acfF = null;
   const shown = an.versions[Math.floor(an.versions.length / 2)];
   let s = 0; for (let i = 1; i < sim.f1.length; i++) s += (sim.f1[i] - sim.f1[i - 1]) ** 2;
@@ -392,7 +404,8 @@ $("play").onclick = () => {
   playing = true; $("play").textContent = "❚❚ Pause"; let last = performance.now();
   if (st.trial >= 119.5) st.trial = -120;
   const tick = now => { if (!playing) return; const dtms = now - last; last = now;
-    st.trial = Math.min(120, st.trial + dtms * 0.024); $("trial").value = st.trial; drawAll();
+    st.trial = Math.min(120, st.trial + Math.min(dtms, 50) * 0.024); $("trial").value = st.trial;
+    try { drawAll(); } catch (err){ stopPlay(); showError(err); return; }
     if (st.trial >= 120) return stopPlay(); raf = requestAnimationFrame(tick); };
   raf = requestAnimationFrame(tick);
 };
@@ -404,7 +417,8 @@ $("runBlind").onclick = () => {
   const btn = $("runBlind"); btn.disabled = true; const dots = [...tally.children]; dots.forEach(d => d.className = "");
   const order = [...Array(40).keys()].sort(() => Math.random() - .5); const base = (Math.random() * 1e9) | 0;
   let tp = 0, fp = 0, fn = 0, tn = 0, errs = [], k = 0;
-  const step = () => {
+  const step = () => { try { stepInner(); } catch (err){ btn.disabled = false; showError(err); } };
+  const stepInner = () => {
     const i = order[k], echo = i < 20, r = mulberry32(base + i);
     const p = {echo, dt: 10 + 90 * r(), mu: 0.3 + 0.6 * r(), noise: st.noise, cad: st.cad, span: st.span};
     const s = simulate(p, base * 7 + i), a = analyse(s, st.noise), d = classify(a.S), found = d.label !== "none";

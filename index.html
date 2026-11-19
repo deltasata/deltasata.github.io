@@ -209,15 +209,18 @@
     <div class="feature__visual">
       <ul class="statgrid">
 <li><span class="statgrid__value">92%</span><span class="statgrid__label">precision at survey-grade noise (autocorrelation: 53%)</span></li><li><span class="statgrid__value">100%</span><span class="statgrid__label">precision on clean blind tests, 95% recall</span></li><li><span class="statgrid__value">0</span><span class="statgrid__label">templates, priors or training data needed</span></li>      </ul>
+      <p class="echo-note">On real telescope data the method found a delay of 29.6 ± 1.5 days, against 33.7 ± 2.7 days measured from the separated images.</p>
+      <a class="link echo-try" href="echo/" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="feature__wide">
       <div class="anim-slot echo-video" data-anim="hidden-echo">
-        <video muted loop playsinline preload="none" poster="media/echo_loop_poster.jpg"
-               aria-label="Animation: sweeping a trial delay, the rebuilt signal turns rough for wrong guesses and smooth at plus or minus 42 days, where the roughness curve shows a symmetric pair of dips; the blend then separates into the signal and its echo.">
-          <source src="media/echo_loop_1280.webm" type="video/webm">
-          <source src="media/echo_loop_1280.mp4" type="video/mp4">
+        <video muted loop playsinline preload="none" poster="media/hero_echo_poster.jpg"
+               aria-label="Animation: a random signal and its dimmer, delayed echo merge into one observed curve. Sweeping a trial delay, the rebuilt signal turns rough for wrong guesses and smooth at the true delay, where the roughness curve shows a symmetric pair of dips, revealing the hidden echo.">
+          <source src="media/hero_echo.webm" type="video/webm">
+          <source src="media/hero_echo.mp4" type="video/mp4">
         </video>
       </div>
-      <p class="echo-note">Simulated data. On real telescope data the method found a delay of 29.6 ± 1.5 days, against 33.7 ± 2.7 days measured from the separated images.</p>
-      <a class="link echo-try" href="echo/" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+      <p class="echo-note">Simulated data. The animation shows the method step by step: the hidden signal and its delayed echo, the single curve a telescope records, the rebuild at each trial delay (rough when wrong, smooth when right), and the roughness curve whose two dips give the delay.</p>
     </div>
   </article>
 
