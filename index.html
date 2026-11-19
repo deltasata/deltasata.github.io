@@ -94,6 +94,7 @@
       <p class="reveal">Right now that means a real-time pipeline on Google Cloud that ingests ~10 million events (~1 TB) every night, and deep-learning models (transformers, ConvLSTMs, CNN ensembles) that pick out the handful that matter, at false-positive rates around 0.01%. Before that I spent three years on time-series methods and Bayesian inference for noisy, overlapping signals, and wrote a C package for 3D shape analysis that other research groups have used.</p>
       <p class="reveal">The data has been astronomical, but the problems are the ones industry has: irregular multi-band image sequences, sensor fusion, extreme class imbalance, predictions that must update with every new observation, and pipelines that must run unattended every night. They map directly onto Earth observation, forecasting, anomaly detection and computer vision.</p>
       <p class="reveal">I lead the rare-event search in a 10,000-member international collaboration (working-group lead since 2025); the pipeline and models above are built for that search. Alongside: generative models (diffusion, normalizing flows), simulation-based inference and LLM agents (EO-Agent, satellite-image question answering).</p>
+      <p class="reveal">A large part of my time now goes into agentic AI for scientific research: agents propose, run and log hundreds of experiments, while every claim has to pass quality checks I set in advance (pre-registered comparisons, repeated seeds, locked holdout data, explainability tests that catch false positives and shortcuts).</p>
     </div>
     <ul class="focus">
       <li class="card focus__item reveal">
@@ -115,6 +116,16 @@
         <span class="focus__num">04</span>
         <h3>Uncertainty &amp; Bayesian modelling</h3>
         <p>Calibrated probabilities, MCMC and simulation-based inference when the answer has to come with error bars.</p>
+      </li>
+      <li class="card focus__item reveal">
+        <span class="focus__num">05</span>
+        <h3>Explainable AI</h3>
+        <p>Checking what a model actually looks at, to catch false positives and shortcuts before they reach a result.</p>
+      </li>
+      <li class="card focus__item reveal">
+        <span class="focus__num">06</span>
+        <h3>Agentic AI for research</h3>
+        <p>Agents that propose, run and log hundreds of experiments, while every claim passes quality checks fixed in advance.</p>
       </li>
     </ul>
   </div>
@@ -192,7 +203,7 @@
   <div class="grid">
     <article class="card tile reveal tile--wide" id="project-lens_vit">
       <div class="anim-slot tile__art" data-anim="vit-attention" aria-hidden="true"><span class="anim-slot__art anim-slot__art--grid"></span></div>
-      <p class="tile__tag">Personal project</p>
+      <p class="tile__tag">Research · rare-object search in survey images</p>
       <h4>Self-supervised ViTs for rare-object detection</h4>
 <ul class="ministats"><li><b>0.9998</b> AUC on a locked 30,000-object holdout</li><li><b>90.6%</b> found at a 0.1% false-positive rate</li><li><b>~60</b> architectures compared</li></ul>      <p>Finds rare objects (1 in thousands) in 5-band survey images. Automated model search (~60 architectures, ~300 GPU runs) with pre-registered comparisons; in-domain masked-autoencoder pretraining halved the loss; a ViT + ConvNeXtV2 ensemble reached AUC 0.9998 on a locked 30,000-object holdout, finding 90.6% at a 0.1% false-positive rate.</p>
       <ul class="chips chips--small"><li>PyTorch</li><li>ViT</li><li>ConvNeXtV2</li><li>MAE</li><li>AMD MI300A</li></ul>
@@ -208,7 +219,7 @@
       <div class="anim-slot tile__art" data-anim="project-aplite" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
       <p class="tile__tag">Built for the search I lead</p>
       <h4>Lean image-processing pipeline</h4>
-      <p>The production pipeline&#39;s PSF-matched image differencing (change detection), object detection and measurement, and cross-frame association (tracking), run on small simulated cutouts to generate labelled training data at scale; every detection scored by two CNN quality models, with documented checks against production behaviour.</p>
+      <p>The production pipeline&#39;s image differencing (change detection), object detection and cross-frame tracking, run on small simulated cutouts to generate labelled training data at scale; every detection scored by two CNN quality models, checked against production.</p>
       <ul class="chips chips--small"><li>Python</li><li>PyTorch</li><li>NumPy / SciPy</li><li>Apptainer</li></ul>
 <a class="link" href="https://github.com/deltasata/Stripped_down_LSST_Alert_Production_pipeline" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>    </article>
     <article class="card tile reveal" id="project-surfgen">
@@ -259,7 +270,7 @@
       <div class="card timeline__card">
         <h3>Machine Learning Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Korea Astronomy and Space Science Institute (KASI) · Daejeon, South Korea</p>
-<p class="timeline__context">Time-series machine learning and Bayesian inference on noisy, blended signals.</p>        <ul class="bullets"><li>Developed a template-free method that finds overlapping, time-shifted copies of a signal in one noisy time series and measures the delays: <strong>under 5% false positives, 93%+ of delays recovered, under 0.5% bias</strong>.</li><li>Extended it to stochastic signals: ~100% precision and ~60% recall at realistic noise, confirmed on real data.</li><li>Built LSTM and 1D-CNN time-series classifiers, and Bayesian models with full uncertainties fitted by Hamiltonian Monte Carlo (Stan).</li><li>Received the institute's Best Postdoc Award (2022); the work was covered by national media in South Korea.</li></ul>
+<p class="timeline__context">Time-series machine learning and Bayesian inference on noisy, blended signals.</p>        <ul class="bullets"><li>Developed a template-free method that finds overlapping, time-shifted copies of a signal in one noisy time series and measures the delays: <strong>under 5% false positives, 93%+ of delays recovered, under 0.5% bias</strong>.</li><li>Extended it to stochastic signals: ~100% precision and ~60% recall at realistic noise, confirmed on real data.</li><li>Built LSTM and 1D-CNN time-series classifiers and Bayesian models fitted with Hamiltonian Monte Carlo (Stan).</li><li>Received the institute's Best Postdoc Award (2022); the work was covered by national media in South Korea.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -300,7 +311,7 @@
   <div class="toolkit">
     <div class="card toolkit__group reveal">
       <h3>Machine learning</h3>
-      <ul class="chips chips--small"><li>PyTorch</li><li>TensorFlow / Keras</li><li>scikit-learn</li><li>Vision Transformers</li><li>CNN / ResNet / ConvNeXt / U-Net</li><li>ConvLSTM / LSTM</li><li>Graph neural networks</li><li>Multi-task learning</li><li>Ensembles &amp; gradient boosting (LightGBM)</li></ul>
+      <ul class="chips chips--small"><li>PyTorch</li><li>TensorFlow / Keras</li><li>scikit-learn</li><li>Vision Transformers</li><li>CNN / ResNet / ConvNeXt / U-Net</li><li>ConvLSTM / LSTM</li><li>Graph neural networks</li><li>Multi-task learning</li><li>Ensembles &amp; gradient boosting (LightGBM)</li><li>Explainable AI (XAI) for false-positive control</li></ul>
     </div>
     <div class="card toolkit__group reveal">
       <h3>Generative AI</h3>
@@ -320,7 +331,7 @@
     </div>
     <div class="card toolkit__group reveal">
       <h3>Data &amp; MLOps</h3>
-      <ul class="chips chips--small"><li>Google Cloud (GCP)</li><li>AWS</li><li>BigQuery / SQL</li><li>DuckDB</li><li>REST APIs</li><li>Kafka (Avro)</li><li>Parquet / pandas</li><li>Docker / Apptainer</li><li>Kubernetes</li><li>CI/CD</li><li>DVC</li><li>FastAPI</li><li>ONNX</li><li>Git</li><li>Linux</li><li>HPC (SLURM, NVIDIA &amp; AMD GPUs)</li></ul>
+      <ul class="chips chips--small"><li>Google Cloud (GCP)</li><li>AWS</li><li>BigQuery / SQL</li><li>DuckDB</li><li>REST APIs</li><li>Kafka (Avro)</li><li>Parquet / pandas</li><li>Docker / Apptainer</li><li>Kubernetes</li><li>CI/CD</li><li>DVC</li><li>FastAPI</li><li>ONNX</li><li>Git</li><li>Linux</li><li>HPC (SLURM; CUDA / ROCm on NVIDIA &amp; AMD GPUs)</li></ul>
     </div>
     <div class="card toolkit__group reveal">
       <h3>Programming</h3>
@@ -344,8 +355,8 @@
   <ul class="metrics metrics--research reveal">
     <li class="metric"><span class="metric__value" data-count="35" data-suffix="+">35+</span><span class="metric__label">research papers</span></li>
     <li class="metric"><span class="metric__value" data-count="30" data-suffix="+">30+</span><span class="metric__label">peer-reviewed in Q1 journals</span></li>
-    <li class="metric"><span class="metric__value" data-count="570" data-suffix="+">570+</span><span class="metric__label">citations</span></li>
-    <li class="metric"><span class="metric__value" data-count="14" data-suffix="">14</span><span class="metric__label">h-index</span></li>
+    <li class="metric"><span class="metric__value" data-count="50" data-suffix="+">50+</span><span class="metric__label">talks, incl. Stanford and Harvard</span></li>
+    <li class="metric"><span class="metric__value" data-count="3" data-suffix="">3</span><span class="metric__label">competitive fellowships and grants</span></li>
   </ul>
   <div class="research">
     <div class="card research__pubs reveal">
@@ -362,7 +373,7 @@
     <div class="card research__lead reveal">
       <h3>Leadership &amp; recognition</h3>
       <ul class="bullets">
-        <li><strong>Lead of the rare-event search</strong> and working-group lead in a 10,000-member international collaboration (2025 – present)</li>
+        <li><strong>Lead of the rare-event search</strong>, 10,000-member collaboration (2025 – present)</li>
 <li><strong>Fellowships, grants &amp; awards:</strong> Alexander von Humboldt Fellowship (2023 – 2025); Wenner-Gren Fellowship (2023, Sweden); co-secured a DFG collaborative research centre grant (2024 – 2029); Best Postdoc Award, KASI (2022).</li><li><strong>Talks, reviewing &amp; mentoring:</strong> 50+ talks, including Stanford, Harvard, Imperial College and the University of Tokyo; reviewer for six journals, incl. Scientific Reports (Nature Portfolio); mentor and guest lecturer at TUM.</li>      </ul>
     </div>
   </div>
