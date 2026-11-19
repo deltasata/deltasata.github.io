@@ -325,6 +325,13 @@ function recomputeInner(){
   const shown = an.versions[Math.floor(an.versions.length / 2)];
   let s = 0; for (let i = 1; i < sim.f1.length; i++) s += (sim.f1[i] - sim.f1[i - 1]) ** 2;
   refRough = Math.sqrt(s / (sim.f1.length - 1)) || 1; an.shown = shown;
+  // fixed y-range for the blend chart: observed, truth and the rebuild over the whole sweep (every 5 d),
+  // so the rebuilt curve never leaves the box and the axis does not jump while sweeping
+  let lo = Infinity, hi = -Infinity;
+  for (const arr of [sim.F, sim.f1, shown]) for (const v of arr){ if (v < lo) lo = v; if (v > hi) hi = v; }
+  for (let d = -120; d <= 120; d += 5){ const r = reconstruct(sim.t, shown, MU_SHOW, d);
+    for (const v of r){ if (v < lo) lo = v; if (v > hi) hi = v; } }
+  const pad = 0.06 * (hi - lo || 1); an.yr = [lo - pad, hi + pad];
   if ($("oH").checked) computeACF();
   drawAll(); verdict();
 }
@@ -335,9 +342,10 @@ function computeACF(){
 }
 function drawBlend(){
   const cv = $("cBlend"), {ctx, w, h} = setupCanvas(cv);
-  const all = [...sim.F, ...sim.f1]; const lo = Math.min(...all) - 0.6, hi = Math.max(...sim.F) + 0.6;
+  const [lo, hi] = an.yr;
   const xt = []; for (let x = 0; x <= st.span; x += st.span > 700 ? 200 : 100) xt.push(x);
-  const {X, Y} = frame(ctx, w, h, [0, st.span], [lo, hi], {xTicks: xt, xLabel: "time (days)"});
+  const {X, Y, m, pw, ph} = frame(ctx, w, h, [0, st.span], [lo, hi], {xTicks: xt, xLabel: "time (days)"});
+  ctx.save(); ctx.beginPath(); ctx.rect(m.l - 2, m.t - 2, pw + 4, ph + 4); ctx.clip();   // safety: never draw outside the plot
   if (st.noise > 0){ ctx.fillStyle = "rgba(238,241,248,.28)"; for (let i = 0; i < sim.t.length; i++){ ctx.beginPath(); ctx.arc(X(sim.t[i]), Y(sim.F[i]), 1.4, 0, 7); ctx.fill(); } }
   glow(ctx, X, Y, sim.t, an.shown, C.ink, 1.6);
   if (st.truth){ line(ctx, X, Y, sim.t, sim.f1, C.teal, 1.5, .7, [3, 4]); }
@@ -345,7 +353,7 @@ function drawBlend(){
   ctx.save(); ctx.lineWidth = 2.4; ctx.lineCap = "round";
   for (let i = 1; i < r.length; i++){ ctx.strokeStyle = ramp(Math.abs(r[i] - r[i - 1]) / (2.5 * refRough));
     ctx.beginPath(); ctx.moveTo(X(sim.t[i - 1]), Y(r[i - 1])); ctx.lineTo(X(sim.t[i]), Y(r[i])); ctx.stroke(); }
-  ctx.restore();
+  ctx.restore(); ctx.restore();   // rebuild style, then the plot clip
   const k = Math.max(0, Math.min(DGRID.length - 1, Math.round((st.trial - DGRID[0]) / 0.5)));
   $("rDt").textContent = (st.trial >= 0 ? "+" : "") + st.trial.toFixed(1); $("rEps").textContent = an.S[k].toFixed(2) + "σ";
   document.querySelector(".truthL").style.display = st.truth ? "" : "none";
