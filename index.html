@@ -143,28 +143,38 @@
     <div class="feature__body">
       <p class="tag">Personal project</p>
       <h3 class="feature__title">EO-Agent, conversational Earth-observation analyst</h3>
-      <p class="feature__text">LLM agent that answers &#34;was this place flooded / built on?&#34; from free satellite images, every number checked against deterministic code. Learned models replace rules only if they win on held-out flood events (pre-registered): water IoU 0.833 vs 0.690 (U-Net), flood questions answered correctly 0.889 vs 0.722; on par with the published state of the art.</p>
+      <p class="feature__text">LLM agent that answers &#34;was this place flooded, burnt or built on?&#34; from free satellite images, every number checked against deterministic code. Each learned model replaced a rule only after winning on events or places it never saw, under a protocol fixed before scoring: water IoU 0.833 vs 0.690, cloud 0.885 vs 0.644, construction 0.301 vs 0.188, burnt land 0.772 vs 0.560; 150-question benchmark 0.853 to 0.887. On the published flood benchmark, on par with the state of the art.</p>
       <ul class="chips"><li>PyTorch</li><li>TerraMind</li><li>Prithvi-EO</li><li>Claude Agent SDK</li><li>MCP</li><li>LangGraph</li><li>vLLM</li></ul>
 <a class="link" href="https://github.com/deltasata/satellite-change-agent" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/satellite-change-agent</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
     <div class="feature__visual">
       <div class="results">
-        <p class="results__title">Learned models vs rules, on held-out flood events</p>
+        <p class="results__title">Learned models vs rules, on events and places never seen</p>
         <div class="bar">
           <p class="bar__label">Water mapping, optical (IoU)</p>
           <div class="bar__row"><span class="bar__name">U-Net</span><span class="bar__track"><span class="bar__fill" style="--v: 0.833"></span></span><span class="bar__val">0.833</span></div>
           <div class="bar__row bar__row--base"><span class="bar__name">NDWI rule</span><span class="bar__track"><span class="bar__fill" style="--v: 0.69"></span></span><span class="bar__val">0.690</span></div>
         </div>
         <div class="bar">
-          <p class="bar__label">Water mapping, radar (IoU)</p>
-          <div class="bar__row"><span class="bar__name">TerraMind</span><span class="bar__track"><span class="bar__fill" style="--v: 0.611"></span></span><span class="bar__val">0.611</span></div>
-          <div class="bar__row bar__row--base"><span class="bar__name">VH threshold</span><span class="bar__track"><span class="bar__fill" style="--v: 0.477"></span></span><span class="bar__val">0.477</span></div>
-        </div>
-        <div class="bar">
           <p class="bar__label">Flood questions answered correctly</p>
           <div class="bar__row"><span class="bar__name">learned models</span><span class="bar__track"><span class="bar__fill" style="--v: 0.889"></span></span><span class="bar__val">0.889</span></div>
           <div class="bar__row bar__row--base"><span class="bar__name">rules</span><span class="bar__track"><span class="bar__fill" style="--v: 0.722"></span></span><span class="bar__val">0.722</span></div>
         </div>
-        <ul class="notes"><li>A 14M-parameter U-Net trained from scratch beat fine-tuned foundation models of 100 to 300M parameters on optical water.</li><li>Radar answered 14 of 19 flood questions under full cloud cover, 12 of them correctly.</li><li>Every comparison was fixed before scoring and tested on flood events the models never saw.</li></ul>
+        <div class="bar">
+          <p class="bar__label">Cloud and shadow mask (IoU)</p>
+          <div class="bar__row"><span class="bar__name">OmniCloudMask</span><span class="bar__track"><span class="bar__fill" style="--v: 0.885"></span></span><span class="bar__val">0.885</span></div>
+          <div class="bar__row bar__row--base"><span class="bar__name">ESA rule</span><span class="bar__track"><span class="bar__fill" style="--v: 0.644"></span></span><span class="bar__val">0.644</span></div>
+        </div>
+        <div class="bar">
+          <p class="bar__label">Burnt land (IoU)</p>
+          <div class="bar__row"><span class="bar__name">U-Net</span><span class="bar__track"><span class="bar__fill" style="--v: 0.772"></span></span><span class="bar__val">0.772</span></div>
+          <div class="bar__row bar__row--base"><span class="bar__name">dNBR index</span><span class="bar__track"><span class="bar__fill" style="--v: 0.56"></span></span><span class="bar__val">0.560</span></div>
+        </div>
+        <div class="bar">
+          <p class="bar__label">Construction (IoU)</p>
+          <div class="bar__row"><span class="bar__name">TerraMind</span><span class="bar__track"><span class="bar__fill" style="--v: 0.301"></span></span><span class="bar__val">0.301</span></div>
+          <div class="bar__row bar__row--base"><span class="bar__name">change rule</span><span class="bar__track"><span class="bar__fill" style="--v: 0.188"></span></span><span class="bar__val">0.188</span></div>
+        </div>
+        <ul class="notes"><li>Radar (TerraMind, 0.611 vs 0.477) answered 14 of 19 flood questions under full cloud cover; all 13 wildfire questions right.</li><li>A 14M-parameter U-Net from scratch beat fine-tuned 100-300M foundation models on optical water.</li></ul>
       </div>
       <div class="anim-slot anim-slot--wide" data-anim="eo-flood-map" aria-hidden="true"><span class="anim-slot__art anim-slot__art--earth"></span></div>
     </div>
@@ -204,7 +214,7 @@
       </div>
       <p class="echo-note">Simulated survey images; numbers are held-out test-set results from the paper.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="oasis/?v=202611201919" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="oasis/?v=202611201929" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </article>
@@ -225,7 +235,7 @@
       </div>
       <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="echo/?v=202611201919" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="echo/?v=202611201929" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
 <a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>      </div>
     </div>
   </article>
