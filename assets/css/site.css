@@ -451,4 +451,6 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
 /* empty animation slots stay hidden until an animation registers (is-live) or real content exists; ?dev shows them */
 html:not(.dev) .anim-slot[data-anim]:not(.is-live):not(.orbit):not(.echo-video):not(.gallery) { display: none; }
 .link--paper { word-break: normal; overflow-wrap: break-word; }
-.tile .link--paper { margin-top: 8px; }
+.tile .link--paper { margin-top: 0; }
+.tile__links { margin-top: auto; padding-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+.tile__links .link, .tile__links .paperlinks { margin: 0; padding: 0; }
