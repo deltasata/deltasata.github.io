@@ -195,7 +195,17 @@
     <div class="feature__visual">
       <ul class="statgrid">
 <li><span class="statgrid__value">227</span><span class="statgrid__label">GPU training runs in the model search</span></li><li><span class="statgrid__value">19</span><span class="statgrid__label">architecture families compared</span></li><li><span class="statgrid__value">30%</span><span class="statgrid__label">lower loss than the recurrent baseline</span></li>      </ul>
-      <div class="anim-slot anim-slot--wide" data-anim="oasis-results" aria-hidden="true"><span class="anim-slot__art anim-slot__art--2"></span></div>
+      <div class="anim-slot echo-video" data-anim="oasis-story">
+        <video muted loop playsinline preload="none" poster="media/oasis_story_poster.jpg"
+               aria-label="Animation in five steps: survey images of a lensed supernova arrive one at a time, each in one colour band at irregular times; a fixed band-by-time grid would be 75% empty padding; OASIS turns each image into 81 patch tokens and attends within the new image and back to the same spot in earlier images, never ahead; after 6 images it flags 70% of lensed supernovae at 1 false alarm per 10,000; on the two hardest look-alike populations it raises 7 to 9 times fewer false alarms than a ConvLSTM baseline.">
+          <source src="media/oasis_story_1920.webm" type="video/webm">
+          <source src="media/oasis_story_1920.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="echo-note">Simulated survey images; numbers are held-out test-set results from the paper.</p>
+      <div class="echo-links">
+        <a class="link echo-try" href="oasis/?v=202611201137" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
+      </div>
     </div>
   </article>
   <article class="card feature reveal feature--flip" id="project-echo">
@@ -215,7 +225,7 @@
       </div>
       <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="echo/?v=202611200927" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="echo/?v=202611201137" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
 <a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>      </div>
     </div>
   </article>

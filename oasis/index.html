@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OASIS Explorer</title>
+<meta name="description" content="Interactive demo: watch an irregular, multi-band image stream arrive one frame at a time, see what a grid model pads versus what the OASIS transformer attends to, and how early it flags a rare event. Test-set results from arXiv:2610.17168.">
+<meta name="author" content="Satadru Bag">
+<meta name="theme-color" content="#05070f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Satadru Bag">
+<meta property="og:title" content="OASIS explorer: rare-event detection in a live image stream">
+<meta property="og:description" content="Watch an irregular stream of single-band images arrive, see what a grid model pads and what the OASIS transformer attends to, and how early it flags a lensed supernova.">
+<meta property="og:url" content="https://deltasata.github.io/oasis/">
+<meta property="og:image" content="https://deltasata.github.io/oasis/oasis-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The OASIS explorer: a simulated lensed-supernova image stream arriving one single-band image at a time, with a live early-warning curve.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://deltasata.github.io/oasis/oasis-og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="explorer.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+  <a class="back" href="../">← deltasata.github.io</a>
+  <div class="kicker">Interactive · rare-event detection in a live image stream</div>
+  <h1>Catch the <em>rare event</em>, one image at a time.</h1>
+  <p class="lede">A telescope revisits the same patch of sky at <b>irregular times</b>, and each visit returns <b>one image in one of four colour filters</b>. Very rarely the stream contains a gravitationally lensed supernova; far more often, a look-alike. <b>OASIS</b> is a transformer that updates its verdict <b>after every new image</b>, using only the images that have actually arrived: no fixed grid, no zero-padding, no peeking at the future.</p>
+
+  <div class="stats" role="list">
+    <div class="stat hl" role="listitem"><b>82%</b><span>of lensed SNe flagged after 7 images, at 1 false alarm per 10,000</span></div>
+    <div class="stat" role="listitem"><b>25%</b><span>lower average loss than the ConvLSTM+LSTM baseline</span></div>
+    <div class="stat" role="listitem"><b>75%</b><span>of a fixed band × time grid is zero-padding that OASIS never needs</span></div>
+    <div class="stat" role="listitem"><b>7</b><span>transformer architectures, each trained ~10 times</span></div>
+  </div>
+
+  <div id="loaderr" class="loaderr" hidden></div>
+
+  <div class="layout">
+      <!-- 1. player -->
+      <section class="card a-player" aria-labelledby="h-stream">
+        <div class="head">
+          <h2 id="h-stream"><span class="step">01</span>Play a stream</h2>
+          <button id="guessBtn" class="ghost guess-toggle" aria-pressed="false" title="Hide the identity and guess"><svg viewBox="0 0 16 16" aria-hidden="true" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4"/><circle cx="8" cy="11.6" r=".4" fill="currentColor"/></svg>Guess mode</button>
+        </div>
+        <div id="chips" class="chips" role="radiogroup" aria-label="Choose a stream" style="margin-bottom:16px"></div>
+        <div class="stitle" aria-live="polite"><span id="sName" class="nm"></span><span id="sKind" class="kd"></span></div>
+
+        <div class="player">
+          <figure class="stage" id="stage">
+            <img id="imgA" alt="">
+            <img id="imgB" alt="" style="opacity:0">
+            <div class="scan" id="scan"></div>
+            <div class="ov top"><span id="badge" class="badge" aria-hidden="true">g</span><span id="tDay" class="pill">day 0.0</span></div>
+            <div class="ov bot"><span id="nPill" class="pill">image 1 / 14</span><span class="pill" style="opacity:.8">simulated</span></div>
+          </figure>
+          <div>
+            <div class="lanes-title">Arrivals by filter · true time axis</div>
+            <div class="lanes">
+              <div class="lane-labels" aria-hidden="true"><span class="b-g">g</span><span class="b-r">r</span><span class="b-i">i</span><span class="b-z">z</span></div>
+              <div class="tracks" id="tracks" role="img" aria-label="Band lanes: images placed at their arrival time in their filter">
+                <div class="track" style="top:0"></div>
+                <div class="track" style="top:var(--lh)"></div>
+                <div class="track" style="top:calc(2*var(--lh))"></div>
+                <div class="track" style="top:calc(3*var(--lh))"></div>
+                <div class="cursor" id="cursor"></div>
+                <div class="axis" id="axis"></div>
+              </div>
+            </div>
+            <div class="axis-lab">days since first detection</div>
+          </div>
+        </div>
+
+        <div class="transport">
+          <button class="ghost ctl" id="prev" aria-label="Previous image"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h2v12H3zM14 2v12L6 8z"/></svg></button>
+          <button class="ctl" id="play" aria-label="Play"><svg viewBox="0 0 16 16" aria-hidden="true" id="playIcon"><path d="M4 2l10 6-10 6z"/></svg></button>
+          <button class="ghost ctl" id="next" aria-label="Next image"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2h2v12h-2zM2 2v12l8-6z"/></svg></button>
+          <div class="scrub">
+            <input id="scrub" type="range" min="1" max="14" step="1" value="1" aria-label="Number of images seen">
+            <div class="ticks14" id="ticks14" aria-hidden="true"></div>
+          </div>
+          <div class="readout"><b id="rN">1</b><span> / 14 images</span></div>
+        </div>
+        <div class="live" id="live"></div>
+        <div class="kbd"><kbd>space</kbd> play / pause · <kbd>←</kbd> <kbd>→</kbd> step · <kbd>Home</kbd> <kbd>End</kbd> first / last</div>
+
+        <div class="guess" id="guessBox" hidden>
+          <div id="guessAsk">
+            <p class="q">Rare event or look-alike?</p>
+            <p class="hint">Identity hidden. Watch as many images as you need, then make your call. The earlier you commit, the harder it is.</p>
+            <div class="row">
+              <button id="gRare">Rare event (lensed SN)</button>
+              <button id="gLook" class="btn-look">Look-alike</button>
+              <span class="score" id="score1"></span>
+            </div>
+          </div>
+          <div class="reveal" id="guessReveal" hidden aria-live="polite">
+            <div class="v" id="rvV"></div>
+            <p id="rvP"></p>
+            <div class="row"><button id="gNext">Next mystery stream →</button><span class="score" id="score2"></span></div>
+          </div>
+        </div>
+        <p class="sr" id="status" aria-live="polite"></p>
+      </section>
+
+      <!-- 2. two views -->
+      <section class="card a-views" aria-labelledby="h-views">
+        <div class="head">
+          <h2 id="h-views"><span class="step">02</span>What the model gets to work with</h2>
+          <div class="seg" role="group" aria-label="Choose a view">
+            <button id="vGrid" class="c" aria-pressed="true">How a grid model sees it</button>
+            <button id="vOasis" class="t" aria-pressed="false">How OASIS sees it</button>
+          </div>
+        </div>
+
+        <div class="view" id="viewGrid">
+          <div class="vcount" aria-live="polite">
+            <span><b id="gSlots">4</b>slots so far</span>
+            <span><b id="gReal">1</b><span id="gRealL">real image</span></span>
+            <span class="warn"><b id="gPad">3</b>zero-padded</span>
+            <span class="warn"><b id="gPct">75%</b>empty</span>
+          </div>
+          <div class="meter" aria-hidden="true"><i id="gMeter" style="background:var(--base)"></i></div>
+          <div class="gm" id="gm" role="img" aria-label="Band by time grid: one filled cell per time step, the other three padded with zeros"></div>
+          <div class="vkey"><span><i class="real"></i>real image</span><span><i class="pad"></i>empty slot, filled with zeros</span></div>
+          <p class="vnote">A recurrent grid model (the <b>ConvLSTM+LSTM baseline</b>) expects all four filters at every step. Each new image fills one slot; the other three are padded with zeros, so <b>3 of every 4 inputs carry no information</b>. After 14 images: 56 slots, 42 empty.</p>
+        </div>
+
+        <div class="view" id="viewOasis" hidden>
+          <div class="vcount" aria-live="polite">
+            <span class="good"><b id="oImg">1</b><span id="oImgL">image</span></span>
+            <span><b id="oTok">81</b>patch tokens (9 × 9 each)</span>
+            <span class="good"><b>0%</b>padding</span>
+          </div>
+          <div class="meter" aria-hidden="true"><i id="oMeter" style="background:var(--teal)"></i></div>
+          <div class="ov-wrap" id="ovWrap">
+            <svg class="links" id="links" aria-hidden="true"></svg>
+            <div class="tok" id="tok" role="img" aria-label="Arrived images as 9 by 9 patch tokens; the newest image links back to the same patch in earlier images"></div>
+          </div>
+          <div class="vkey"><span><i class="sp"></i>① space: the 81 patches of the newest image attend to each other</span><span><i class="tm"></i>② time: each patch looks back at the same patch in earlier images only</span></div>
+          <p class="vnote"><span class="illus">Illustration</span>Links show which tokens may exchange information (factorized space-time attention with a causal mask), not learned attention weights. Each token also carries its filter and exact arrival time, so irregular gaps are information, not a problem.</p>
+        </div>
+      </section>
+
+      <!-- 3. results -->
+      <section class="card a-res" aria-labelledby="h-res">
+        <h2 id="h-res"><span class="step">03</span>Live results · after <span id="resN">1</span> image<span id="resS"></span></h2>
+        <p class="sub">Test-set statistics over ~88,000 simulated streams, synced to the player. Not a score for the stream being played.</p>
+        <div class="res-inner"><div>
+        <div class="big"><b id="bigNum">0.4%</b><span>of lensed SNe flagged by OASIS, with only <strong>1 false alarm per 10,000</strong> look-alikes</span></div>
+        <div class="chart" id="ewChart"></div>
+        <div class="legend"><span><i style="background:var(--teal)"></i>OASIS (A2), early-warning rate</span><span style="color:var(--muted)">click a point to jump</span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div>
+        <h2>False alarms when tuned to catch 80% of lensed SNe</h2>
+        <p class="sub">Share of each look-alike population wrongly flagged after <b id="faN">1</b> image(s). Log scale; lower is better.</p>
+        <div class="fa" id="fa"></div>
+        <div class="fa-scale" aria-hidden="true"><span></span><div class="s"><span style="left:0"></span><span style="left:20%">0.01%</span><span style="left:40%">0.1%</span><span style="left:60%">1%</span><span style="left:80%">10%</span><span style="left:100%">100%</span></div></div>
+        <div class="legend"><span><i class="sq" style="background:var(--teal)"></i>OASIS (A2)</span><span><i class="sq" style="background:var(--base)"></i>ConvLSTM+LSTM baseline</span><span><i class="sq" style="background:none;border:1.5px solid var(--muted);border-radius:50%"></i>none in test set</span></div>
+        </div></div>
+      </section>
+
+      <section class="card a-auc" aria-labelledby="h-auc">
+        <h2 id="h-auc">Seven OASIS designs vs the baseline</h2>
+        <p class="sub">Ranking quality (AUC, 1.0 = perfect) vs images seen. From the second image on, <b>factorized</b> attention (space, then time) matches or beats every <b>joint</b> space-time design; all except flat joint B1 stay above the baseline throughout.</p>
+        <div class="chart" id="aucChart"></div>
+        <div class="legend">
+          <span><i style="background:var(--teal); height:3px"></i>factorized A1–A3</span>
+          <span><i style="background:var(--violet); opacity:.7"></i>joint B1–B3</span>
+          <span><i class="dash"></i>baseline</span>
+        </div>
+        <div class="atN" id="aucAt"></div>
+      </section>
+  </div>
+
+  <section class="why" aria-label="Why it matters">
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg></div><h3>Decide after every frame</h3><p>A fresh probability after each new image, not after the stream ends. For rare, short-lived events, early alerts are what make follow-up possible.</p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 17l4-6 3 3 5-8 6 9"/></svg></div><h3>Irregular, multi-sensor input</h3><p>Frames arrive at uneven times from four different filters. The model takes the stream as it comes, with real timestamps, instead of forcing it onto a schedule.</p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 10h16M10 4v16"/></svg></div><h3>No imputation</h3><p>A grid model must invent values for 75% of its inputs. Attention works directly on the observations that exist, so nothing is filled in.</p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></div><h3>Beyond astronomy</h3><p>The same shape of problem appears wherever images arrive irregularly from several sensors and a decision cannot wait for the full sequence.</p></div>
+  </section>
+
+  <details>
+    <summary>How OASIS works, in five lines</summary>
+    <div class="how">
+      <p><b>Tokens.</b> Each image is cut into a 9 × 9 grid of patches; every patch becomes a token tagged with its filter and its exact arrival time.</p>
+      <p><b>Space, then time.</b> Attention first mixes the 81 patches within an image, then lets each patch position look at the same position in earlier images. A causal mask forbids looking ahead.</p>
+      <p><b>Readout.</b> In the best design (A2), one learned query per time step reads the tokens visible so far and outputs the probability of a lensed SN.</p>
+      <p><b>Training.</b> The loss is applied after every image, so every partial stream is a valid prediction point. All seven designs share one recipe; only the architecture changes.</p>
+      <p><b>Evaluation.</b> All numbers on this page are held-out test-set statistics from the paper; the streams shown are real simulated test examples, but no per-stream score is shown.</p>
+      <div class="tbl" id="tables"></div>
+    </div>
+  </details>
+
+  <footer class="foot">
+    <span>Simulated survey images; results are test-set statistics from the paper (<a href="https://arxiv.org/abs/2610.17168" target="_blank" rel="noopener">arXiv:2610.17168</a>).</span>
+    <a href="https://github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification" target="_blank" rel="noopener">Code on GitHub ↗</a>
+  </footer>
+</div>
+<script src="explorer.js" defer></script>
+</body>
+</html>

@@ -10,7 +10,7 @@
  *   });
  *
  * Put the code in its own file (e.g. assets/js/anim-eo-flood-map.js) and load it after site.js.
- * Slots: hero-orbit, eo-flood-map, oasis-results, pipeline-dashboard, hidden-echo, vit-attention, project-<id>, life-gallery.
+ * Slots: hero-orbit, eo-flood-map, oasis-story, pipeline-dashboard, hidden-echo, vit-attention, project-<id>, life-gallery.
  * Add ?dev to the URL to see every slot labelled; ?static shows the page without scroll effects.
  */
 (() => {
@@ -42,14 +42,16 @@
   };
 
   /* ------------------------------------------------------------ hidden-echo video: play only while visible */
-  SiteAnims.register('hidden-echo', (el, { reduce }) => {
+  const playWhenVisible = (el, { reduce }) => {
     const v = el.querySelector('video');
     if (!v) return;
     if (reduce || isStatic) { v.controls = true; return; }   // no autoplay: poster + controls
     const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => { v.controls = true; }); else v.pause(); },
                                         { threshold: 0.25 });
     io.observe(el);
-  });
+  };
+  SiteAnims.register('hidden-echo', playWhenVisible);
+  SiteAnims.register('oasis-story', playWhenVisible);
 
   /* ------------------------------------------------------------ starfield */
   const canvas = document.getElementById('sky');
