@@ -466,3 +466,6 @@ html:not(.dev) .anim-slot[data-anim]:not(.is-live):not(.orbit):not(.echo-video):
 .link.echo-try:hover { border-color: var(--teal); background: linear-gradient(180deg, rgba(62, 230, 200, .22), rgba(62, 230, 200, .1)); transform: translateY(-1px); box-shadow: 0 14px 30px -14px rgba(62, 230, 200, .9); }
 .link.echo-try span[aria-hidden] { color: var(--teal); }
 .echo-links { gap: 10px; }
+
+/* project boxes reached by a link (/#project-<id> or /p/<id>/): keep the top clear of the fixed menu */
+[id^="project-"] { scroll-margin-top: 90px; }

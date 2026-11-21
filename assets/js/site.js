@@ -53,6 +53,14 @@
   SiteAnims.register('hidden-echo', playWhenVisible);
   SiteAnims.register('oasis-story', playWhenVisible);
 
+  /* ------------------------------------------------------------ links to a project box (#project-<id>):
+     boxes grow while videos, charts and the dashboard load, so jump again once the page has settled */
+  if (/^#project-/.test(location.hash)) {
+    const target = document.getElementById(location.hash.slice(1));
+    const jump = () => target && target.scrollIntoView({ block: 'start' });
+    window.addEventListener('load', () => { setTimeout(jump, 400); setTimeout(jump, 1600); });
+  }
+
   /* ------------------------------------------------------------ starfield */
   const canvas = document.getElementById('sky');
   const ctx = canvas.getContext('2d');
