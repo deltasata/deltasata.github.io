@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Snapshot of the pipeline explainer (dashboard/page2 in the CV project), dark theme forced for the site.
+     Inside an iframe (?embed) the page hides its own header and route table: the parent page shows those. -->
+<script>if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embed');</script>
+<style>
+html.embed .wrap > header, html.embed .routes { display: none; }
+html.embed body { padding-top: 0; padding-bottom: 0; }
+html.embed .wrap { margin-top: 0; margin-bottom: 0; }
+html:root[data-theme="dark"] { --bg: #070b16; --panel: #0d1424; }
+</style>
+<title>Lensed-Transient Pipeline</title>
+<meta name="description" content="How the pipeline turns the LSST alert stream into Set A, Set B and complete alert data, in nine animated scenes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one 16:9 stage that plays nine scenes, caption and controls under it, the measured-route table below. */
+:root {
+  --bg: #f4f6f9;
+  --panel: #ffffff;
+  --ink: #1b2a41;
+  --muted: #5a6a7e;
+  --line: #cfd8e3;
+  --pool: #8f9cad;
+  --a: #2463a6;        /* Set A */
+  --a-soft: #dce9f7;
+  --b: #13865f;        /* Set B */
+  --b-soft: #d5f2e6;
+  --c: #b06d12;        /* Part C */
+  --bad: #c0392f;
+  --band1: #c2410c;    /* i band */
+  --band2: #2f7d32;    /* r band */
+  --img: #0b0f16;      /* camera images stay dark in both themes */
+  --img-ink: #f2f5fa;
+  --font-display: "Oswald", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151d; --panel: #161f2a; --ink: #e5ecf4; --muted: #9babbd; --line: #2b3949;
+    --pool: #6f7e90; --a: #6ea8ec; --a-soft: #1b3150; --b: #3cc394; --b-soft: #143a2d;
+    --c: #e2a64a; --bad: #ef6a60; --band1: #f08a4b; --band2: #6cc070;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151d; --panel: #161f2a; --ink: #e5ecf4; --muted: #9babbd; --line: #2b3949;
+  --pool: #6f7e90; --a: #6ea8ec; --a-soft: #1b3150; --b: #3cc394; --b-soft: #143a2d;
+  --c: #e2a64a; --bad: #ef6a60; --band1: #f08a4b; --band2: #6cc070;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 48px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 22px; }
+header { display: grid; gap: 4px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(26px, 4.2vw, 44px); line-height: 1.1; margin: 0; letter-spacing: 0.2px; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; font-size: clamp(15px, 1.8vw, 19px); }
+.stage { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+svg.film { display: block; width: 100%; height: auto; max-width: 100%; }
+svg text { font-family: var(--font-body); fill: var(--ink); }
+.t-big { font-family: var(--font-display); font-size: 34px; font-weight: 600; }
+.t-mid { font-size: 24px; font-weight: 600; }
+.t-small { font-size: 19px; fill: var(--muted); }
+.t-data { font-family: var(--font-data); font-size: 21px; }
+.caption { display: grid; gap: 6px; min-height: 9.5em; padding: 18px 22px 6px; }
+.eyebrow { font-family: var(--font-data); font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+.caption h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(21px, 2.6vw, 28px); margin: 0; line-height: 1.2; text-wrap: balance; }
+.caption p { margin: 0; max-width: 72ch; }
+.caption .measured { font-family: var(--font-data); font-size: 14px; color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 22px 18px; }
+button { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+button:hover { border-color: var(--a); }
+button:focus-visible { outline: 3px solid var(--a); outline-offset: 2px; }
+.dots { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.dots button { width: 30px; height: 30px; padding: 0; font-family: var(--font-data); font-size: 13px; }
+.dots button[aria-current="step"] { background: var(--a); color: var(--panel); border-color: var(--a); }
+.progress { height: 3px; background: var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--a); }
+section.routes { display: grid; gap: 10px; }
+section.routes h2 { font-family: var(--font-display); font-weight: 500; font-size: 26px; margin: 0; }
+section.routes p { margin: 0; color: var(--muted); max-width: 80ch; }
+.tablebox { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 15px; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); }
+td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 7px; border-radius: 10px; background: var(--b-soft); color: var(--b); margin-left: 6px; }
+.foot { color: var(--muted); font-size: 14px; }
+
+/* scenes */
+.scene { opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility 0s linear .5s; }
+.scene.on { opacity: 1; visibility: visible; transition: opacity .5s ease; }
+.scene.on .a { animation: rise .7s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0s); }
+.scene.on .fade { animation: fadeout .9s ease both; animation-delay: var(--d, 0s); }
+.scene.on .draw { stroke-dasharray: var(--len, 1200); stroke-dashoffset: var(--len, 1200); animation: draw 1.4s ease forwards; animation-delay: var(--d, 0s); }
+.scene.on .grow { transform-box: fill-box; transform-origin: center; animation: grow 1.6s ease both; animation-delay: var(--d, 0s); }
+.scene.on .toA { animation: toA .8s ease forwards; animation-delay: var(--d, 0s); }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes fadeout { from { opacity: 1; } to { opacity: .12; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes grow { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes toA { to { fill: var(--a); } }
+@media (prefers-reduced-motion: reduce) {
+  .scene.on .a, .scene.on .grow { animation: none; opacity: 1; transform: none; }
+  .scene.on .fade { animation: none; opacity: .12; }
+  .scene.on .draw { animation: none; stroke-dashoffset: 0; }
+  .scene.on .toA { animation: none; fill: var(--a); }
+  .pulse { display: none; }
+}
+@media (max-width: 560px) {
+  .caption { padding: 14px 14px 4px; min-height: 12em; }
+  .controls { padding: 8px 14px 14px; }
+  .dots { margin-left: 0; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Collecting lensed-transient candidates from the LSST alert stream</h1>
+    <p class="sub">Modular by design: every broker is interchangeable. Nine scenes, about a minute and a half.</p>
+  </header>
+
+  <div class="stage">
+    <svg class="film" viewBox="0 0 1200 560" role="img" aria-labelledby="cap-title" id="film">
+      <defs>
+        <radialGradient id="gal" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="var(--img-ink)" stop-opacity=".85"/>
+          <stop offset=".45" stop-color="var(--img-ink)" stop-opacity=".28"/>
+          <stop offset="1" stop-color="var(--img-ink)" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="pt" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="var(--img-ink)" stop-opacity="1"/>
+          <stop offset=".35" stop-color="var(--img-ink)" stop-opacity=".55"/>
+          <stop offset="1" stop-color="var(--img-ink)" stop-opacity="0"/>
+        </radialGradient>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="var(--pool)"/>
+        </marker>
+      </defs>
+
+      <!-- 1: an alert -->
+      <g class="scene" id="s0">
+        <g class="a" style="--d:.1s">
+          <rect x="70" y="70" width="250" height="250" rx="8" fill="var(--img)"/>
+          <ellipse cx="195" cy="195" rx="92" ry="56" fill="url(#gal)" transform="rotate(-25 195 195)"/>
+          <circle cx="226" cy="172" r="22" fill="url(#pt)"/>
+          <text x="195" y="356" text-anchor="middle" class="t-mid">science image</text>
+          <text x="195" y="384" text-anchor="middle" class="t-small">tonight</text>
+        </g>
+        <text class="a t-big" style="--d:.8s" x="368" y="210" text-anchor="middle">−</text>
+        <g class="a" style="--d:1s">
+          <rect x="415" y="70" width="250" height="250" rx="8" fill="var(--img)"/>
+          <ellipse cx="540" cy="195" rx="92" ry="56" fill="url(#gal)" transform="rotate(-25 540 195)"/>
+          <text x="540" y="356" text-anchor="middle" class="t-mid">template</text>
+          <text x="540" y="384" text-anchor="middle" class="t-small">the same sky, earlier</text>
+        </g>
+        <text class="a t-big" style="--d:1.7s" x="713" y="210" text-anchor="middle">=</text>
+        <g class="a" style="--d:1.9s">
+          <rect x="760" y="70" width="250" height="250" rx="8" fill="var(--img)"/>
+          <circle cx="916" cy="172" r="22" fill="url(#pt)" class="grow" style="--d:2.3s"/>
+          <text x="885" y="356" text-anchor="middle" class="t-mid">difference</text>
+          <text x="885" y="384" text-anchor="middle" class="t-small">only what changed</text>
+        </g>
+        <g class="a" style="--d:3s">
+          <rect x="70" y="420" width="940" height="88" rx="8" fill="var(--a-soft)"/>
+          <text x="96" y="458" class="t-mid">1 alert = 1 detection on 1 visit, with its three stamps</text>
+          <text x="96" y="490" class="t-small">Alerts of the same object form a time series: one object = one DIAObject.</text>
+        </g>
+        <g class="a" style="--d:3.6s">
+          <text x="1050" y="140" class="t-data" fill="var(--ink)">15 Nov</text>
+          <text x="1050" y="200" class="t-big" fill="var(--a)" style="fill:var(--a)">45</text>
+          <text x="1050" y="228" class="t-small">visits in 33 min</text>
+          <text x="1050" y="300" class="t-big" style="fill:var(--a)">135,569</text>
+          <text x="1050" y="328" class="t-small">alerts</text>
+        </g>
+      </g>
+
+      <!-- 2: brokers -->
+      <g class="scene" id="s1">
+        <g class="a" style="--d:.1s">
+          <circle cx="170" cy="280" r="78" fill="var(--img)"/>
+          <text x="170" y="274" text-anchor="middle" class="t-mid" style="fill:var(--img-ink)">Rubin</text>
+          <text x="170" y="302" text-anchor="middle" class="t-small" style="fill:var(--img-ink);opacity:.8">alert stream</text>
+        </g>
+        <g id="brokerlines" fill="none" stroke="var(--line)" stroke-width="2.5"></g>
+        <g id="brokerboxes"></g>
+        <g class="a" style="--d:2.6s">
+          <text x="70" y="430" class="t-small">An alert reaches the</text>
+          <text x="70" y="456" class="t-small">brokers 2–3 min after</text>
+          <text x="70" y="482" class="t-small">the exposure.</text>
+        </g>
+      </g>
+
+      <!-- 3: Part A -->
+      <g class="scene" id="s2">
+        <rect x="50" y="40" width="700" height="480" rx="8" fill="none" stroke="var(--line)"/>
+        <text x="66" y="72" class="t-small">objects with alerts in the time window (schematic)</text>
+        <g id="fieldA"></g>
+        <g id="legendA"></g>
+      </g>
+
+      <!-- 4: Part B, space -->
+      <g class="scene" id="s3">
+        <text x="60" y="58" class="t-mid">Method 1: object positions</text>
+        <g id="poolB"></g>
+        <circle cx="320" cy="300" r="170" fill="var(--b-soft)" fill-opacity=".55" stroke="var(--b)" stroke-width="2.5" class="grow" style="--d:.6s"/>
+        <g id="linksB"></g>
+        <circle cx="320" cy="300" r="13" fill="var(--a)" class="a" style="--d:.2s"/>
+        <g class="a" style="--d:1.8s">
+          <line x1="320" y1="300" x2="490" y2="300" stroke="var(--b)" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="405" y="292" text-anchor="middle" class="t-data" style="fill:var(--b)">x = 10″</text>
+        </g>
+        <line x1="640" y1="70" x2="640" y2="520" stroke="var(--line)"/>
+        <text x="680" y="58" class="t-mid">Method 2: every alert position</text>
+        <g id="m2"></g>
+        <g class="a" style="--d:3.4s">
+          <text x="680" y="500" class="t-small">two objects are linked if any pair of their</text>
+          <text x="680" y="526" class="t-small">alerts lies within x of each other</text>
+        </g>
+      </g>
+
+      <!-- 5: Part B, time -->
+      <g class="scene" id="s4">
+        <text x="60" y="64" class="t-mid">gap = max(0, later first detection − earlier last detection)</text>
+        <text x="60" y="98" class="t-small">keep the pair if gap ≤ t (t = 100 days)</text>
+        <g id="timeB"></g>
+      </g>
+
+      <!-- 6: groups -->
+      <g class="scene" id="s5">
+        <g id="groups"></g>
+      </g>
+
+      <!-- 7: Part C -->
+      <g class="scene" id="s6">
+        <g id="lc"></g>
+        <g id="stamps"></g>
+      </g>
+
+      <!-- 8: routes -->
+      <g class="scene" id="s7">
+        <g id="matrix"></g>
+      </g>
+
+      <!-- 9: two pipelines -->
+      <g class="scene" id="s8">
+        <g id="lanes"></g>
+      </g>
+    </svg>
+
+    <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+    <div class="caption" aria-live="polite">
+      <span class="eyebrow" id="cap-step"></span>
+      <h2 id="cap-title"></h2>
+      <p id="cap-text"></p>
+      <p class="measured" id="cap-num"></p>
+    </div>
+    <div class="controls">
+      <button id="prev" type="button" aria-label="Previous scene">◀</button>
+      <button id="play" type="button">Pause</button>
+      <button id="next" type="button" aria-label="Next scene">▶</button>
+      <div class="dots" id="dots" role="group" aria-label="Scenes"></div>
+    </div>
+  </div>
+
+  <section class="routes">
+    <h2>Every route, measured</h2>
+    <p>Each time was measured once, on one evening, from one machine; broker speed changes from hour to hour. Parts B and C on October's Set A of 28,614 objects, Set B of 32,193 objects and 104,949 alerts.</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Part</th><th>Broker and route</th><th>Size</th><th>Time</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>Lasair + Sherlock<span class="tag">default</span></td><td class="num">28,625 objects</td><td class="num">7 s</td><td>3 catalogue queries</td></tr>
+          <tr><td>B</td><td>Pitt-Google, Method 1<span class="tag">default</span></td><td class="num">4,054 pairs</td><td class="num">3 min 1 s</td><td>one database query</td></tr>
+          <tr><td>B</td><td>Pitt-Google, Method 2</td><td class="num">4,084 pairs</td><td class="num">3 min 14 s</td><td>one database query</td></tr>
+          <tr><td>B</td><td>Babamul, Method 2</td><td class="num">4,197 pairs</td><td class="num">4 min 41 s</td><td>64 requests; also finds the newest pairs</td></tr>
+          <tr><td>B</td><td>ALeRCE</td><td class="num">986 pairs</td><td class="num">3 min 29 s</td><td>smaller Set A, 2,983 objects</td></tr>
+          <tr><td>B</td><td>Fink, one search per object</td><td class="num">28,625 objects</td><td class="num">20 min</td><td>to be used rarely</td></tr>
+          <tr><td>B</td><td>Fink, uploaded catalogue</td><td class="num">—</td><td class="num">—</td><td>submitted by hand on a web form</td></tr>
+          <tr><td>C, light curves</td><td>ALeRCE</td><td class="num">105,385 alerts</td><td class="num">15 s</td><td></td></tr>
+          <tr><td>C, light curves</td><td>Babamul</td><td class="num">104,949 alerts</td><td class="num">38 s</td><td></td></tr>
+          <tr><td>C, light curves</td><td>Pitt-Google<span class="tag">default</span></td><td class="num">104,949 alerts</td><td class="num">72 s</td><td></td></tr>
+          <tr><td>C, light curves</td><td>Fink</td><td class="num">104,731 alerts</td><td class="num">5 min 24 s</td><td></td></tr>
+          <tr><td>C, stamps</td><td>Babamul</td><td class="num">104,949 alerts</td><td class="num">11 min 11 s</td><td>fastest; adds uncertainty and PSF images</td></tr>
+          <tr><td>C, stamps</td><td>Lasair<span class="tag">default</span></td><td class="num">104,940 alerts</td><td class="num">13 min 53 s</td><td>gaps filled from ALeRCE</td></tr>
+          <tr><td>C, forced photometry</td><td>ALeRCE</td><td class="num">9,476 points</td><td class="num">5 s</td><td>3,780 objects</td></tr>
+          <tr><td>annotation</td><td>ANTARES</td><td class="num">32,193 objects</td><td class="num">—</td><td>catalogue matches and tags, 65 requests</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="foot">The positions and light curves in the animation are schematic. All numbers are measured, with the date given where they first appear.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs, parent, text) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  /* scene 2: brokers */
+  const brokers = [
+    ["Lasair", "Set A: catalogue query and Sherlock"],
+    ["Pitt-Google", "Set B and light curves: one database query"],
+    ["Babamul", "Set B, light curves, complete stamps"],
+    ["ALeRCE", "classes, light curves, forced photometry"],
+    ["Fink", "nightly counts, cone searches"],
+    ["ANTARES", "catalogue matches and tags"]
+  ];
+  const bl = document.getElementById("brokerlines"), bb = document.getElementById("brokerboxes");
+  brokers.forEach(([name, role], i) => {
+    const y = 40 + i * 82, d = (0.5 + i * 0.25) + "s";
+    const p = el("path", { d: `M248 280 C 480 280, 520 ${y + 31}, 690 ${y + 31}`, class: "draw", style: `--len:520;--d:${d}`, id: "bp" + i }, bl);
+    el("rect", { x: 700, y, width: 450, height: 62, rx: 8, fill: "var(--bg)", stroke: "var(--line)", class: "a", style: `--d:${d}` }, bb);
+    el("text", { x: 722, y: y + 27, class: "t-mid a", style: `--d:${d}` }, bb, name);
+    el("text", { x: 722, y: y + 52, class: "t-small a", style: `--d:${d};font-size:17px` }, bb, role);
+    const c = el("circle", { r: 6, fill: "var(--a)", class: "pulse" }, bl);
+    const m = el("animateMotion", { dur: "2.4s", repeatCount: "indefinite", begin: (i * 0.4) + "s" }, c);
+    el("mpath", { href: "#bp" + i }, m);
+  });
+
+  /* scene 3: Part A */
+  const fA = document.getElementById("fieldA"), lA = document.getElementById("legendA");
+  const kinds = [["agn", "AGN"], ["vs", "variable star"], ["star", "known star"], ["old", "first seen before the window"], ["few", "fewer than 2 detections"]];
+  for (let i = 0; i < 84; i++) {
+    const x = 80 + rnd() * 640, y = 100 + rnd() * 400, r = rnd();
+    const kind = r < .3 ? "keep" : kinds[Math.floor(rnd() * kinds.length)][0];
+    const delay = kind === "keep" ? 4.6 + rnd() * .5 : 1.4 + kinds.findIndex(k => k[0] === kind) * .6 + rnd() * .3;
+    const g = el("g", { class: "a", style: `--d:${(rnd() * .6).toFixed(2)}s` }, fA);
+    el("circle", { cx: x.toFixed(1), cy: y.toFixed(1), r: kind === "keep" ? 8 : 6.5, fill: "var(--pool)", class: kind === "keep" ? "toA" : "fade", style: `--d:${delay.toFixed(2)}s` }, g);
+  }
+  el("text", { x: 790, y: 72, class: "t-mid a", style: "--d:.9s" }, lA, "Sherlock and the window remove");
+  kinds.forEach(([k, label], i) => {
+    const y = 118 + i * 46, d = (1.4 + i * .6) + "s";
+    el("line", { x1: 796, y1: y - 6, x2: 812, y2: y - 6, stroke: "var(--bad)", "stroke-width": 3, class: "a", style: `--d:${d}` }, lA);
+    el("text", { x: 826, y, class: "t-small a", style: `--d:${d};fill:var(--ink)` }, lA, label);
+  });
+  el("circle", { cx: 804, cy: 370, r: 9, fill: "var(--a)", class: "a", style: "--d:4.6s" }, lA);
+  el("text", { x: 826, y: 377, class: "t-mid a", style: "--d:4.6s;fill:var(--a)" }, lA, "kept: Set A");
+  el("text", { x: 790, y: 448, class: "t-data a", style: "--d:5.2s" }, lA, "15 Nov window");
+  el("text", { x: 790, y: 482, class: "t-small a", style: "--d:5.2s" }, lA, "138,867 alerts → 78 objects");
+
+  /* scene 4: Part B, space */
+  const pB = document.getElementById("poolB"), lkB = document.getElementById("linksB");
+  const inside = [];
+  for (let i = 0; i < 46; i++) {
+    const ang = rnd() * 6.283, rad = 40 + rnd() * 250;
+    const x = 320 + Math.cos(ang) * rad, y = 300 + Math.sin(ang) * rad * .85;
+    if (x < 70 || x > 610 || y < 90 || y > 520) continue;
+    const removed = rnd() < .35;
+    el("circle", { cx: x.toFixed(1), cy: y.toFixed(1), r: 6, fill: removed ? "none" : "var(--pool)", stroke: "var(--pool)", "stroke-width": 2, "stroke-dasharray": removed ? "3 3" : "0", class: "a", style: `--d:${(.1 + rnd() * .4).toFixed(2)}s` }, pB);
+    if (Math.hypot(x - 320, y - 300) < 165) inside.push([x, y]);
+  }
+  inside.slice(0, 4).forEach(([x, y], i) => {
+    const len = Math.hypot(x - 320, y - 300).toFixed(0);
+    el("line", { x1: 320, y1: 300, x2: x.toFixed(1), y2: y.toFixed(1), stroke: "var(--b)", "stroke-width": 3, class: "draw", style: `--len:${len};--d:${2.2 + i * .3}s` }, lkB);
+  });
+  el("text", { x: 60, y: 548, class: "t-small a", style: "--d:2.8s" }, pB, "dashed: removed in Part A, still searched (the pool is unfiltered)");
+  const m2 = document.getElementById("m2");
+  const objs = [[820, 260, "var(--a)"], [985, 300, "var(--pool)"]];
+  const pts = [];
+  objs.forEach(([cx, cy, col], k) => {
+    for (let i = 0; i < 6; i++) {
+      const x = cx + (rnd() - .5) * 110, y = cy + (rnd() - .5) * 150;
+      pts.push([x, y, k]);
+      const d = (1 + k * .4 + i * .12).toFixed(2) + "s";
+      el("path", { d: `M${x - 7} ${y}h14M${x} ${y - 7}v14`, stroke: col, "stroke-width": 3, class: "a", style: `--d:${d}` }, m2);
+    }
+    el("text", { x: cx, y: cy + 112, "text-anchor": "middle", class: "t-small a", style: `--d:${1 + k * .4}s` }, m2, k ? "another object" : "Set A object");
+  });
+  let best = null;
+  pts.filter(p => p[2] === 0).forEach(a => pts.filter(p => p[2] === 1).forEach(b => {
+    const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    if (!best || d < best[0]) best = [d, a, b];
+  }));
+  if (best) el("line", { x1: best[1][0], y1: best[1][1], x2: best[2][0], y2: best[2][1], stroke: "var(--b)", "stroke-width": 4, class: "draw", style: `--len:${best[0].toFixed(0)};--d:2.6s` }, m2);
+
+  /* scene 5: time */
+  const tB = document.getElementById("timeB");
+  const X = d => 160 + d * 2.6;
+  const bars = [
+    { y: 160, a: 60, b: 130, col: "var(--a)", label: "Set A object" },
+    { y: 245, a: 100, b: 190, col: "var(--b)", label: "overlaps: gap 0, kept", gap: null },
+    { y: 320, a: 190, b: 230, col: "var(--b)", label: "gap 60 d, kept", gap: [130, 190] },
+    { y: 395, a: 260, b: 300, col: "var(--bad)", label: "gap 130 d, rejected", gap: [130, 260] }
+  ];
+  el("line", { x1: X(0), y1: 470, x2: X(330), y2: 470, stroke: "var(--pool)", "stroke-width": 2, "marker-end": "url(#arr)" }, tB);
+  el("text", { x: X(330), y: 500, "text-anchor": "end", class: "t-small" }, tB, "time (days)");
+  for (let d = 0; d <= 300; d += 100) {
+    el("line", { x1: X(d), y1: 464, x2: X(d), y2: 476, stroke: "var(--pool)" }, tB);
+    el("text", { x: X(d), y: 500, "text-anchor": "middle", class: "t-data", style: "font-size:17px;fill:var(--muted)" }, tB, String(d));
+  }
+  bars.forEach((r, i) => {
+    const d = (.3 + i * .7) + "s";
+    el("rect", { x: X(r.a), y: r.y - 16, width: X(r.b) - X(r.a), height: 32, rx: 6, fill: r.col, class: "a", style: `--d:${d}` }, tB);
+    el("text", { x: X(r.b) + 16, y: r.y + 7, class: "t-small a", style: `--d:${d};fill:var(--ink)` }, tB, r.label);
+    if (r.gap) {
+      el("path", { d: `M${X(r.gap[0])} ${r.y - 24}v-8H${X(r.gap[1])}v8`, fill: "none", stroke: r.col, "stroke-width": 2.5, class: "a", style: `--d:${.6 + i * .7}s` }, tB);
+    }
+  });
+  el("line", { x1: X(130), y1: 130, x2: X(130), y2: 450, stroke: "var(--a)", "stroke-dasharray": "5 6", class: "a", style: "--d:.4s" }, tB);
+  el("text", { x: X(130) + 6, y: 446, class: "t-small a", style: "--d:.4s;font-size:16px" }, tB, "last detection of the Set A object");
+
+  /* scene 6: groups */
+  const G = document.getElementById("groups");
+  const node = (x, y, kind, label, d) => {
+    const fill = kind === "A" ? "var(--a)" : "var(--b)";
+    el("circle", { cx: x, cy: y, r: 22, fill, class: "grow", style: `--d:${d}s` }, G);
+    el("text", { x, y: y + 7, "text-anchor": "middle", class: "t-small a", style: `--d:${d}s;fill:var(--panel);font-weight:600;font-size:18px` }, G, label);
+  };
+  const edge = (x1, y1, x2, y2, d) => el("line", { x1, y1, x2, y2, stroke: "var(--b)", "stroke-width": 4, class: "draw", style: `--len:${Math.hypot(x2 - x1, y2 - y1).toFixed(0)};--d:${d}s` }, G);
+  el("rect", { x: 70, y: 90, width: 470, height: 200, rx: 100, fill: "var(--b-soft)", class: "a", style: "--d:2.2s" }, G);
+  el("rect", { x: 610, y: 90, width: 300, height: 200, rx: 100, fill: "var(--b-soft)", class: "a", style: "--d:2.4s" }, G);
+  edge(150, 190, 305, 190, 1.0); edge(305, 190, 460, 190, 1.4); edge(690, 190, 830, 190, 1.8);
+  node(150, 190, "A", "A", .3); node(305, 190, "B", "c", .5); node(460, 190, "A", "A", .7);
+  node(690, 190, "A", "A", .9); node(830, 190, "B", "c", 1.1);
+  [1000, 1080].forEach((x, i) => node(x, 190, "A", "A", 1.3 + i * .2));
+  el("text", { x: 305, y: 80, "text-anchor": "middle", class: "t-small a", style: "--d:2.2s;fill:var(--ink)" }, G, "A–c and c–A: one group of three");
+  el("text", { x: 760, y: 80, "text-anchor": "middle", class: "t-small a", style: "--d:2.4s;fill:var(--ink)" }, G, "a pair");
+  el("text", { x: 1040, y: 80, "text-anchor": "middle", class: "t-small a", style: "--d:2.6s;fill:var(--ink)" }, G, "no match: kept alone");
+  el("text", { x: 70, y: 370, class: "t-mid a", style: "--d:3s" }, G, "Set B = X + Y");
+  el("text", { x: 70, y: 410, class: "t-small a", style: "--d:3.2s;fill:var(--ink)" }, G, "X: every object in a match, both members, companions from outside Set A included (c)");
+  el("text", { x: 70, y: 442, class: "t-small a", style: "--d:3.4s;fill:var(--ink)" }, G, "Y: Set A objects with no match, kept as they are");
+  el("text", { x: 70, y: 500, class: "t-data a", style: "--d:3.8s" }, G, "15 Nov window: Set A 78 → Set B 82 (4 pairs)");
+
+  /* scene 7: Part C */
+  const L = document.getElementById("lc"), S = document.getElementById("stamps");
+  el("text", { x: 60, y: 58, class: "t-mid" }, L, "light curve");
+  el("line", { x1: 80, y1: 440, x2: 620, y2: 440, stroke: "var(--pool)", "stroke-width": 2 }, L);
+  el("line", { x1: 80, y1: 440, x2: 80, y2: 90, stroke: "var(--pool)", "stroke-width": 2 }, L);
+  el("text", { x: 620, y: 472, "text-anchor": "end", class: "t-small" }, L, "time");
+  el("text", { x: 96, y: 110, class: "t-small" }, L, "flux");
+  const curve = t => Math.exp(-Math.pow((t - .32) / .12, 2) * (t < .32 ? 1 : .18));
+  for (let i = 0; i < 16; i++) {
+    const t = .05 + i * .058, f1 = curve(t), f2 = curve(t - .02) * .78;
+    const x = 80 + t * 540, d = (.3 + i * .18).toFixed(2) + "s";
+    el("circle", { cx: x.toFixed(1), cy: (430 - f1 * 300 + (rnd() - .5) * 14).toFixed(1), r: 7, fill: "var(--band1)", class: "a", style: `--d:${d}` }, L);
+    el("rect", { x: (x + 6).toFixed(1), y: (430 - f2 * 300 + (rnd() - .5) * 14 - 6).toFixed(1), width: 12, height: 12, fill: "var(--band2)", class: "a", style: `--d:${d}` }, L);
+  }
+  el("circle", { cx: 98, cy: 510, r: 7, fill: "var(--band1)" }, L);
+  el("text", { x: 112, y: 517, class: "t-small" }, L, "i band");
+  el("rect", { x: 192, y: 504, width: 12, height: 12, fill: "var(--band2)" }, L);
+  el("text", { x: 212, y: 517, class: "t-small" }, L, "r band");
+  el("text", { x: 680, y: 58, class: "t-mid" }, S, "stamps of every alert");
+  ["science", "template", "difference"].forEach((row, r) => {
+    el("text", { x: 680, y: 128 + r * 112, class: "t-small" }, S, row);
+    for (let k = 0; k < 4; k++) {
+      const x = 800 + k * 96, y = 82 + r * 112, d = (.8 + k * .7 + r * .08).toFixed(2) + "s";
+      const g = el("g", { class: "a", style: `--d:${d}` }, S);
+      el("rect", { x, y, width: 84, height: 84, rx: 4, fill: "var(--img)" }, g);
+      const amp = curve(.12 + k * .17);
+      if (row !== "difference") el("ellipse", { cx: x + 42, cy: y + 42, rx: 30, ry: 18, fill: "url(#gal)", transform: `rotate(-25 ${x + 42} ${y + 42})` }, g);
+      if (row !== "template") el("circle", { cx: x + 52, cy: y + 34, r: (4 + amp * 12).toFixed(1), fill: "url(#pt)", opacity: (.25 + amp * .75).toFixed(2) }, g);
+    }
+  });
+  el("text", { x: 680, y: 450, class: "t-small a", style: "--d:3.6s;fill:var(--ink)" }, S, "plus timestamps, fluxes and the full");
+  el("text", { x: 680, y: 476, class: "t-small a", style: "--d:3.6s;fill:var(--ink)" }, S, "alert record, for every Set B object");
+
+  /* scene 8: route matrix */
+  const M = document.getElementById("matrix");
+  const cols = ["Part A", "Part B", "light curves", "stamps"];
+  const rows = [
+    ["Lasair", ["7 s", "", "", "14 min"], [1, 0, 0, 1]],
+    ["Pitt-Google", ["", "3 min", "72 s", ""], [0, 1, 1, 0]],
+    ["Babamul", ["", "4 min", "38 s", "11 min"], [0, 0, 0, 0]],
+    ["ALeRCE", ["", "small sets", "15 s", "fill-in"], [0, 0, 0, 0]],
+    ["Fink", ["", "20 min", "5 min", "closed"], [0, 0, 0, 0]],
+    ["ANTARES", ["", "notes", "", ""], [0, 0, 0, 0]]
+  ];
+  cols.forEach((c, j) => el("text", { x: 360 + j * 205, y: 62, "text-anchor": "middle", class: "t-mid a", style: `--d:${.1 + j * .1}s` }, M, c));
+  rows.forEach(([name, vals, def], i) => {
+    const y = 100 + i * 64, d = (.4 + i * .25).toFixed(2) + "s";
+    el("text", { x: 60, y: y + 30, class: "t-mid a", style: `--d:${d}` }, M, name);
+    vals.forEach((v, j) => {
+      if (!v) return;
+      const x = 270 + j * 205;
+      el("rect", { x, y, width: 180, height: 46, rx: 23, fill: def[j] ? "var(--b-soft)" : "var(--bg)", stroke: def[j] ? "var(--b)" : "var(--line)", "stroke-width": 2, class: "a", style: `--d:${d}` }, M);
+      el("text", { x: x + 90, y: y + 30, "text-anchor": "middle", class: "t-data a", style: `--d:${d};font-size:19px` }, M, v);
+    });
+  });
+  el("text", { x: 600, y: 512, "text-anchor": "middle", class: "t-mid a", style: "--d:2.4s;fill:var(--a)" }, M, "Different ways to fetch. One way to decide what is a pair.");
+  el("text", { x: 1150, y: 545, "text-anchor": "end", class: "t-small a", style: "--d:2.6s;font-size:15px" }, M, "green: default route");
+
+  /* scene 9: two pipelines */
+  const N = document.getElementById("lanes");
+  el("text", { x: 60, y: 60, class: "t-mid" }, N, "Archive pipeline");
+  el("text", { x: 60, y: 90, class: "t-small" }, N, "asks the archives for a time window, after the fact");
+  el("text", { x: 60, y: 320, class: "t-mid" }, N, "Stream pipeline");
+  el("text", { x: 60, y: 350, class: "t-small" }, N, "listens to the alert stream and works on small batches");
+  [[150, 260], [420, 520]].forEach(([y0], k) => {
+    el("rect", { x: 60, y: k ? 380 : 120, width: 520, height: 56, rx: 6, fill: "var(--img)", class: "a", style: `--d:${k ? 2.2 : .2}s` }, N);
+    el("text", { x: 320, y: (k ? 380 : 120) + 36, "text-anchor": "middle", class: "t-small a", style: `--d:${k ? 2.2 : .2}s;fill:var(--img-ink)` }, N, "one observing night");
+  });
+  const block = (x, y, w, lab, col, d) => {
+    el("rect", { x, y, width: w, height: 56, rx: 6, fill: col, class: "a", style: `--d:${d}s` }, N);
+    el("text", { x: x + w / 2, y: y + 36, "text-anchor": "middle", class: "t-mid a", style: `--d:${d}s;fill:var(--panel);font-size:22px` }, N, lab);
+  };
+  block(640, 120, 150, "A", "var(--a)", .9); block(800, 120, 150, "B", "var(--b)", 1.2); block(960, 120, 180, "C", "var(--c)", 1.5);
+  el("text", { x: 640, y: 210, class: "t-small a", style: "--d:1.7s;fill:var(--ink)" }, N, "on the dashboard: once a day, on the latest night");
+  el("text", { x: 640, y: 238, class: "t-small a", style: "--d:1.7s;fill:var(--ink)" }, N, "with more than 50,000 alerts");
+  for (let k = 0; k < 6; k++) {
+    const x = 90 + k * 82, d = 2.6 + k * .3;
+    el("rect", { x, y: 448, width: 22, height: 22, rx: 3, fill: "var(--a)", class: "a", style: `--d:${d}s` }, N);
+    el("rect", { x: x + 24, y: 448, width: 22, height: 22, rx: 3, fill: "var(--b)", class: "a", style: `--d:${d + .1}s` }, N);
+    el("rect", { x: x + 48, y: 448, width: 22, height: 22, rx: 3, fill: "var(--c)", class: "a", style: `--d:${d + .2}s` }, N);
+  }
+  el("text", { x: 640, y: 408, class: "t-data a", style: "--d:2.4s" }, N, "4–5 min  exposure → message");
+  el("text", { x: 640, y: 444, class: "t-data a", style: "--d:2.8s" }, N, "2–7 s    Parts A+B+C per batch");
+  el("text", { x: 640, y: 496, class: "t-small a", style: "--d:3.2s" }, N, "measured 15 Nov 2026, replay of one day");
+
+  /* the film */
+  const scenes = [
+    { t: "One alert: what changed in the sky", x: "Rubin subtracts an earlier image of the same field from tonight's. Whatever is left is a detection, sent out at once as an alert with three small images: science, template and difference.", n: "Measured, 15 Nov 2026: 45 visits between 00:15 and 00:48 UTC gave 135,569 alerts; median 161 s from exposure to publication." },
+    { t: "Brokers receive every alert", x: "Several alert brokers take in the whole stream, keep it and offer it in different ways. The pipeline uses each for what it does best, and any of them can be swapped for another.", n: "Six brokers, all reached without a paid account; Babamul needs a free token." },
+    { t: "Part A: select new transients", x: "Objects first seen inside the time window, with at least two detections. Sherlock's catalogue cross-match removes the obvious contaminants: AGN, variable stars, known stars. What survives is Set A.", n: "Measured, window 15 Nov 2026: 138,867 alerts → 78 objects in Set A (Lasair + Sherlock, 3 s)." },
+    { t: "Part B: search space around each Set A object", x: "Around every Set A object, look for any other object within x arcseconds, in the full unfiltered archive, including objects removed in Part A. Method 1 compares object positions; Method 2 compares the position of every alert.", n: "x = 10 arcsec. Both methods are run from the same download." },
+    { t: "Part B: then the time condition", x: "Two objects close on the sky are kept as a pair only if their spans of detections overlap, or are separated by no more than t days.", n: "t = 100 days. The gap is between whole spans of detections, not single dates." },
+    { t: "Linked chains form groups: Set B", x: "Pairs that share an object join into one group. Every object in a match goes into Set B, companions from outside Set A included, and Set A objects with no match are kept alone. Set B is deliberately inclusive.", n: "Measured, window 15 Nov 2026: Set A 78 → Set B 82 objects, 4 pairs." },
+    { t: "Part C: collect all the data", x: "For every object in Set B: the full light curve in every band, the timestamps, the complete alert records, and the science, template and difference stamps of every alert. This is the input for the separate search models.", n: "Measured, October Set B: 104,949 alerts with all stamps in 11 min 11 s through Babamul." },
+    { t: "Every broker is interchangeable", x: "Each part has several routes. They differ in speed and in what they return, but the same rules decide what is a pair, so the result does not depend on the route.", n: "Times measured once each on October's sets (28,614 → 32,193 objects); full table below." },
+    { t: "Two pipelines: archive and stream", x: "The archive pipeline asks the brokers' archives about a past time window. The stream pipeline listens to the live stream and runs all three parts on each small batch, minutes after the exposure.", n: "Measured, 15 Nov 2026: messages arrive 4–5 min after the exposure; Parts A+B+C take 2–7 s per batch." }
+  ];
+  const DUR = 9000;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const groups = scenes.map((_, i) => document.getElementById("s" + i));
+  const dots = document.getElementById("dots"), bar = document.getElementById("bar");
+  const playBtn = document.getElementById("play");
+  scenes.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = String(i + 1); b.setAttribute("aria-label", "Scene " + (i + 1) + ": " + s.t);
+    b.addEventListener("click", () => { go(i); });
+    dots.appendChild(b);
+  });
+  let cur = -1, playing = !reduce, t0 = 0, raf = 0;
+  function go(i) {
+    cur = (i + scenes.length) % scenes.length;
+    groups.forEach((g, k) => { g.classList.remove("on"); if (k === cur) { void g.getBoundingClientRect(); g.classList.add("on"); } });
+    document.getElementById("cap-step").textContent = "Scene " + (cur + 1) + " of " + scenes.length;
+    document.getElementById("cap-title").textContent = scenes[cur].t;
+    document.getElementById("cap-text").textContent = scenes[cur].x;
+    document.getElementById("cap-num").textContent = scenes[cur].n;
+    [...dots.children].forEach((b, k) => { if (k === cur) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
+    t0 = performance.now();
+  }
+  function tick(now) {
+    if (playing) {
+      const f = Math.min(1, (now - t0) / DUR);
+      bar.style.width = (f * 100).toFixed(1) + "%";
+      if (f >= 1) go(cur + 1);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  function setPlaying(p) { playing = p; playBtn.textContent = p ? "Pause" : "Play"; if (p) t0 = performance.now(); else bar.style.width = "0%"; }
+  playBtn.addEventListener("click", () => setPlaying(!playing));
+  document.getElementById("prev").addEventListener("click", () => go(cur - 1));
+  document.getElementById("next").addEventListener("click", () => go(cur + 1));
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") go(cur + 1);
+    else if (e.key === "ArrowLeft") go(cur - 1);
+  });
+  setPlaying(playing);
+  go(0);
+  raf = requestAnimationFrame(tick);
+})();
+</script>

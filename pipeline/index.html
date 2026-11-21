@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline Playground</title>
+<meta name="description" content="The real-time alert pipeline, explained and live: pick a time window and run a quick version of it on the cluster.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="try.css">
+<!-- Source: dashboard/page2/ in the CV project; copied to website/pipeline/ by build.py site.
+     Data: the numbers published by the pipeline's dashboard job (explore.json, timings.json, latest.json);
+     the visitor's quick run is requested through ntfy.sh. ?data=<base url> overrides the data location (tests). -->
+</head>
+<body>
+<a class="back" href="../#work">← deltasata.github.io</a>
+
+<header class="hero">
+  <p class="eyebrow">Real-time event pipeline · try it yourself</p>
+  <h1>A flood of alerts every night. Find the few that matter.</h1>
+  <p class="lede">Every night the Rubin Observatory's LSST survey sends out alerts about anything in the sky that changed. This pipeline pulls them from six public brokers, narrows them down to new objects worth a look, links each one to its neighbours in space and time, and fetches their full data. Watch how it works, then pick a time window and run a quick version of it on the cluster yourself.</p>
+  <div class="now" id="now" hidden>
+    <span class="now__pill" id="now-pill"></span>
+    <p class="now__msg" id="now-msg"></p>
+  </div>
+</header>
+
+<main>
+  <section class="card" id="how">
+    <div class="card__head">
+      <h2>1 · How it works</h2>
+      <p>Nine short scenes. Positions and light curves are drawn for illustration; every number is measured.</p>
+    </div>
+    <iframe class="explainer" id="explainer" src="explainer.html?embed" title="Animated explanation of the pipeline in nine scenes" loading="lazy"></iframe>
+  </section>
+
+  <section class="card" id="days">
+    <div class="card__head">
+      <h2>2 · Alerts in the last days</h2>
+      <p id="days-sub">Alerts per UTC day, from the latest day with more than 50,000 alerts back.</p>
+    </div>
+    <div class="days" id="days-chart"></div>
+    <p class="note" id="days-note" hidden></p>
+    <div class="tonight" id="tonight" hidden></div>
+  </section>
+
+  <section class="card card--accent" id="try">
+    <div class="card__head">
+      <h2>3 · Your window, your run</h2>
+      <p>Pick a start and a length (whole hours, up to 15 days). The counts below update instantly from the last main run; the button then runs a quick version of the pipeline for your window on the cluster.</p>
+    </div>
+    <div class="picker">
+      <label>Start day (UTC)<select id="pick-day"></select></label>
+      <label>Start hour<select id="pick-hour"></select></label>
+      <label class="picker__len">Length <output id="pick-len-out">24 h</output>
+        <input type="range" id="pick-len" min="1" max="360" step="1" value="24">
+      </label>
+      <div class="presets" id="presets"></div>
+    </div>
+    <div class="timeline" id="timeline" aria-hidden="true"></div>
+    <p class="timeline__axis" id="timeline-axis"></p>
+
+    <div class="preview" id="preview"></div>
+
+    <div class="runbar">
+      <button type="button" class="btn" id="run" disabled>Run it on the cluster</button>
+      <span class="runbar__msg" id="run-msg" aria-live="polite"></span>
+    </div>
+    <div class="result" id="result" hidden></div>
+  </section>
+
+  <section class="card" id="pairs">
+    <div class="card__head">
+      <h2>4 · Linking in space and time</h2>
+      <p>Part B keeps a new object's neighbours: anything within <i>x</i> arcseconds on the sky and <i>t</i> days in time, even if it did not pass the filter. Move the limits and watch the set change. These are the real pairs of the last main run (names replaced by numbers).</p>
+    </div>
+    <div class="sliders">
+      <label><span>Distance <i>x</i> <output id="px-out"></output></span><input type="range" id="px" min="0" max="10" step="0.1" value="10"></label>
+      <label><span>Time gap <i>t</i> <output id="pt-out"></output></span><input type="range" id="pt" min="0" max="100" step="1" value="100"></label>
+    </div>
+    <div class="pairs" id="pairs-out"></div>
+  </section>
+
+  <section class="card" id="speed">
+    <div class="card__head">
+      <h2>5 · Every part, through every broker</h2>
+      <p id="speed-sub">Each broker can do each part; they differ in speed and limits. Single measurements of full-size runs.</p>
+    </div>
+    <div class="speed" id="speed-out"></div>
+    <div class="forecast" id="forecast"></div>
+  </section>
+
+  <section class="card" id="differ">
+    <div class="card__head">
+      <h2>6 · Why the numbers can differ</h2>
+      <p>Three sets of numbers, made at different times by different routes. They answer slightly different questions, so they are not expected to match exactly.</p>
+    </div>
+    <div class="tablewrap">
+      <table class="tbl">
+        <thead><tr><th>Numbers</th><th>From</th><th>When</th><th>Counted how</th></tr></thead>
+        <tbody>
+          <tr><td>Live dashboard (main page)</td><td>Pitt-Google; Lasair + Sherlock; full Parts B and C</td><td>Daily, or on a click, never twice in 3 h</td><td>Window by the 50k / 100k rule; Set A with Sherlock's catalogue filter</td></tr>
+          <tr><td>Sections 2, 4 and the instant counts</td><td>Pitt-Google, ALeRCE, Babamul, Fink</td><td>Made by the last main run</td><td>Alerts per hour; ALeRCE objects by their latest detection</td></tr>
+          <tr><td>Your run (section 3)</td><td>Pitt-Google, counted again; ALeRCE</td><td>When you click</td><td>Your window; ALeRCE objects by their first detection; a quick Set A without Sherlock</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" id="differ-note"></p>
+  </section>
+
+  <p class="legend"><b class="tag tag--m">measured</b> counted or timed for real · <b class="tag tag--f">forecast</b> arithmetic on a measured rate · <b class="tag tag--s">illustration</b> drawn to explain. <span id="asof"></span></p>
+</main>
+
+<footer class="foot">
+  <a href="../#project-lenssn">Back to the pipeline on deltasata.github.io</a> ·
+  <a href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener">Code on GitHub ↗</a> ·
+  <a href="https://github.com/deltasata/pipeline-dashboard-data" target="_blank" rel="noopener">The published numbers ↗</a>
+</footer>
+
+<script src="try.js" defer></script>
+</body>
+</html>
