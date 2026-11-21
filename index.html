@@ -199,12 +199,12 @@
     <div class="feature__body">
       <p class="tag">Research · paper on arXiv</p>
       <h3 class="feature__title">OASIS, transformers for asynchronous image streams</h3>
-      <p class="feature__text">Seven transformer architectures, chosen from 227 training runs across 19 architecture families, that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style readout, with Time2Vec and causal masking; the best cut the recurrent baseline&#39;s loss by 30%; paper on arXiv (2610.17168).</p>
+      <p class="feature__text">Seven transformer architectures, chosen from 227 training runs across 19 architecture families with 10+ seeds per model, that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style readout, with Time2Vec and causal masking; the best cut the recurrent baseline&#39;s loss by 30% and flags 70% of rare events at a 0.01% false-positive rate after 6 images, where the baseline needs 9; paper on arXiv (2610.17168).</p>
       <ul class="chips"><li>PyTorch</li><li>Transformers</li><li>GPU</li></ul>
 <a class="link" href="https://github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
     <div class="feature__visual">
       <ul class="statgrid">
-<li><span class="statgrid__value">227</span><span class="statgrid__label">GPU training runs in the model search</span></li><li><span class="statgrid__value">19</span><span class="statgrid__label">architecture families compared</span></li><li><span class="statgrid__value">30%</span><span class="statgrid__label">lower loss than the recurrent baseline</span></li>      </ul>
+<li><span class="statgrid__value">227</span><span class="statgrid__label">GPU training runs in the model search</span></li><li><span class="statgrid__value">30%</span><span class="statgrid__label">lower loss than the recurrent baseline</span></li><li><span class="statgrid__value">6 vs 9</span><span class="statgrid__label">images to 70% recall at 0.01% false positives</span></li>      </ul>
       <div class="anim-slot echo-video" data-anim="oasis-story">
         <video muted loop playsinline preload="none" poster="media/oasis_story_poster.jpg"
                aria-label="Animation in five steps: survey images of a lensed supernova arrive one at a time, each in one colour band at irregular times; a fixed band-by-time grid would be 75% empty padding; OASIS turns each image into 81 patch tokens and attends within the new image and back to the same spot in earlier images, never ahead; after 6 images it flags 70% of lensed supernovae at 1 false alarm per 10,000; on the two hardest look-alike populations it raises 7 to 9 times fewer false alarms than a ConvLSTM baseline.">
@@ -214,7 +214,7 @@
       </div>
       <p class="echo-note">Simulated survey images; numbers are held-out test-set results from the paper.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="oasis/?v=202611201929" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="oasis/?v=202611211200" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </article>
@@ -235,7 +235,7 @@
       </div>
       <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="echo/?v=202611201929" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="echo/?v=202611211200" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
 <a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>      </div>
     </div>
   </article>
@@ -312,7 +312,7 @@
       <div class="card timeline__card">
         <h3>Data Scientist / ML Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
-<p class="timeline__context">Leads the search for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead the rare-event search of a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud: <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences after every new frame: an automated search of <strong>227 GPU training runs</strong> (100 configurations, 19 architecture families, effects confirmed over 3–11 seeds), seven designs published; the best reached <strong>30% lower loss than the ConvLSTM baseline</strong>.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, cross-frame tracking, two CNN quality scorers) as a lean container that runs on small image tiles, making training-data generation at scale feasible on HPC.</li></ul>
+<p class="timeline__context">Leads the search for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead the rare-event search of a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud: <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences after every new frame, chosen in an automated search of <strong>227 GPU runs</strong> over 19 architecture families, 10+ seeds per model; the best cut the ConvLSTM baseline's loss by <strong>30%</strong> and hit 70% recall at 0.01% false positives after <strong>6 images, not 9</strong>.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, cross-frame tracking, two CNN quality scorers) as a lean container that runs on small image tiles, making training-data generation at scale feasible on HPC.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -330,7 +330,7 @@
       <div class="card timeline__card">
         <h3>Machine Learning Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Korea Astronomy and Space Science Institute (KASI) · Daejeon, South Korea</p>
-<p class="timeline__context">New statistical methods, time-series machine learning and Bayesian inference for noisy, blended signals.</p>        <ul class="bullets"><li>Invented <strong>new statistical methods</strong> that detect a hidden, time-delayed copy of a signal in one blended time series and measure the delay: transients at under 5% false positives; random signals with no signal model, held impossible since 1996, at <strong>92% precision</strong> vs 53% for autocorrelation, with a proof and real-data confirmation.</li><li>Built LSTM and 1D-CNN time-series classifiers and Bayesian models fitted with Hamiltonian Monte Carlo (Stan).</li><li>Designed a model-independent way to measure how galaxies rotate from noisy imaging spectroscopy (cross-correlation and iterative smoothing), later extended to low signal-to-noise data with a mentored student.</li><li>The model-free statistic for random signals was covered by national media in South Korea. Received the institute's Best Postdoc Award (2022).</li></ul>
+<p class="timeline__context">New statistical methods, time-series machine learning and Bayesian inference for noisy, blended signals.</p>        <ul class="bullets"><li>Invented <strong>new statistical methods</strong> that detect a hidden, time-delayed copy of a signal in one blended time series and measure the delay: transients at under 5% false positives; random signals with no signal model, held impossible since 1996, at <strong>92% precision</strong> vs 53% for autocorrelation, with a proof and real-data confirmation.</li><li>Built LSTM and 1D-CNN time-series classifiers and Bayesian models fitted with Hamiltonian Monte Carlo (Stan).</li><li>Designed a model-independent way to measure how galaxies rotate from noisy imaging spectroscopy (cross-correlation and iterative smoothing), later extended to low signal-to-noise data with a mentored student.</li><li>National media in South Korea reported on the model-free statistic for hidden time-delayed copies (ApJ 2022, 2023).</li><li>Received the institute's Best Postdoc Award (2022).</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
