@@ -301,3 +301,19 @@ html.static *,html.static *::before,html.static *::after{animation:none!importan
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important; transition:none!important; scroll-behavior:auto!important}
 }
+
+/* Primary demo action (website, 2026-11-21): noticeable at first sight but formal: a solid teal button;
+   the first time it comes into view a soft ring pulses three times, then it stays still. */
+.cta{position:relative; isolation:isolate; background:linear-gradient(180deg,#5cf0d7,#2fcfb4) !important; color:#04121a !important;
+  border:0 !important; font-weight:700 !important; letter-spacing:.01em;
+  box-shadow:0 0 0 1px rgba(62,230,200,.45), 0 10px 28px -10px rgba(62,230,200,.75) !important}
+.cta:hover{box-shadow:0 0 0 1px rgba(62,230,200,.6), 0 12px 32px -8px rgba(62,230,200,.9) !important}
+.cta::after{content:""; position:absolute; inset:-5px; border-radius:inherit; border:2px solid rgba(62,230,200,.65);
+  opacity:0; pointer-events:none; z-index:-1}
+.cta.cta-go::after{animation:cta-halo 2.2s cubic-bezier(.2,.7,.1,1) .4s 3}
+.cta.cta-done::after{animation:none}
+@keyframes cta-halo{0%{opacity:.9; transform:scale(.97)} 100%{opacity:0; transform:scale(1.28)}}
+@media (prefers-reduced-motion:reduce){.cta.cta-go::after{animation:none}}
+.transport #play.cta{width:auto; padding:0 18px 0 15px; gap:8px; font-size:13.5px}
+.transport #play.cta svg{flex:none}
+@media (max-width:480px){.transport #play.cta .cta-label{display:none}.transport #play.cta{width:46px; padding:0}}

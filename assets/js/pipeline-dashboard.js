@@ -43,19 +43,18 @@
     return `${day(a)} – ${day(b)} ${b.getUTCFullYear()} (${w.days} days, UTC)`;
   }
 
-  function chart(days, dayMin) {
+  function chart(days) {
     if (!days || !days.length) return '';
-    const max = Math.max(dayMin * 1.2, ...days.map((d) => d.alerts || 0));
+    const max = Math.max(1, ...days.map((d) => d.alerts || 0));
     const bars = days.map((d) => {
       const h = d.alerts ? Math.max(3, (100 * d.alerts) / max) : 0;
       const cls = d.in_window ? 'is-in' : d.skipped ? 'is-skip' : '';
-      const tip = `${day(new Date(d.date + 'T00:00:00Z'))}: ${d.alerts == null ? 'no alerts reported' : num(d.alerts) + ' alerts'}${d.in_window ? ' (in the window)' : d.skipped ? ' (skipped: under ' + short(dayMin) + ')' : ''}`;
+      const tip = `${day(new Date(d.date + 'T00:00:00Z'))}: ${d.alerts == null ? 'no alerts reported' : num(d.alerts) + ' alerts'}${d.in_window ? ' (in the window)' : d.skipped ? ' (skipped: too few alerts)' : ''}`;
       return `<span class="pd-chart__col ${cls}" title="${esc(tip)}"><span class="pd-chart__bar" style="height:${h}%"></span>${d.alerts == null ? '<span class="pd-chart__none"></span>' : ''}</span>`;
     }).join('');
-    const line = (100 * dayMin) / max;
     const first = day(new Date(days[0].date + 'T00:00:00Z')), last = day(new Date(days[days.length - 1].date + 'T00:00:00Z'));
     return `<figure class="pd-chart" aria-label="Alerts per night over the last ${days.length} days">
-        <div class="pd-chart__plot"><span class="pd-chart__line" style="bottom:${line}%"><em>${short(dayMin)}</em></span>${bars}</div>
+        <div class="pd-chart__plot">${bars}</div>
         <figcaption><span>${first}</span><span>alerts per night · <i class="k k--in"></i>window <i class="k k--skip"></i>skipped</span><span>${last}</span></figcaption>
       </figure>`;
   }
@@ -85,7 +84,7 @@
       ${w.shifted ? `<p class="pd-notice">${esc(w.note || 'LSST is running at reduced capacity, so the window was moved back or widened.')}</p>` : ''}
       ${failed ? `<p class="pd-notice pd-notice--fail">The latest run did not finish: ${esc(String(d.error || 'unknown error').replace(/\s*\([A-Za-z]+Error\)/g, '').replace(/[.\s]+$/, ''))}. Showing the last complete run.</p>` : ''}
       ${funnel(d)}
-      ${chart(d.daily_alerts, cfg.dayMin)}
+      ${chart(d.daily_alerts)}
       <div class="pd-foot">
         ${pub ? `<a class="pd-rubin" href="${esc(pub.url)}" target="_blank" rel="noopener"><i class="${pub.alert_servers_up === pub.alert_servers ? 'ok' : 'warn'}"></i>Rubin alert servers ${num(pub.alert_servers_up)}/${num(pub.alert_servers)} up <span aria-hidden="true">↗</span></a>` : '<span></span>'}
         <span class="pd-run">${cfg.request ? '<button type="button" class="pd-btn" disabled>Run the pipeline now</button>' : ''}<span class="pd-run__msg" aria-live="polite"></span></span>
@@ -102,7 +101,7 @@
       const rows = (await Promise.all(months.map((m) => fetch(FINK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: m }) }).then((r) => (r.ok ? r.json() : []))))).flat();
       const days = rows.map((r) => ({ date: `${String(r['f:night']).slice(0, 4)}-${String(r['f:night']).slice(4, 6)}-${String(r['f:night']).slice(6, 8)}`, alerts: Number(r['f:alerts']) || null }))
         .sort((a, b) => (a.date < b.date ? -1 : 1)).slice(-14);
-      body.querySelector('.pd-fb').outerHTML = days.length ? chart(days, cfg.dayMin) : '<p class="pd-age">No counts available.</p>';
+      body.querySelector('.pd-fb').outerHTML = days.length ? chart(days) : '<p class="pd-age">No counts available.</p>';
     } catch (e) {
       const fb = body.querySelector('.pd-fb'); if (fb) fb.outerHTML = '<p class="pd-age">No counts available.</p>';
     }
@@ -177,7 +176,7 @@
     const cfg = {
       src: q.get('dashdata') || el.dataset.src,
       request: el.dataset.request, status: el.dataset.statusTopic,
-      rubin: el.dataset.rubin, dayMin: Number(el.dataset.dayMin) || 50000,
+      rubin: el.dataset.rubin,
     };
     if (!cfg.src) return;
     el.querySelector('.dash__body').innerHTML = '<p class="pd-age pd-loading">Loading the latest run…</p>';

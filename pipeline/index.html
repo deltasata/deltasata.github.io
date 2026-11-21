@@ -38,7 +38,7 @@
   <section class="card" id="days">
     <div class="card__head">
       <h2>2 · Alerts in the last days</h2>
-      <p id="days-sub">Alerts per UTC day, from the latest day with more than 50,000 alerts back.</p>
+      <p id="days-sub">Alerts per UTC day, ending on the latest day with enough alerts.</p>
     </div>
     <div class="days" id="days-chart"></div>
     <p class="note" id="days-note" hidden></p>
@@ -64,7 +64,7 @@
     <div class="preview" id="preview"></div>
 
     <div class="runbar">
-      <button type="button" class="btn" id="run" disabled>Run it on the cluster</button>
+      <button type="button" class="btn cta" id="run" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" fill="currentColor"/></svg>Run it on the cluster</button>
       <span class="runbar__msg" id="run-msg" aria-live="polite"></span>
     </div>
     <div class="result" id="result" hidden></div>
@@ -100,7 +100,7 @@
       <table class="tbl">
         <thead><tr><th>Numbers</th><th>From</th><th>When</th><th>Counted how</th></tr></thead>
         <tbody>
-          <tr><td>Live dashboard (main page)</td><td>Pitt-Google; Lasair + Sherlock; full Parts B and C</td><td>Daily, or on a click, never twice in 3 h</td><td>Window by the 50k / 100k rule; Set A with Sherlock's catalogue filter</td></tr>
+          <tr><td>Live dashboard (main page)</td><td>Pitt-Google; Lasair + Sherlock; full Parts B and C</td><td>Daily, or on a click, never twice in 3 h</td><td>Window: the latest days with enough alerts; Set A with Sherlock's catalogue filter</td></tr>
           <tr><td>Sections 2, 4 and the instant counts</td><td>Pitt-Google, ALeRCE, Babamul, Fink</td><td>Made by the last main run</td><td>Alerts per hour; ALeRCE objects by their latest detection</td></tr>
           <tr><td>Your run (section 3)</td><td>Pitt-Google, counted again; ALeRCE</td><td>When you click</td><td>Your window; ALeRCE objects by their first detection; a quick Set A without Sherlock</td></tr>
         </tbody>
@@ -119,5 +119,12 @@
 </footer>
 
 <script src="try.js" defer></script>
+<script>/* primary demo action: start the soft ring when the button is first fully in view; stop it after the first click */
+(function(){document.querySelectorAll('.cta').forEach(function(b){
+  b.addEventListener('click',function(){b.classList.add('cta-done');},{once:true});
+  if(!('IntersectionObserver' in window)){b.classList.add('cta-go');return;}
+  var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){b.classList.add('cta-go');io.disconnect();}},{threshold:.9});io.observe(b);});})();
+</script>
+
 </body>
 </html>

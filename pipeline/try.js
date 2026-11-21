@@ -64,21 +64,12 @@
   function renderDays(ex) {
     const b = ex && ex.box;
     if (!b || !Array.isArray(b.days) || !b.days.length) { $('days-chart').innerHTML = '<p class="note">No daily counts available right now.</p>'; return; }
-    const thr = N(b.day_min_alerts) || 50000;
-    const max = Math.max(thr * 1.15, ...b.days.map((d) => N(d.alerts) || 0));
+    const max = Math.max(1, ...b.days.map((d) => N(d.alerts) || 0));
     $('days-chart').innerHTML = b.days.map((d) => {
       const a = N(d.alerts), h = a ? Math.max(1.5, (100 * a) / max) : 0;
       return `<div class="day ${d.enough ? 'is-ok' : ''}" title="${esc(day(D(d.date + 'T00:00:00Z')))}: ${a == null ? 'no alerts reported' : fmt(a) + ' alerts'}">
         <span class="day__n">${a == null ? '–' : short(a)}</span><span class="day__bar" style="height:${h}%"></span><span class="day__d">${esc(day(D(d.date + 'T00:00:00Z')))}</span></div>`;
-    }).join('') + `<span class="days__line" style="bottom:calc(${(100 * thr) / max}% * (190 - 18 - 36) / 190 + 24px)"><em>${short(thr)}</em></span>`;
-    // place the 50k line on the bar scale (bars live in the area between the labels)
-    requestAnimationFrame(() => {
-      const bar = $('days-chart').querySelector('.day__bar'), line = $('days-chart').querySelector('.days__line');
-      if (!bar || !line) return;
-      const col = bar.parentElement, top = col.querySelector('.day__n').offsetHeight + 5, bottom = col.querySelector('.day__d').offsetHeight + 6;
-      const area = col.offsetHeight - top - bottom;
-      line.style.bottom = `${bottom + (area * thr) / max}px`;
-    });
+    }).join('');
     if (b.note) { $('days-note').textContent = `Note: ${b.note}.`; $('days-note').hidden = false; }
     const t = ex.tonight;
     if (t && Array.isArray(t.bins) && t.bins.length && ok(t.alerts_received)) {
