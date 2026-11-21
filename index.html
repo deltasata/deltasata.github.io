@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
-<script type="application/ld+json">
+<link rel="stylesheet" href="assets/css/pipeline-dashboard.css"><script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Person","name":"Satadru Bag","jobTitle":"Data Scientist","email":"mailto:satadru.iucaa@gmail.com","address":{"@type":"PostalAddress","addressLocality":"Munich","addressCountry":"DE"},"sameAs":["https://github.com/deltasata","https://www.linkedin.com/in/satadru-bag","https://scholar.google.com/citations?user=tD5KssAAAAAJ&amp;hl=en"]}
 </script>
 </head>
@@ -189,7 +189,7 @@
     <div class="feature__visual">
       <ul class="statgrid">
 <li><span class="statgrid__value">~10M</span><span class="statgrid__label">events per night, about 1 TB</span></li><li><span class="statgrid__value">6</span><span class="statgrid__label">external data providers (REST APIs and Kafka)</span></li><li><span class="statgrid__value">500+</span><span class="statgrid__label">automated tests, run in CI</span></li>      </ul>
-      <div class="dash anim-slot" data-anim="pipeline-dashboard" aria-hidden="true">
+      <div class="dash anim-slot" data-anim="pipeline-dashboard" aria-hidden="true" data-src="https://raw.githubusercontent.com/deltasata/pipeline-dashboard-data/main/latest.json" data-request="lsn-dash-req-7f3k9q2xw8" data-status-topic="lsn-dash-status-7f3k9q2xw8" data-rubin="https://grafana.slac.stanford.edu/public-dashboards/26d8f1d4d48c40e9b9d9b490b43b7943" data-day-min="50000">
         <div class="dash__bar"><i></i><i></i><i></i><span>live dashboard</span><b class="pulse"></b></div>
         <div class="dash__body"><span class="anim-slot__art anim-slot__art--dash"></span></div>
       </div>
@@ -214,7 +214,7 @@
       </div>
       <p class="echo-note">Simulated survey images; numbers are held-out test-set results from the paper.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="oasis/?v=202611211200" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="oasis/?v=202611211923" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </article>
@@ -235,7 +235,7 @@
       </div>
       <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="echo/?v=202611211200" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="echo/?v=202611211923" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
 <a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>      </div>
     </div>
   </article>
@@ -469,5 +469,5 @@
 </footer>
 
 <script src="assets/js/site.js" defer></script>
-</body>
+<script src="assets/js/pipeline-dashboard.js" defer></script></body>
 </html>
