@@ -193,7 +193,7 @@
         <div class="dash__bar"><i></i><i></i><i></i><span>live dashboard</span><b class="pulse"></b></div>
         <div class="dash__body"><span class="anim-slot__art anim-slot__art--dash"></span></div>
       </div>
-<div class="echo-links"><a class="link echo-try" href="pipeline/?v=202611212323" target="_blank" rel="noopener">Try it yourself: pick a time window and run the pipeline <span aria-hidden="true">↗</span></a></div>    </div>
+<div class="echo-links"><a class="link echo-try" href="pipeline/?v=202611220014" target="_blank" rel="noopener">Try it yourself: pick a time window and run the pipeline <span aria-hidden="true">↗</span></a></div>    </div>
   </article>
   <article class="card feature reveal" id="project-oasis">
     <div class="feature__body">
@@ -214,7 +214,7 @@
       </div>
       <p class="echo-note">Simulated survey images; numbers are held-out test-set results from the paper.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="oasis/?v=202611212323" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="oasis/?v=202611220014" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </article>
@@ -235,7 +235,7 @@
       </div>
       <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="echo/?v=202611212323" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="echo/?v=202611220014" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
 <a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>      </div>
     </div>
   </article>
@@ -264,7 +264,7 @@
       <div class="anim-slot tile__art" data-anim="project-unresolved" aria-hidden="true"><span class="anim-slot__art anim-slot__art--0"></span></div>
       <p class="tile__tag">Research · 2019 – 2025 · new statistical methods and deep learning</p>
       <h4>Unresolved lensed supernovae, found from one blended light curve</h4>
-      <p>When the copies of a lensed supernova are too close to separate, a survey sees one blended light curve, and most lensed supernovae will look like that. Six years of work: recognising them from the curve&#39;s shape with methods that need hardly any template (under 5% false positives, under 0.5% delay bias), then a 1D CNN that flags them within about 20 days, and an LSTM (unpublished).</p>
+      <p>When the copies of a lensed supernova are too close to separate, a survey sees one blended light curve, and most lensed supernovae will look like that. Six years of work: recognising them from the curve&#39;s shape with methods that need hardly any template (under 5% false positives, under 0.5% delay bias), then deep learning on the same problem: a 1D CNN and an LSTM.</p>
       <ul class="chips chips--small"><li>Time-series statistics</li><li>Polynomial expansions</li><li>Microlensing models</li><li>1D CNN</li><li>LSTM</li></ul>
       <div class="tile__links">
 <a class="link" href="https://github.com/deltasata/Unresolved_LSNeIa_in_LSST" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2010.03774" target="_blank" rel="noopener">ApJ 910, 65 (2021) <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2109.13282" target="_blank" rel="noopener">MNRAS 511 (2022) <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2404.15389" target="_blank" rel="noopener">A&amp;A 691, A100 (2024) <span aria-hidden="true">↗</span></a></p>      </div>
@@ -321,7 +321,7 @@
       <div class="card timeline__card">
         <h3>ML Research Scientist <span class="official">(Alexander von Humboldt Postdoctoral Fellow)</span></h3>
         <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
-<p class="timeline__context">Competitive personal fellowship: deep learning and probabilistic modelling for rare-object detection in large imaging datasets.</p>        <ul class="bullets"><li>Built a ConvLSTM (TensorFlow) that flags rare events in multi-band image time series, rescoring each frame: <strong>70%+ recall at a 0.01% false-positive rate</strong> by the 9th image; trained on 128,000 simulated sequences (~200 GB).</li><li>Co-developed an ensemble of five CNNs that screened <strong>110M images</strong>: 75% recall at a 0.01% false-positive rate; post-processing removed 29% of false candidates with no loss in recall, surfacing 92 previously unknown objects.</li><li>Co-authored a multi-sensor fusion study: a two-branch ResNet on high- and low-resolution imagery raised recall from 41% to <strong>55%</strong> at a 0.01% false-positive rate.</li><li>Contributed to a physics-informed variational autoencoder that classifies and models each object in milliseconds on one CPU, narrowing 80M objects to 13,831 candidates.</li><li>Detected overlapping events from 1D time series alone with a 1D CNN at a 3% false-positive rate, as early as 20 days after first detection.</li></ul>
+<p class="timeline__context">Competitive personal fellowship: deep learning and probabilistic modelling for rare-object detection in large imaging datasets.</p>        <ul class="bullets"><li>Built a ConvLSTM (TensorFlow) that flags rare events in multi-band image time series, rescoring each frame: <strong>70%+ recall at a 0.01% false-positive rate</strong> by the 9th image; trained on 128,000 simulated sequences (~200 GB).</li><li>Co-developed an ensemble of five CNNs that screened <strong>110M images</strong>: 75% recall at a 0.01% false-positive rate; post-processing removed 29% of false candidates with no loss in recall, surfacing 92 previously unknown objects.</li><li>Co-authored a multi-sensor fusion study: a two-branch ResNet on high- and low-resolution imagery raised recall from 41% to <strong>55%</strong> at a 0.01% false-positive rate.</li><li>Contributed to a physics-informed variational autoencoder that classifies and models each object in milliseconds on one CPU, narrowing 80M objects to 13,831 candidates.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
