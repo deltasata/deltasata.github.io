@@ -1,5 +1,5 @@
 /* EO-Agent live page. Source: eo_page/eo.js (CV project); copied to website/eo/ by build.py site.
- * Live questions: the page POSTs JSON to an ntfy.sh request topic; a worker on the cluster answers on the
+ * Live questions: the page POSTs JSON to an ntfy.sh request topic; a worker answers on the
  * status topic. Protocol (agreed with the EO side, notes/REQUESTS_to_eo.md):
  *   heartbeat  {type:"heartbeat", ts, queue, claude:bool, local:bool}           every 60 s while the worker is up
  *   request    {action:"parse", id, model, text}  ->  {id, type:"parsed", fields:{kind,lat,lon,event_date,place}}

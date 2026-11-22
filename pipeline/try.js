@@ -172,7 +172,7 @@
     if (running) return;
     const wait = Math.ceil((busyUntil - Date.now()) / 1000);
     btn.disabled = !EX || wait > 0 || !sumWindow().alerts;
-    if (wait > 0) $('run-msg').textContent = `The cluster is busy with other visitors' runs; try again in ${dur(wait)}.`;
+    if (wait > 0) $('run-msg').textContent = `The pipeline is busy with other visitors' runs; try again in ${dur(wait)}.`;
   }
   setInterval(() => { if (busyUntil && Date.now() >= busyUntil) { busyUntil = 0; $('run-msg').textContent = ''; } runState(); }, 1000);
 
@@ -183,10 +183,10 @@
     let done = false, es = null;
     const t0 = Date.now();
     const finish = () => { done = true; running = false; if (es) es.close(); clearInterval(tick); runState(); };
-    const tick = setInterval(() => { if (!done && $('run-msg').dataset.state === 'run') $('run-msg').textContent = `Running on the cluster… ${Math.round((Date.now() - t0) / 1000)} s`; }, 1000);
+    const tick = setInterval(() => { if (!done && $('run-msg').dataset.state === 'run') $('run-msg').textContent = `Running… ${Math.round((Date.now() - t0) / 1000)} s`; }, 1000);
     const handle = (m) => {
       if (!m || m.id !== id || done) return;
-      if (m.event === 'try_started') { $('run-msg').dataset.state = 'run'; $('run-msg').textContent = 'Running on the cluster…'; }
+      if (m.event === 'try_started') { $('run-msg').dataset.state = 'run'; $('run-msg').textContent = 'Running…'; }
       else if (m.event === 'try_refused') {
         finish(); $('run-msg').dataset.state = '';
         if (m.reason === 'busy' && ok(m.retry_after_s)) { busyUntil = Date.now() + m.retry_after_s * 1000; runState(); }
@@ -207,7 +207,7 @@
         const txt = await (await fetch(`${NTFY}${STATUS}/json?poll=1&since=5m`)).text();
         txt.split('\n').filter(Boolean).map(parse).forEach(handle);
       } catch { /* ignore */ }
-      if (!done) { finish(); $('run-msg').textContent = 'No answer from the cluster within 2 minutes. It may be offline; the counts above still come from the last main run.'; }
+      if (!done) { finish(); $('run-msg').textContent = 'No answer within 2 minutes. The pipeline may be offline; the counts above still come from the last main run.'; }
     }, 120000);
   }
 
@@ -224,7 +224,7 @@
     const maxNo = Math.max(1, ...byc.map((c) => c.one + c.two_or_more));
     $('result').innerHTML = `
       <h3 class="res">Your run: ${esc(when(s))} → ${esc(when(e))}</h3>
-      <p class="sub">${m.stale ? `<span class="tag tag--old">earlier answer</span> The cluster could not complete a fresh run, so this is its last good answer for the same window (as of ${esc(when(D(m.as_of_utc)))}). ${esc(m.note || '')}` : `<span class="tag tag--m">measured</span> Counted on the cluster just now in ${dur(N(ts.total))}: A0 ${dur(N(ts.A0))}, quick Set A ${dur(N(ts['A (ALeRCE)']))}.`}</p>
+      <p class="sub">${m.stale ? `<span class="tag tag--old">earlier answer</span> A fresh run could not be completed, so this is the last good answer for the same window (as of ${esc(when(D(m.as_of_utc)))}). ${esc(m.note || '')}` : `<span class="tag tag--m">measured</span> Counted in a fresh run just now, in ${dur(N(ts.total))}: A0 ${dur(N(ts.A0))}, quick Set A ${dur(N(ts['A (ALeRCE)']))}.`}</p>
       <div class="funnel">
         <div class="tile"><h3>A0 · alerts, counted again</h3><p class="big">${fmt(a.alerts)}</p>
           <p class="note">${fmt(a.visits)} visits. ${pre.alerts === a.alerts ? 'Same as the instant count above.' : `The instant count above says ${fmt(pre.alerts)}: the hourly table is from the last main run, this one is from now.`}</p></div>

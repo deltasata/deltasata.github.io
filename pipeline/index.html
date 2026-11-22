@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pipeline Playground</title>
-<meta name="description" content="The real-time alert pipeline, explained and live: pick a time window and run a quick version of it on the cluster.">
+<meta name="description" content="The real-time alert pipeline, explained and live: pick a time window and start a fresh, quick run of it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Satadru Bag · Data Scientist">
 <meta property="og:title" content="Pipeline playground: run the pipeline on your own time window">
-<meta property="og:description" content="How the real-time alert pipeline works, the alerts of the last days, and a quick version of it that runs on the cluster for any time window you pick.">
+<meta property="og:description" content="How the real-time alert pipeline works, the alerts of the last days, and a fresh, quick run of it for any time window you pick.">
 <meta property="og:url" content="https://deltasata.github.io/pipeline/">
 <meta property="og:image" content="https://deltasata.github.io/pipeline/og.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -26,7 +26,7 @@
 <header class="hero">
   <p class="eyebrow">Real-time event pipeline · try it yourself</p>
   <h1>A flood of alerts every night. Find the few that matter.</h1>
-  <p class="lede">Every night the Rubin Observatory's LSST survey sends out alerts about anything in the sky that changed. This pipeline pulls them from six public brokers, narrows them down to new objects worth a look, links each one to its neighbours in space and time, and fetches their full data. Watch how it works, then pick a time window and run a quick version of it on the cluster yourself.</p>
+  <p class="lede">Every night the Rubin Observatory's LSST survey sends out alerts about anything in the sky that changed. This pipeline pulls them from six public brokers, narrows them down to new objects worth a look, links each one to its neighbours in space and time, and fetches their full data. Watch how it works, then pick a time window and start a fresh, quick run of it yourself.</p>
   <div class="now" id="now" hidden>
     <span class="now__pill" id="now-pill"></span>
     <p class="now__msg" id="now-msg"></p>
@@ -55,7 +55,7 @@
   <section class="card card--accent" id="try">
     <div class="card__head">
       <h2>3 · Your window, your run</h2>
-      <p>Pick a start and a length (whole hours, up to 15 days). The counts below update instantly from the last main run; the button then runs a quick version of the pipeline for your window on the cluster.</p>
+      <p>Pick a start and a length (whole hours, up to 15 days). The counts below update instantly from the last main run; the button then starts a fresh, quick run of the pipeline for your window.</p>
     </div>
     <div class="picker">
       <label>Start day (UTC)<select id="pick-day"></select></label>
@@ -71,7 +71,7 @@
     <div class="preview" id="preview"></div>
 
     <div class="runbar">
-      <button type="button" class="btn cta" id="run" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" fill="currentColor"/></svg>Run it on the cluster</button>
+      <button type="button" class="btn cta" id="run" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" fill="currentColor"/></svg>Run it now</button>
       <span class="runbar__msg" id="run-msg" aria-live="polite"></span>
     </div>
     <div class="result" id="result" hidden></div>

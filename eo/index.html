@@ -12,14 +12,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Satadru Bag · Data Scientist">
 <meta property="og:title" content="EO-Agent: ask the Earth a question">
-<meta property="og:description" content="Floods, wildfires, forest clearing and construction, answered from free satellite images with the evidence. Recorded runs, and a live version on the cluster.">
+<meta property="og:description" content="Floods, wildfires, forest clearing and construction, answered from free satellite images with the evidence. Recorded runs, and a live version you can ask yourself.">
 <meta property="og:url" content="https://deltasata.github.io/eo/">
 <meta property="og:image" content="https://deltasata.github.io/eo/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../pipeline/try.css">
 <link rel="stylesheet" href="eo.css">
 <!-- Source: eo_page/ in the CV project; copied to website/eo/ by build.py site.
-     Live questions go through ntfy.sh to a worker on the cluster; the recorded runs and videos are real
+     Live questions go through ntfy.sh to a worker; the recorded runs and videos are real
      runs of the pipeline. ?mock simulates a live worker (tests). -->
 </head>
 <body>
@@ -42,7 +42,7 @@
   <section class="card card--accent live" id="live">
     <div class="card__head">
       <h2>1 · Ask it yourself</h2>
-      <p>Pick a place and an event, or type a question. It runs on our cluster, one question at a time. A place nobody has asked about takes 1 to 5 minutes, mostly to download and cloud-mask the images.</p>
+      <p>Pick a place and an event, or type a question. Each question is a fresh run, one at a time. A place nobody has asked about takes 1 to 5 minutes, mostly to download and cloud-mask the images.</p>
     </div>
     <div class="live__status" id="live-status" role="status"><span class="dot"></span><span id="live-status-msg">Checking whether the server is up…</span></div>
 

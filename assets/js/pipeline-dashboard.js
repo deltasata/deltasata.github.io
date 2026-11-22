@@ -1,7 +1,7 @@
 /* Live dashboard in the real-time pipeline box (animation slot "pipeline-dashboard").
  * Source: dashboard/pipeline-dashboard.js in the CV project; copied to website/assets/js/ by build.py site.
  *
- * Data: the numbers file written on the cluster by the pipeline's dashboard job and published to a
+ * Data: the numbers file written by the pipeline's dashboard job and published to a
  * data-only GitHub repo (format: dashboard/README.md in the CV project).
  * Visitor runs: a POST to an ntfy.sh topic; replies on a second topic are hints only, the numbers
  * always come from the numbers file.
@@ -122,7 +122,7 @@
       const msgs = txt.split('\n').filter(Boolean).map(parse).filter(Boolean);
       const alive = msgs.some((m) => Date.now() - m.t < 70 * 60 * 1000);
       msgs.forEach((m) => { if (m.e.next_visitor_run_possible_utc) next = new Date(Math.max(next, new Date(m.e.next_visitor_run_possible_utc))); });
-      if (!alive) { btn.disabled = true; say('the cluster is offline; automatic runs resume when it is back'); return; }
+      if (!alive) { btn.disabled = true; say('the pipeline is offline right now; automatic runs resume when it is back'); return; }
       if (refresh()) { btn.disabled = false; say(''); }
     }).catch(() => { btn.disabled = true; say(''); });
 
@@ -134,7 +134,7 @@
         es.onmessage = (ev) => {
           let e; try { e = JSON.parse(JSON.parse(ev.data).message); } catch { return; }
           if (e.event === 'accepted') say('accepted, starting…');
-          else if (e.event === 'started') say('running on the cluster…');
+          else if (e.event === 'started') say('running now…');
           else if (e.event === 'refused') { say(e.reason === 'too soon' && e.next_visitor_run_possible_utc ? `too soon: next run at ${hm(new Date(e.next_visitor_run_possible_utc))} UTC` : 'a run is already in progress'); es.close(); }
           else if (e.event === 'finished' || e.event === 'failed') {
             es.close(); say(e.event === 'finished' ? 'done, loading the new numbers…' : 'the run failed; the last complete numbers stay');
