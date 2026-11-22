@@ -1,14 +1,15 @@
 /* EO-Agent live page. Source: eo_page/eo.js (CV project); copied to website/eo/ by build.py site.
  * Live questions: the page POSTs JSON to an ntfy.sh request topic; a worker answers on the
  * status topic. Protocol (agreed with the EO side, notes/REQUESTS_to_eo.md):
- *   heartbeat  {type:"heartbeat", ts, queue, claude:bool, local:bool}           every 60 s while the worker is up
+ *   heartbeat  {type:"heartbeat", ts, queue, claude:bool, local:bool, model}    every 30 min while the worker is up (model = open model name or null)
+ *   ping -> pong {type:"pong", ...same fields}                                    the page pings once per load (and after an hour)
  *   request    {action:"parse", id, model, text}  ->  {id, type:"parsed", fields:{kind,lat,lon,event_date,place}}
  *              {action:"ask", id, model, kind, lat, lon, event_date, size_km, text?, before?:[s,e], after?:[s,e]}
  *              (construction: two periods, June to August of the two years, so seasons do not count as change)
  *   replies    {id, type:"queued", position} | {id, type:"step", step, state:"start"|"done", seconds?, note?}
  *              {id, type:"done", answer, rule, before_period, after_period}  (image = the message's ntfy attachment)
  *              {id, type:"refused"|"failed", reason}
- * No heartbeat for 3 minutes = the server is down: the live box is greyed out and the replays carry the page.
+ * No heartbeat or pong for 35 minutes (and no pong within 60 s of a ping) = the server is down: the live box is greyed out and the replays carry the page.
  * ?mock simulates a live worker (tests).
  */
 (function () {
@@ -180,24 +181,54 @@
       const c = $('input[name=model][value=claude]');
       c.disabled = !claudeOK; c.closest('.model').classList.toggle('is-off', !claudeOK);
       $('small', c.closest('.model')).textContent = claudeOK ? 'fast to start' : 'not available right now (usage limit reached)';
-      if (!claudeOK && c.checked) $('input[name=model][value=local]').checked = true;
+      const l = $('input[name=model][value=local]');
+      const localOK = !hb || (hb.local !== false && hb.model !== null);
+      l.disabled = !localOK; l.closest('.model').classList.toggle('is-off', !localOK);
+      const name = hb && typeof hb.model === 'string' && hb.model ? hb.model.slice(0, 40) : 'Qwen3-8B';
+      $('small', l.closest('.model')).textContent = localOK ? `${name}, ready now` : 'not available right now';
+      if (!claudeOK && c.checked && localOK) l.checked = true;
+      if (!localOK && l.checked && claudeOK) c.checked = true;
     } else {
       statusMsg.innerHTML = 'The server is down right now. See the <a href="#replays">recorded runs</a> below.';
     }
     validate();
   }
 
+  /* Server state: heartbeat every 30 min; a ping is answered by a pong (same fields) within ~30 s.
+     Up = a heartbeat or pong in the last 35 minutes. One ping per page load, again after an hour. */
+  const FRESH = 35 * 60, PING_WAIT = 60000;
+  let lastSign = null, pingedAt = 0, pingTimer = null;
+  function note(m, t) {
+    if (m && (m.type === 'heartbeat' || m.type === 'pong') && (!lastSign || t >= lastSign.t)) lastSign = Object.assign({ t }, m);
+  }
+  const fresh = () => !!lastSign && (Date.now() / 1000 - lastSign.t) < FRESH;
+  function judge(final) {
+    if (fresh()) { clearTimeout(pingTimer); pingTimer = null; setUp(true, lastSign); }
+    else if (final || !pingTimer) setUp(false);
+  }
+  function watchStatus() {
+    try {
+      const es = new EventSource(`${NTFY}${STATUS}/sse?since=${Math.floor(Date.now() / 1000) - 5}`);
+      es.onmessage = ev => { try { const e = JSON.parse(ev.data); note(JSON.parse(e.message || '{}'), e.time); if (lastSign && lastSign.t === e.time) judge(); } catch (err) { /* not ours */ } };
+    } catch (e) { /* polling below still works */ }
+  }
+  async function poll() {
+    try {
+      const txt = await (await fetch(`${NTFY}${STATUS}/json?poll=1&since=${FRESH + 60}s`, { cache: 'no-store' })).text();
+      txt.split('\n').forEach(line => { if (!line.trim()) return; try { const ev = JSON.parse(line); note(JSON.parse(ev.message || '{}'), ev.time); } catch (e) { /* not ours */ } });
+    } catch (e) { /* treat as no news */ }
+  }
+  async function ping() {
+    pingedAt = Date.now();
+    clearTimeout(pingTimer);
+    pingTimer = setTimeout(() => { pingTimer = null; judge(true); }, PING_WAIT);
+    try { await send({ action: 'ping', id: newId() }); } catch (e) { /* the timer decides */ }
+  }
   async function heartbeat() {
     if (MOCK) { setUp(true, { queue: 0, claude: true }); return; }
-    try {
-      const txt = await (await fetch(`${NTFY}${STATUS}/json?poll=1&since=4m`, { cache: 'no-store' })).text();
-      let last = null;
-      txt.split('\n').forEach(line => {
-        if (!line.trim()) return;
-        try { const ev = JSON.parse(line); const m = JSON.parse(ev.message || '{}'); if (m.type === 'heartbeat') last = Object.assign({ t: ev.time }, m); } catch (e) { /* not ours */ }
-      });
-      setUp(!!last && (Date.now() / 1000 - last.t) < 180, last);
-    } catch (e) { setUp(false); }
+    await poll();
+    if (!fresh() && !pingTimer && Date.now() - pingedAt > 3600 * 1000) { ping(); return; }
+    judge();
   }
 
   function validate() {
@@ -217,6 +248,8 @@
       if (t.length < 8) { ok = false; msg = ''; }
       askLabel.textContent = parsedFields ? 'Yes, run it' : 'Read my question';
     }
+    const chosen = $('input[name=model]:checked');
+    if (up && (!chosen || chosen.disabled)) { ok = false; msg = 'No language model is free right now. Please try again later.'; }
     askBtn.disabled = !ok;
     if (!busy && !(mode === 'text' && parsedFields)) askMsg.textContent = msg;
   }
@@ -382,7 +415,7 @@
   }
 
   function start() {
-    wireForm(); initMap(); heartbeat(); setInterval(heartbeat, 60000);
+    wireForm(); initMap(); if (MOCK) heartbeat(); else { watchStatus(); poll().then(() => { ping(); judge(); }); } setInterval(heartbeat, 5 * 60000);
     replays(); videos();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
