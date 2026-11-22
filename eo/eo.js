@@ -3,7 +3,8 @@
  * status topic. Protocol (agreed with the EO side, notes/REQUESTS_to_eo.md):
  *   heartbeat  {type:"heartbeat", ts, queue, claude:bool, local:bool}           every 60 s while the worker is up
  *   request    {action:"parse", id, model, text}  ->  {id, type:"parsed", fields:{kind,lat,lon,event_date,place}}
- *              {action:"ask", id, model, kind, lat, lon, event_date, size_km, text?}
+ *              {action:"ask", id, model, kind, lat, lon, event_date, size_km, text?, before?:[s,e], after?:[s,e]}
+ *              (construction: two periods, June to August of the two years, so seasons do not count as change)
  *   replies    {id, type:"queued", position} | {id, type:"step", step, state:"start"|"done", seconds?, note?}
  *              {id, type:"done", answer, rule, before_period, after_period}  (image = the message's ntfy attachment)
  *              {id, type:"refused"|"failed", reason}
@@ -203,10 +204,13 @@
     let ok = up && !busy, msg = '';
     if (mode === 'form') {
       const lat = parseFloat($('#f-lat').value), lon = parseFloat($('#f-lon').value), d = $('#f-date').value;
+      const cons = $('#f-kind').value === 'construction';
+      $('#years').hidden = !cons; $('#lbl-date').hidden = cons;
       if (!(lat >= -80 && lat <= 80 && lon >= -180 && lon <= 180)) { ok = false; msg = up ? 'Click the map or pick an example.' : ''; }
-      else if (!d) { ok = false; msg = up ? 'Choose the date of the event.' : ''; }
-      else if (new Date(d) > new Date()) { ok = false; msg = 'The date is in the future.'; }
-      else if (d < '2017-04-01') { ok = false; msg = 'Sentinel-2 images in this form start in 2017.'; }
+      else if (cons && !(+$('#f-y0').value < +$('#f-y1').value)) { ok = false; msg = 'The "before" year must come before the "after" year.'; }
+      else if (!cons && !d) { ok = false; msg = up ? 'Choose the date of the event.' : ''; }
+      else if (!cons && new Date(d) > new Date()) { ok = false; msg = 'The date is in the future.'; }
+      else if (!cons && d < '2017-04-01') { ok = false; msg = 'Sentinel-2 images in this form start in 2017.'; }
       askLabel.textContent = 'Ask';
     } else {
       const t = $('#f-text').value.trim();
@@ -248,6 +252,12 @@
       box.appendChild(b);
     });
     $('#f-date').max = new Date().toISOString().slice(0, 10);
+    /* construction: whole summers (June to August) of two years; the last year only once its summer is over */
+    const now = new Date(), lastY = now.getUTCFullYear() - (now.getUTCMonth() < 8 ? 1 : 0);
+    const yopts = []; for (let y = 2017; y <= lastY; y++) yopts.push(`<option value="${y}">${y}</option>`);
+    $('#f-y0').innerHTML = yopts.join(''); $('#f-y1').innerHTML = yopts.join('');
+    $('#f-y0').value = String(Math.max(2017, lastY - 3)); $('#f-y1').value = String(lastY);
+    ['#f-y0', '#f-y1'].forEach(s => $(s).addEventListener('input', validate));
     ['#f-lat', '#f-lon'].forEach(s => $(s).addEventListener('change', () => { const a = parseFloat($('#f-lat').value), o = parseFloat($('#f-lon').value); if (isFinite(a) && isFinite(o)) setPoint(a, o, true); }));
     ['#f-date', '#f-kind'].forEach(s => $(s).addEventListener('input', validate));
     $('#f-text').addEventListener('input', () => { parsedFields = null; $('#parsed').hidden = true; validate(); });
@@ -281,12 +291,18 @@
   const newId = () => Math.random().toString(36).slice(2, 10);
   const model = () => $('input[name=model]:checked').value;
 
+  function formFields() {
+    const k = $('#f-kind').value, f = { kind: k, lat: +$('#f-lat').value, lon: +$('#f-lon').value, text: null };
+    if (k === 'construction') { const y0 = $('#f-y0').value, y1 = $('#f-y1').value; f.before = [`${y0}-06-01`, `${y0}-08-31`]; f.after = [`${y1}-06-01`, `${y1}-08-31`]; f.event_date = f.after[0]; }
+    else f.event_date = $('#f-date').value;
+    return f;
+  }
   async function onAsk() {
     if (mode === 'text' && !parsedFields) return parseText();
     const f = mode === 'form'
-      ? { kind: $('#f-kind').value, lat: +$('#f-lat').value, lon: +$('#f-lon').value, event_date: $('#f-date').value, text: null }
+      ? formFields()
       : Object.assign({ text: $('#f-text').value.trim() }, parsedFields);
-    const question = f.text || `Was there ${f.kind === 'flood' ? 'flooding' : f.kind === 'construction' ? 'construction' : 'a wildfire or forest clearing'} in the 5 km × 5 km area around ${ll(f.lat, f.lon)}, around ${f.event_date}?`;
+    const question = f.text || `Was there ${f.kind === 'flood' ? 'flooding' : f.kind === 'construction' ? 'construction' : 'a wildfire or forest clearing'} in the 5 km × 5 km area around ${ll(f.lat, f.lon)}, ${f.before ? `between summer ${f.before[0].slice(0, 4)} and summer ${f.after[0].slice(0, 4)}` : `around ${f.event_date}`}?`;
     const id = newId();
     busy = true; validate(); askMsg.textContent = 'Sending…';
     const box = $('#live-run'); box.hidden = false;
@@ -303,7 +319,7 @@
       } else if (m.type === 'done') {
         if (lastKey) v.step(lastKey, null, null, null, 'done');
         if (att) v.show(att, 'Before and after images for your question');
-        v.answer(m.answer, m.answer === 'cannot_tell' ? 'Cannot tell.' : (m.answer === 'yes' ? 'Yes.' : 'No.'), m.rule || m.reason || '');
+        v.answer(m.answer, m.reply || (m.answer === 'cannot_tell' ? 'Cannot tell.' : (m.answer === 'yes' ? 'Yes.' : 'No.')), m.reply ? '' : (m.rule || m.reason || ''));
         v.bar.style.width = '100%'; finish(); askMsg.textContent = 'Done.';
       } else if (m.type === 'refused' || m.type === 'failed') {
         finish(); askMsg.textContent = (m.type === 'refused' ? 'Not run: ' : 'Something went wrong: ') + (m.reason || '');
@@ -327,7 +343,7 @@
       if (m.type === 'parsed') {
         done = true; es.close(); parsedFields = m.fields; busy = false;
         const p = $('#parsed'); p.hidden = false;
-        p.innerHTML = `Understood as:<dl><dt>Event</dt><dd>${esc(KIND[m.fields.kind] || m.fields.kind)}</dd><dt>Place</dt><dd>${esc(m.fields.place || '')} (${ll(m.fields.lat, m.fields.lon)}), 5 km × 5 km</dd><dt>Date</dt><dd>${esc(m.fields.event_date)}</dd></dl>`;
+        p.innerHTML = `Understood as:<dl><dt>Event</dt><dd>${esc(KIND[m.fields.kind] || m.fields.kind)}</dd><dt>Place</dt><dd>${esc(m.fields.place || '')} (${ll(m.fields.lat, m.fields.lon)}), 5 km × 5 km</dd>${m.fields.before && m.fields.after ? `<dt>Periods</dt><dd>${esc(m.fields.before.join(' to '))} against ${esc(m.fields.after.join(' to '))}</dd>` : `<dt>Date</dt><dd>${esc(m.fields.event_date)}</dd>`}</dl>`;
         askMsg.textContent = 'Is this right? Edit the question to change it.';
         validate();
       } else if (m.type === 'refused' || m.type === 'failed') {

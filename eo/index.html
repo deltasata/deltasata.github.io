@@ -63,12 +63,16 @@
                 <option value="construction">Construction</option>
               </select>
             </label>
-            <label>Date of the event<input type="date" id="f-date" min="2017-04-01"></label>
+            <label id="lbl-date">Date of the event<input type="date" id="f-date" min="2017-04-01"></label>
+            <div class="latlon" id="years" hidden>
+              <label>Before (year)<select id="f-y0"></select></label>
+              <label>After (year)<select id="f-y1"></select></label>
+            </div>
             <div class="latlon">
               <label>Latitude<input type="number" id="f-lat" step="0.0001" min="-80" max="80"></label>
               <label>Longitude<input type="number" id="f-lon" step="0.0001" min="-180" max="180"></label>
             </div>
-            <p class="hint">Area: 5 km × 5 km around the point. Or start from a known event:</p>
+            <p class="hint" id="area-hint">Area: 5 km × 5 km around the point. Or start from a known event:</p>
             <div class="presets" id="examples"></div>
           </div>
         </div>
@@ -84,7 +88,7 @@
       <div class="models" role="radiogroup" aria-label="Language model">
         <span class="models__label">Language model</span>
         <label class="model"><input type="radio" name="model" value="claude" checked><span><b>Claude</b><small>fast to start</small></span></label>
-        <label class="model"><input type="radio" name="model" value="local"><span><b>Open model on our own GPU</b><small>Qwen3-14B; the first question starts it, about 4 to 5 minutes</small></span></label>
+        <label class="model"><input type="radio" name="model" value="local"><span><b>Open model on our own GPU</b><small>Qwen3-8B, ready now</small></span></label>
       </div>
 
       <div class="runbar">

@@ -92,3 +92,5 @@ textarea { resize: vertical; font-size: 15px; }
 @media (prefers-reduced-motion: reduce) {
   .step.is-on i, .live__status.is-up .dot, .q .caret { animation: none; }
 }
+
+.ask-fields [hidden], .latlon[hidden] { display: none !important; }
