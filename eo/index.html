@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EO-Agent Live</title>
+<meta name="description" content="Ask a question about floods, wildfires, forest clearing or construction anywhere on Earth; the agent answers from free Sentinel-2 images, with the evidence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Satadru Bag · Data Scientist">
+<meta property="og:title" content="EO-Agent: ask the Earth a question">
+<meta property="og:description" content="Floods, wildfires, forest clearing and construction, answered from free satellite images with the evidence. Recorded runs, and a live version on the cluster.">
+<meta property="og:url" content="https://deltasata.github.io/eo/">
+<meta property="og:image" content="https://deltasata.github.io/eo/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pipeline/try.css">
+<link rel="stylesheet" href="eo.css">
+<!-- Source: eo_page/ in the CV project; copied to website/eo/ by build.py site.
+     Live questions go through ntfy.sh to a worker on the cluster; the recorded runs and videos are real
+     runs of the pipeline. ?mock simulates a live worker (tests). -->
+</head>
+<body>
+<a class="back" href="../#work">← deltasata.github.io</a>
+
+<header class="hero">
+  <p class="eyebrow">EO-Agent · ask it yourself</p>
+  <h1>Ask the Earth a question. Get an answer you can check.</h1>
+  <p class="lede">Was there a flood here? Did this forest burn? Is something being built? EO-Agent reads the question, fetches every free Sentinel-2 image of the place before and after, masks the clouds, measures the change with trained models and answers yes, no, or "cannot tell", with the images as evidence.</p>
+  <figure class="loop">
+    <video id="loop" autoplay muted loop playsinline preload="metadata" poster="media/burn_loop_poster.jpg" aria-label="A real 2026 wildfire near Bordeaux, seen by Sentinel-2 on 28 clear days; at the end the detector's outline is drawn in amber.">
+      <source src="media/burn_loop_1280.webm" type="video/webm">
+      <source src="media/burn_loop_1280.mp4" type="video/mp4">
+    </video>
+    <figcaption>A real wildfire near Bordeaux, summer 2026, seen by Sentinel-2 on 28 clear days. The amber outline is drawn by the burn detector, which scores <b>0.859 IoU</b> on 44 fires of 2026 it never saw.</figcaption>
+  </figure>
+</header>
+
+<main>
+  <section class="card card--accent live" id="live">
+    <div class="card__head">
+      <h2>1 · Ask it yourself</h2>
+      <p>Pick a place and an event, or type a question. It runs on our cluster, one question at a time. A place nobody has asked about takes 1 to 5 minutes, mostly to download and cloud-mask the images.</p>
+    </div>
+    <div class="live__status" id="live-status" role="status"><span class="dot"></span><span id="live-status-msg">Checking whether the server is up…</span></div>
+
+    <div class="live__body" id="live-body">
+      <div class="modes" role="tablist">
+        <button type="button" role="tab" aria-selected="true" data-mode="form">Pick on the map</button>
+        <button type="button" role="tab" aria-selected="false" data-mode="text">Type a question</button>
+      </div>
+
+      <div class="mode mode--form" id="mode-form">
+        <div class="ask-grid">
+          <div class="map" id="map" aria-label="Map: click to pick a place"></div>
+          <div class="ask-fields">
+            <label>Event
+              <select id="f-kind">
+                <option value="flood">Flood</option>
+                <option value="vegetation_loss">Wildfire or forest clearing</option>
+                <option value="construction">Construction</option>
+              </select>
+            </label>
+            <label>Date of the event<input type="date" id="f-date" min="2017-04-01"></label>
+            <div class="latlon">
+              <label>Latitude<input type="number" id="f-lat" step="0.0001" min="-80" max="80"></label>
+              <label>Longitude<input type="number" id="f-lon" step="0.0001" min="-180" max="180"></label>
+            </div>
+            <p class="hint">Area: 5 km × 5 km around the point. Or start from a known event:</p>
+            <div class="presets" id="examples"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode mode--text" id="mode-text" hidden>
+        <label class="qlabel" for="f-text">Your question</label>
+        <textarea id="f-text" rows="2" maxlength="300" placeholder="Was there flooding around Conselice, Italy, in May 2023?"></textarea>
+        <p class="hint">The model first turns it into a place, an event and dates. You check those before it runs.</p>
+        <div class="parsed" id="parsed" hidden></div>
+      </div>
+
+      <div class="models" role="radiogroup" aria-label="Language model">
+        <span class="models__label">Language model</span>
+        <label class="model"><input type="radio" name="model" value="claude" checked><span><b>Claude</b><small>fast to start</small></span></label>
+        <label class="model"><input type="radio" name="model" value="local"><span><b>Open model on our own GPU</b><small>Qwen3-14B; about a minute to start</small></span></label>
+      </div>
+
+      <div class="runbar">
+        <button type="button" class="btn cta" id="ask" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" fill="currentColor"/></svg><span id="ask-label">Ask</span></button>
+        <span class="runbar__msg" id="ask-msg" aria-live="polite"></span>
+      </div>
+      <div class="run" id="live-run" hidden></div>
+    </div>
+  </section>
+
+  <section class="card" id="replays">
+    <div class="card__head">
+      <h2>2 · Recorded runs</h2>
+      <p>Three real questions, each answered from an empty image store, so every image was downloaded and cloud-masked on the spot. Replayed faster than real time; the seconds shown are the real ones.</p>
+    </div>
+    <div class="presets replay-tabs" id="replay-tabs" role="tablist"></div>
+    <div class="run run--replay" id="replay" aria-live="off"></div>
+  </section>
+
+  <section class="card" id="why">
+    <div class="card__head">
+      <h2>3 · Why a trained model?</h2>
+      <p>The same fire, checked against the official Copernicus burnt-area map. First the standard burn index (a fixed formula), then the trained network. Amber: burnt and found. Pink: false alarm. Blue: burnt but missed.</p>
+    </div>
+    <video class="wide" id="compare" muted playsinline loop preload="metadata" poster="media/compare_burn_poster.jpg" aria-label="Burn index against trained network on the same fire: the index marks harvested forest plots as burnt; the network does not.">
+      <source src="media/compare_burn_1280.webm" type="video/webm">
+      <source src="media/compare_burn_1280.mp4" type="video/mp4">
+    </video>
+    <div class="stats">
+      <div class="tile"><h3>This fire</h3><div class="big">0.699 → 0.863<small>IoU</small></div></div>
+      <div class="tile"><h3>42 held-out fires</h3><div class="big">0.560 → 0.815<small>IoU</small></div></div>
+      <div class="tile"><h3>44 new fires of 2026</h3><div class="big">0.859<small>IoU, beats the published TerraMind-base-Fire (0.835)</small></div></div>
+    </div>
+    <p class="note">Every trained model replaced a rule only after beating it on a held-out test written down before the first score. Where no model beat the rule, the rule stayed.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <a href="../#project-eo_agent">Back to EO-Agent on deltasata.github.io</a> ·
+  <a href="https://github.com/deltasata/satellite-change-agent" target="_blank" rel="noopener">Code on GitHub ↗</a> ·
+  Images: Copernicus Sentinel-2 data; burnt-area maps: Copernicus Emergency Management Service.
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
+<script src="eo.js" defer></script>
+<script>/* primary demo action: soft ring when the button first comes fully into view; stops after the first click */
+(function(){document.querySelectorAll('.cta').forEach(function(b){
+  b.addEventListener('click',function(){b.classList.add('cta-done');},{once:true});
+  if(!('IntersectionObserver' in window)){b.classList.add('cta-go');return;}
+  var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){b.classList.add('cta-go');io.disconnect();}},{threshold:.9});io.observe(b);});})();
+</script>
+</body>
+</html>

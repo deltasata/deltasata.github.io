@@ -1,0 +1,237 @@
+[
+ {
+  "id": "conselice_flood",
+  "question": "Was there flooding around Conselice, Italy, in May 2023?",
+  "args": {
+   "lat": 44.5063,
+   "lon": 11.8276,
+   "kind": "flood",
+   "event_date": "2023-05-23",
+   "size_km": 5.0
+  },
+  "result": {
+   "answer": "yes",
+   "kind": "flood",
+   "rule": "new water = 0.1956 - 0.0006 = 0.1950, which is at least the threshold 0.05",
+   "reason": null,
+   "before_period": [
+    "2023-03-24",
+    "2023-05-13"
+   ],
+   "after_period": [
+    "2023-05-20",
+    "2023-05-26"
+   ],
+   "n_images_before": 11,
+   "n_clear_images_before": 4,
+   "n_images_after": 1,
+   "n_clear_images_after": 1,
+   "water_detector": "U-Net trained on Sen1Floods11 in Level-2A (milestone B1)",
+   "cloud_detector": "OmniCloudMask (milestone B3)",
+   "change_detector": null,
+   "sensor": "optical",
+   "n_radar_days_before": null,
+   "n_radar_days_after": null,
+   "steps": [
+    "images: before 2023-03-24..2023-05-13: 11 (4 clear); after 2023-05-20..2023-05-26: 1 (1 clear)",
+    "measured: status ok; rule: new water = 0.1956 - 0.0006 = 0.1950, which is at least the threshold 0.05 -> yes"
+   ]
+  },
+  "tool_calls": [
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 42.1,
+    "period": [
+     "2023-03-24",
+     "2023-05-13"
+    ],
+    "images": 11,
+    "clear_images": 4
+   },
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 4.0,
+    "period": [
+     "2023-05-20",
+     "2023-05-26"
+    ],
+    "images": 1,
+    "clear_images": 1
+   },
+   {
+    "tool": "detect_change",
+    "seconds": 3.3,
+    "status": "ok",
+    "changed_fraction": 0.2311,
+    "water_fraction_before": 0.0006,
+    "water_fraction_after": 0.1956,
+    "fraction_pixels_usable": 1.0
+   },
+   {
+    "tool": "render_evidence",
+    "seconds": 9.3
+   }
+  ],
+  "seconds_total": 58.7,
+  "recorded": "2026-11-22 17:02 CET",
+  "image": "runs/conselice_flood.jpg"
+ },
+ {
+  "id": "jasper_fire",
+  "question": "Did a wildfire burn the 5 km x 5 km area centred on 52.8730 N, 118.0800 W (Jasper, Alberta) in July 2024?",
+  "args": {
+   "lat": 52.873,
+   "lon": -118.08,
+   "kind": "vegetation_loss",
+   "size_km": 5.0,
+   "before_start": "2024-06-01",
+   "before_end": "2024-07-20",
+   "after_start": "2024-07-28",
+   "after_end": "2024-09-15"
+  },
+  "result": {
+   "answer": "yes",
+   "kind": "vegetation_loss",
+   "rule": "changed fraction = 0.5123, which is at least the threshold 0.03",
+   "reason": null,
+   "before_period": [
+    "2024-06-01",
+    "2024-07-20"
+   ],
+   "after_period": [
+    "2024-07-28",
+    "2024-09-15"
+   ],
+   "n_images_before": 20,
+   "n_clear_images_before": 9,
+   "n_images_after": 20,
+   "n_clear_images_after": 8,
+   "water_detector": null,
+   "cloud_detector": "OmniCloudMask (milestone B3)",
+   "change_detector": "U-TAE on every clear date, burnt pixels (milestones B7, B8)",
+   "sensor": "optical",
+   "n_radar_days_before": null,
+   "n_radar_days_after": null,
+   "steps": [
+    "images: before 2024-06-01..2024-07-20: 20 (9 clear); after 2024-07-28..2024-09-15: 20 (8 clear)",
+    "measured: status ok; rule: changed fraction = 0.5123, which is at least the threshold 0.03 -> yes"
+   ]
+  },
+  "tool_calls": [
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 44.3,
+    "period": [
+     "2024-06-01",
+     "2024-07-20"
+    ],
+    "images": 20,
+    "clear_images": 9
+   },
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 19.1,
+    "period": [
+     "2024-07-28",
+     "2024-09-15"
+    ],
+    "images": 20,
+    "clear_images": 8
+   },
+   {
+    "tool": "detect_change",
+    "seconds": 36.0,
+    "status": "ok",
+    "changed_fraction": 0.5123,
+    "water_fraction_before": 0.06,
+    "water_fraction_after": 0.0597,
+    "fraction_pixels_usable": 1.0
+   },
+   {
+    "tool": "render_evidence",
+    "seconds": 35.7
+   }
+  ],
+  "seconds_total": 135.2,
+  "recorded": "2026-11-22 17:03 CET",
+  "image": "runs/jasper_fire.jpg"
+ },
+ {
+  "id": "paraguay_cloud",
+  "question": "Was the 5 km x 5 km area centred on 24.8596 S, 56.9633 W (Paraguay) flooded around 2018-10-31, compared with the weeks before?",
+  "args": {
+   "lat": -24.85961,
+   "lon": -56.96325,
+   "kind": "flood",
+   "size_km": 5.0,
+   "before_start": "2018-09-01",
+   "before_end": "2018-10-21",
+   "after_start": "2018-10-28",
+   "after_end": "2018-11-03"
+  },
+  "result": {
+   "answer": "cannot_tell",
+   "kind": "flood",
+   "rule": "too few clear images (only 0% of pixels have >= 2 clear observations before and >= 1 after (need 50%))",
+   "reason": "too few clear images (only 0% of pixels have >= 2 clear observations before and >= 1 after (need 50%))",
+   "before_period": [
+    "2018-09-01",
+    "2018-10-21"
+   ],
+   "after_period": [
+    "2018-10-28",
+    "2018-11-03"
+   ],
+   "n_images_before": 11,
+   "n_clear_images_before": 4,
+   "n_images_after": 1,
+   "n_clear_images_after": 0,
+   "water_detector": "U-Net trained on Sen1Floods11 in Level-2A (milestone B1)",
+   "cloud_detector": "OmniCloudMask (milestone B3)",
+   "change_detector": null,
+   "sensor": null,
+   "n_radar_days_before": 5,
+   "n_radar_days_after": 0,
+   "steps": [
+    "images: before 2018-09-01..2018-10-21: 11 (4 clear); after 2018-10-28..2018-11-03: 1 (0 clear)",
+    "measured: status insufficient_data; rule: too few clear images (only 0% of pixels have >= 2 clear observations before and >= 1 after (need 50%)) -> cannot_tell",
+    "radar: before 2018-09-01..2018-10-21: 5 days; after 2018-10-28..2018-11-03: 0 days",
+    "radar: no image in at least one period -> cannot tell"
+   ]
+  },
+  "tool_calls": [
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 42.1,
+    "period": [
+     "2018-09-01",
+     "2018-10-21"
+    ],
+    "images": 11,
+    "clear_images": 4
+   },
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 5.1,
+    "period": [
+     "2018-10-28",
+     "2018-11-03"
+    ],
+    "images": 1,
+    "clear_images": 0
+   },
+   {
+    "tool": "detect_change",
+    "seconds": 0.5,
+    "status": "insufficient_data",
+    "changed_fraction": null,
+    "water_fraction_before": null,
+    "water_fraction_after": null,
+    "fraction_pixels_usable": 0.0
+   }
+  ],
+  "seconds_total": 48.0,
+  "recorded": "2026-11-22 17:02 CET",
+  "image": "runs/paraguay_cloud.jpg"
+ }
+]
