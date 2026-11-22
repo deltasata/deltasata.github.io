@@ -14,7 +14,7 @@
 .pd-notice--fail { border-color: rgba(255, 122, 89, .4); background: rgba(255, 122, 89, .08); color: #ffb9a6; }
 
 .pd-funnel { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
-.pd-step { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; }
+.pd-step { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .pd-step__key { font: 600 12px/1 var(--mono); color: var(--teal); text-align: center; padding: 6px 0; border-radius: 7px; border: 1px solid rgba(62, 230, 200, .28); background: rgba(62, 230, 200, .06); }
 .pd-step__main { display: flex; flex-wrap: wrap; row-gap: 0; align-items: baseline; gap: 0 8px; min-width: 0; }
 .pd-step__label { color: var(--ink); font-weight: 600; white-space: nowrap; }
@@ -54,7 +54,12 @@
 .pd-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 @media (max-width: 560px) {
-  .pd-step__num { min-width: 74px; font-size: 15px; }
+  /* phones: the number goes under the label, so nothing pushes the box wider than the screen */
+  .pd-step { grid-template-columns: 30px minmax(0, 1fr); row-gap: 3px; align-items: start; }
+  .pd-step__key { grid-row: 1 / span 2; align-self: center; }
+  .pd-step__label { white-space: normal; }
+  .pd-step__num { grid-column: 2; min-width: 0; text-align: left; font-size: 15px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
+  .pd-step__num small { display: inline; white-space: normal; }
   .pd-chart figcaption span:nth-child(2) { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .pd-step__fill { animation: none; } }
@@ -67,3 +72,5 @@
 .statgrid:has(+ .dash.is-live) li { padding: 12px 14px; }
 .statgrid:has(+ .dash.is-live) .statgrid__value { font-size: clamp(22px, 2.2vw, 28px); }
 .statgrid:has(+ .dash.is-live) .statgrid__label { margin-top: 5px; font-size: 12px; line-height: 1.35; }
+/* phones: keep the title whole; only the "updated ..." text shortens */
+@media (max-width: 560px) { .dash__bar span:not(.pd-age--bar), .dash__bar i { flex-shrink: 0; } }

@@ -405,7 +405,8 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
   .hero__visual { order: -1; margin-bottom: 20px; }
   .orbit { width: min(300px, 72vw); }
   .metrics { grid-template-columns: repeat(2, 1fr); margin-top: 48px; }
-  .story, .feature, .research { grid-template-columns: 1fr; }
+  .story, .feature, .research { grid-template-columns: minmax(0, 1fr); }
+  .feature > * { min-width: 0; }
   .feature__visual, .feature--flip .feature__visual { border: 0; border-top: 1px solid var(--line); }
   .feature--flip .feature__body { order: 0; }
   .timeline::before { left: 6px; }
