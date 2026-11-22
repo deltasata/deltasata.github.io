@@ -80,6 +80,7 @@
     const failed = d.status === 'failed';
     const pub = (d.public_sources || [])[0];
     body.innerHTML = `
+      <p class="pd-kind">Main science run · the full pipeline, run automatically every day</p>
       <p class="pd-window"><span>Time window</span> ${esc(windowText(w))}</p>
       ${w.shifted ? `<p class="pd-notice">${esc(w.note || 'LSST is running at reduced capacity, so the window was moved back or widened.')}</p>` : ''}
       ${failed ? `<p class="pd-notice pd-notice--fail">The latest run did not finish: ${esc(String(d.error || 'unknown error').replace(/\s*\([A-Za-z]+Error\)/g, '').replace(/[.\s]+$/, ''))}. Showing the last complete run.</p>` : ''}

@@ -79,6 +79,7 @@
   }
 
   /* ---------- 3. picker, instant counts, visitor run ---------- */
+  let MAINW = '';
   let EX = null, hours = [], hourIndex = new Map(), classes = {};
   const sel = { day: null, hour: 0, len: 24 };
   const KINDS = ['asteroid', 'fainter_than_reference', 'dipole', 'satellite_glint'];
@@ -223,7 +224,7 @@
     const s = D(w.start_utc), e = D(w.end_utc);
     const maxNo = Math.max(1, ...byc.map((c) => c.one + c.two_or_more));
     $('result').innerHTML = `
-      <h3 class="res">Your run: ${esc(when(s))} → ${esc(when(e))}</h3>
+      <h3 class="res">Your demo run: ${esc(when(s))} → ${esc(when(e))}</h3>
       <p class="sub">${m.stale ? `<span class="tag tag--old">earlier answer</span> A fresh run could not be completed, so this is the last good answer for the same window (as of ${esc(when(D(m.as_of_utc)))}). ${esc(m.note || '')}` : `<span class="tag tag--m">measured</span> Counted in a fresh run just now, in ${dur(N(ts.total))}: A0 ${dur(N(ts.A0))}, quick Set A ${dur(N(ts['A (ALeRCE)']))}.`}</p>
       <div class="funnel">
         <div class="tile"><h3>A0 · alerts, counted again</h3><p class="big">${fmt(a.alerts)}</p>
@@ -240,7 +241,8 @@
           <p class="note">The main run is stricter (Lasair + Sherlock's catalogue filter), so its Set A is much smaller.</p></div>
         <div class="tile"><h3>What kind of alerts (now)</h3>${rows(KINDS, kinds, a.alerts)}${rows(BANDS, kinds, a.alerts)}</div>
       </div>
-      ${m.differences ? `<p class="note">${esc(m.differences)}</p>` : ''}`;
+      ${m.differences ? `<p class="note">${esc(m.differences)}</p>` : ''}
+      <p class="stopnote"><span class="kind kind--demo">Demo run ends here</span> A demo run stops at a quick Set A. Linking (Set B) and light curves (Set C) come only from the main science run (section 4 and the dashboard on the main page), so your window does not change them.</p>`;
     $('result').hidden = false;
   }
 
@@ -271,6 +273,7 @@
         <p class="note">${fmt(p.set_a_objects)} new objects (Set A, teal) + ${extra.size} neighbour${extra.size === 1 ? '' : 's'} outside Set A (violet) within ${x.toFixed(1)}″ and ${t} days. ${kept.length} of ${pairs.length} pairs kept. ${pairs.length < 10 ? 'Few pairs tonight because LSST sent few alerts; on a full night there are thousands.' : ''} The main run uses 10″ and 100 days.</p></div>`;
     };
     $('px').addEventListener('input', draw); $('pt').addEventListener('input', draw); draw();
+    if (MAINW) $('pairs-window').textContent = `for its time window, ${MAINW}`;
   }
 
   /* ---------- 5. timings and forecast ---------- */
@@ -333,6 +336,13 @@
       $('asof').textContent = `Statistics made by the last main run, ${when(D(EX.generated_utc))}${ex.old ? ` (shown from this browser's copy of ${when(new Date(ex.old))}: the latest file could not be read)` : ''}${stale.length ? `; kept from an earlier run: ${stale.join(', ')}` : ''}.`;
     } else {
       $('asof').textContent = 'The published statistics could not be read right now.';
+    }
+    if (lt.d && lt.d.window && lt.d.window.start_utc) {
+      const ws = D(lt.d.window.start_utc), we = new Date(D(lt.d.window.end_utc) - 1);
+      MAINW = day(ws) === day(we) ? `${day(ws)} ${ws.getUTCFullYear()} (UTC)` : `${day(ws)} to ${day(we)} ${we.getUTCFullYear()} (UTC)`;
+      const c = lt.d.counts || {};
+      $('main-run-text').textContent = `Sections 3 and 4 come from the last main science run, the same run as the dashboard on the main page: time window ${MAINW}, ${fmt(c.A0)} alerts → Set A ${fmt(c.A)} → Set B ${fmt(c.B)}. Your demo run above does not change them.`;
+      $('pairs-window').textContent = `for its time window, ${MAINW}`;
     }
     if (lt.d && lt.d.counts) $('differ-note').textContent = `Example, the last main run: Set A ${fmt(lt.d.counts.A)} objects from ${fmt(lt.d.counts.A0)} alerts (Lasair + Sherlock). A quick run on the same day finds far more, because it skips the catalogue filter.`;
   }

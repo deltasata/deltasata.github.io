@@ -26,7 +26,11 @@
 <header class="hero">
   <p class="eyebrow">Real-time event pipeline · try it yourself</p>
   <h1>A flood of alerts every night. Find the few that matter.</h1>
-  <p class="lede">Every night the Rubin Observatory's LSST survey sends out alerts about anything in the sky that changed. This pipeline pulls them from six public brokers, narrows them down to new objects worth a look, links each one to its neighbours in space and time, and fetches their full data. Watch how it works, then pick a time window and start a fresh, quick run of it yourself.</p>
+  <p class="lede">Every night the Rubin Observatory's LSST survey sends out alerts about anything in the sky that changed. This pipeline pulls them from six public brokers, narrows them down to new objects worth a look, links each one to its neighbours in space and time, and fetches their full data. Watch how it works, then pick a time window and start a demo run yourself.</p>
+  <div class="runs2">
+    <div class="runs2__item runs2__item--main"><span class="kind kind--main">Main science run</span><p>The full pipeline, from alerts (A0) to new objects (Set A), their neighbours (Set B) and light curves (Set C), with the strict catalogue filter. It runs by itself every day on the latest day with enough alerts. The dashboard on the main page and sections 3 and 4 below show it.</p></div>
+    <div class="runs2__item runs2__item--demo"><span class="kind kind--demo">Your demo run</span><p>A quick, lighter run for any window you pick: it counts the alerts again (A0) and finds a quick Set A. It stops there, and it never changes the main run's numbers.</p></div>
+  </div>
   <div class="now" id="now" hidden>
     <span class="now__pill" id="now-pill"></span>
     <p class="now__msg" id="now-msg"></p>
@@ -42,20 +46,11 @@
     <iframe class="explainer" id="explainer" src="explainer.html?embed" title="Animated explanation of the pipeline in nine scenes" loading="lazy"></iframe>
   </section>
 
-  <section class="card" id="days">
-    <div class="card__head">
-      <h2>2 · Alerts in the last days</h2>
-      <p id="days-sub">Alerts per UTC day, ending on the latest day with enough alerts.</p>
-    </div>
-    <div class="days" id="days-chart"></div>
-    <p class="note" id="days-note" hidden></p>
-    <div class="tonight" id="tonight" hidden></div>
-  </section>
-
   <section class="card card--accent" id="try">
     <div class="card__head">
-      <h2>3 · Your window, your run</h2>
-      <p>Pick a start and a length (whole hours, up to 15 days). The counts below update instantly from the last main run; the button then starts a fresh, quick run of the pipeline for your window.</p>
+      <span class="kind kind--demo">Your demo run</span>
+      <h2>2 · Your window, your demo run</h2>
+      <p>Pick a start and a length (whole hours, up to 15 days). The counts below update instantly from the main run's hourly table. The button then starts a demo run for your window: a fresh count of the alerts (A0) and a quick Set A. Linking (Set B) and light curves (Set C) run only in the main science run, so your window does not change them.</p>
     </div>
     <div class="picker">
       <label>Start day (UTC)<select id="pick-day"></select></label>
@@ -71,16 +66,33 @@
     <div class="preview" id="preview"></div>
 
     <div class="runbar">
-      <button type="button" class="btn cta" id="run" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" fill="currentColor"/></svg>Run it now</button>
+      <button type="button" class="btn cta" id="run" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" fill="currentColor"/></svg>Start a demo run</button>
       <span class="runbar__msg" id="run-msg" aria-live="polite"></span>
     </div>
     <div class="result" id="result" hidden></div>
   </section>
 
+  <div class="part" id="main-run">
+    <p class="part__eyebrow">Below: the main science run</p>
+    <p class="part__text" id="main-run-text">Sections 3 and 4 come from the last main science run, the same run as the dashboard on the main page. Your demo run above does not change them.</p>
+  </div>
+
+  <section class="card" id="days">
+    <div class="card__head">
+      <span class="kind kind--main">Main science run</span>
+      <h2>3 · Alerts in the last days</h2>
+      <p id="days-sub">Alerts per UTC day, ending on the latest day with enough alerts.</p>
+    </div>
+    <div class="days" id="days-chart"></div>
+    <p class="note" id="days-note" hidden></p>
+    <div class="tonight" id="tonight" hidden></div>
+  </section>
+
   <section class="card" id="pairs">
     <div class="card__head">
+      <span class="kind kind--main">Main science run</span>
       <h2>4 · Linking in space and time</h2>
-      <p>Part B keeps a new object's neighbours: anything within <i>x</i> arcseconds on the sky and <i>t</i> days in time, even if it did not pass the filter. Move the limits and watch the set change. These are the real pairs of the last main run (names replaced by numbers).</p>
+      <p>Part B keeps a new object's neighbours: anything within <i>x</i> arcseconds on the sky and <i>t</i> days in time, even if it did not pass the filter. These are the real pairs of the last main science run (names replaced by numbers), <span id="pairs-window">for its own time window</span>. Move the limits and watch the set change. The window you picked in section 2 does not change them: a demo run stops at Set A.</p>
     </div>
     <div class="sliders">
       <label><span>Distance <i>x</i> <output id="px-out"></output></span><input type="range" id="px" min="0" max="10" step="0.1" value="10"></label>
@@ -91,6 +103,7 @@
 
   <section class="card" id="speed">
     <div class="card__head">
+      <span class="kind kind--bench">Speed benchmark</span>
       <h2>5 · Every part, through every broker</h2>
       <p id="speed-sub">Each broker can do each part; they differ in speed and limits. Single measurements of full-size runs.</p>
     </div>
@@ -107,14 +120,19 @@
       <table class="tbl">
         <thead><tr><th>Numbers</th><th>From</th><th>When</th><th>Counted how</th></tr></thead>
         <tbody>
-          <tr><td>Live dashboard (main page)</td><td>Pitt-Google; Lasair + Sherlock; full Parts B and C</td><td>Daily, or on a click, never twice in 3 h</td><td>Window: the latest days with enough alerts; Set A with Sherlock's catalogue filter</td></tr>
-          <tr><td>Sections 2, 4 and the instant counts</td><td>Pitt-Google, ALeRCE, Babamul, Fink</td><td>Made by the last main run</td><td>Alerts per hour; ALeRCE objects by their latest detection</td></tr>
-          <tr><td>Your run (section 3)</td><td>Pitt-Google, counted again; ALeRCE</td><td>When you click</td><td>Your window; ALeRCE objects by their first detection; a quick Set A without Sherlock</td></tr>
+          <tr><td>Main science run (dashboard on the main page)</td><td>Pitt-Google; Lasair + Sherlock; full Parts B and C</td><td>Daily, or on a click, never twice in 3 h</td><td>Window: the latest days with enough alerts; Set A with Sherlock's catalogue filter</td></tr>
+          <tr><td>Sections 3, 4 and the instant counts in section 2</td><td>Pitt-Google, ALeRCE, Babamul, Fink</td><td>Made by the last main run</td><td>Alerts per hour; ALeRCE objects by their latest detection</td></tr>
+          <tr><td>Your demo run (section 2)</td><td>Pitt-Google, counted again; ALeRCE</td><td>When you click</td><td>Your window; ALeRCE objects by their first detection; a quick Set A without Sherlock</td></tr>
         </tbody>
       </table>
     </div>
     <p class="note" id="differ-note"></p>
   </section>
+
+
+
+
+
 
   <p class="legend"><b class="tag tag--m">measured</b> counted or timed for real · <b class="tag tag--f">forecast</b> arithmetic on a measured rate · <b class="tag tag--s">illustration</b> drawn to explain. <span id="asof"></span></p>
 </main>

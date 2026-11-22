@@ -158,3 +158,20 @@ input[type=range] { width: 100%; accent-color: var(--teal); }
 .btn.cta svg{width:13px; height:13px}
 .btn.cta:disabled{background:rgba(255,255,255,.1) !important; color:var(--muted) !important; box-shadow:none !important}
 .btn.cta:disabled::after{animation:none}
+
+/* main science run vs demo run (website, 2026-11-22): labels so nobody mixes the two */
+.kind { display: inline-block; font: 600 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; }
+.kind--main { color: #04121a; background: var(--violet); }
+.kind--demo { color: #04121a; background: var(--teal); }
+.kind--bench { color: #04121a; background: var(--amber); }
+.runs2 { margin-top: 22px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; max-width: 980px; }
+.runs2__item { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line-2); background: var(--glass); }
+.runs2__item--main { border-color: rgba(155, 140, 255, .4); }
+.runs2__item--demo { border-color: rgba(62, 230, 200, .4); }
+.runs2__item p { margin: 0; font-size: 14px; line-height: 1.55; }
+.part { padding: 18px 4px 0; border-top: 1px solid rgba(155, 140, 255, .35); }
+.part__eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--violet); margin: 0 0 8px; }
+.part__text { margin: 0; max-width: 80ch; font-size: 15px; color: var(--ink-2); }
+.stopnote { margin: 16px 0 0; padding: 12px 14px; border-radius: 12px; border: 1px dashed rgba(62, 230, 200, .45); font-size: 13.5px; }
+.stopnote .kind { margin: 0 8px 0 0; vertical-align: 1px; }
+@media (max-width: 760px) { .runs2 { grid-template-columns: minmax(0, 1fr); } }

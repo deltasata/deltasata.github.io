@@ -208,3 +208,34 @@
     toast.classList.add('is-on'); setTimeout(() => toast.classList.remove('is-on'), 1800);
   }));
 })();
+
+/* Life gallery: click a photo to see it larger (loads the large copy only on demand). Esc, arrows, swipe. */
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('#life .gallery__open'));
+  if (!links.length) return;
+  var box, img, alt, cur = 0, x0 = null, last = null;
+  function show(i) {
+    cur = (i + links.length) % links.length;
+    var a = links[cur], im = a.querySelector('img');
+    img.src = a.getAttribute('href'); img.alt = im ? im.alt : '';
+    alt.textContent = im ? im.alt : '';
+  }
+  function close() { if (!box) return; box.classList.remove('is-open'); var b = box; box = null; setTimeout(function () { b.remove(); }, 250); document.removeEventListener('keydown', key); if (last) last.focus(); }
+  function key(e) { if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') show(cur + 1); else if (e.key === 'ArrowLeft') show(cur - 1); }
+  function open(i) {
+    last = links[i];
+    box = document.createElement('div'); box.className = 'lightbox'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+    box.innerHTML = '<img alt=""><button type="button" class="lb-close" aria-label="Close">Close ✕</button><button type="button" class="lb-prev" aria-label="Previous photo">←</button><button type="button" class="lb-next" aria-label="Next photo">→</button><p class="lb-alt"></p>';
+    document.body.appendChild(box); img = box.querySelector('img'); alt = box.querySelector('.lb-alt');
+    box.addEventListener('click', function (e) { if (e.target === box) close(); });
+    box.querySelector('.lb-close').onclick = close;
+    box.querySelector('.lb-prev').onclick = function () { show(cur - 1); };
+    box.querySelector('.lb-next').onclick = function () { show(cur + 1); };
+    box.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1)); x0 = null; });
+    document.addEventListener('keydown', key);
+    show(i); requestAnimationFrame(function () { box.classList.add('is-open'); });
+    box.querySelector('.lb-close').focus();
+  }
+  links.forEach(function (a, i) { a.addEventListener('click', function (e) { e.preventDefault(); open(i); }); });
+})();

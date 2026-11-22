@@ -74,3 +74,6 @@
 .statgrid:has(+ .dash.is-live) .statgrid__label { margin-top: 5px; font-size: 12px; line-height: 1.35; }
 /* phones: keep the title whole; only the "updated ..." text shortens */
 @media (max-width: 560px) { .dash__bar span:not(.pd-age--bar), .dash__bar i { flex-shrink: 0; } }
+
+/* label: this dashboard shows the main science run (page 2 runs demo runs) */
+.pd-kind { margin: 0 0 8px; font: 600 10.5px/1.4 var(--mono, ui-monospace, monospace); letter-spacing: .1em; text-transform: uppercase; color: #9b8cff; }
