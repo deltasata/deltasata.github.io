@@ -218,7 +218,7 @@
       askLabel.textContent = parsedFields ? 'Yes, run it' : 'Read my question';
     }
     askBtn.disabled = !ok;
-    if (!busy) askMsg.textContent = msg;
+    if (!busy && !(mode === 'text' && parsedFields)) askMsg.textContent = msg;
   }
 
   function setPoint(lat, lon, fly) {
