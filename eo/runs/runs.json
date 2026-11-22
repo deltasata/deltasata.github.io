@@ -1,7 +1,7 @@
 [
  {
   "id": "conselice_flood",
-  "question": "Was there flooding around Conselice, Italy, in May 2023?",
+  "question": "Was the area around Conselice, Italy (44.506 N, 11.828 E) flooded around 23 May 2023?",
   "args": {
    "lat": 44.5063,
    "lon": 11.8276,
@@ -72,6 +72,49 @@
     "seconds": 9.3
    }
   ],
+  "replay": [
+   {
+    "step": "read",
+    "seconds": 1.1,
+    "state": null
+   },
+   {
+    "step": "check_dates",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "images_before",
+    "seconds": 42.1,
+    "state": null
+   },
+   {
+    "step": "images_after",
+    "seconds": 4.0,
+    "state": "done"
+   },
+   {
+    "step": "measure",
+    "seconds": 3.3,
+    "state": "done"
+   },
+   {
+    "step": "decide",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "figure",
+    "seconds": 9.3,
+    "state": null
+   },
+   {
+    "step": "reply",
+    "seconds": 1.0,
+    "state": null
+   }
+  ],
+  "reply": "Answer: yes. The measured value of new water (0.1950) is at least the threshold (0.05).",
   "seconds_total": 58.7,
   "recorded": "2026-11-22 17:02 CET",
   "image": "runs/conselice_flood.jpg"
@@ -152,9 +195,175 @@
     "seconds": 35.7
    }
   ],
+  "replay": [
+   {
+    "step": "read",
+    "seconds": 2.5,
+    "state": null
+   },
+   {
+    "step": "check_dates",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "images_before",
+    "seconds": 44.3,
+    "state": null
+   },
+   {
+    "step": "images_after",
+    "seconds": 19.1,
+    "state": "done"
+   },
+   {
+    "step": "measure",
+    "seconds": 36.0,
+    "state": "done"
+   },
+   {
+    "step": "decide",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "figure",
+    "seconds": 35.7,
+    "state": null
+   },
+   {
+    "step": "reply",
+    "seconds": 0.9,
+    "state": null
+   }
+  ],
+  "reply": "Answer: yes. The changed fraction of 0.5123 is at least the threshold 0.03.",
   "seconds_total": 135.2,
   "recorded": "2026-11-22 17:03 CET",
   "image": "runs/jasper_fire.jpg"
+ },
+ {
+  "id": "tsmc_construction",
+  "question": "Was there new construction in the 3 km x 3 km area centred on 33.7460\u00b0N, 112.1230\u00b0W (north Phoenix, Arizona) between March-May 2020 and March-May 2023?",
+  "args": {
+   "lat": 33.746,
+   "lon": -112.123,
+   "kind": "construction",
+   "size_km": 3.0,
+   "before_start": "2020-03-01",
+   "before_end": "2020-05-31",
+   "after_start": "2023-03-01",
+   "after_end": "2023-05-31"
+  },
+  "result": {
+   "answer": "yes",
+   "kind": "construction",
+   "rule": "changed fraction = 0.0534, which is at least the threshold 0.03",
+   "reason": null,
+   "before_period": [
+    "2020-03-01",
+    "2020-05-31"
+   ],
+   "after_period": [
+    "2023-03-01",
+    "2023-05-31"
+   ],
+   "n_images_before": 18,
+   "n_clear_images_before": 13,
+   "n_images_after": 18,
+   "n_clear_images_after": 15,
+   "water_detector": null,
+   "cloud_detector": "OmniCloudMask (milestone B3)",
+   "change_detector": "TerraMind-1.0-base, Siamese (milestone B4), minus the water of the after image (B9)",
+   "sensor": "optical",
+   "n_radar_days_before": null,
+   "n_radar_days_after": null,
+   "steps": [
+    "images: before 2020-03-01..2020-05-31: 18 (13 clear); after 2023-03-01..2023-05-31: 18 (15 clear)",
+    "measured: status ok; rule: changed fraction = 0.0534, which is at least the threshold 0.03 -> yes"
+   ]
+  },
+  "tool_calls": [
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 11.2,
+    "period": [
+     "2020-03-01",
+     "2020-05-31"
+    ],
+    "images": 18,
+    "clear_images": 13
+   },
+   {
+    "tool": "cloud_mask_and_stack",
+    "seconds": 8.9,
+    "period": [
+     "2023-03-01",
+     "2023-05-31"
+    ],
+    "images": 18,
+    "clear_images": 15
+   },
+   {
+    "tool": "detect_change",
+    "seconds": 5.3,
+    "status": "ok",
+    "changed_fraction": 0.0534,
+    "water_fraction_before": 0.0039,
+    "water_fraction_after": 0.0044,
+    "fraction_pixels_usable": 1.0
+   },
+   {
+    "tool": "render_evidence",
+    "seconds": 4.9
+   }
+  ],
+  "replay": [
+   {
+    "step": "read",
+    "seconds": 2.7,
+    "state": null
+   },
+   {
+    "step": "check_dates",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "images_before",
+    "seconds": 11.2,
+    "state": null
+   },
+   {
+    "step": "images_after",
+    "seconds": 8.9,
+    "state": null
+   },
+   {
+    "step": "measure",
+    "seconds": 5.3,
+    "state": null
+   },
+   {
+    "step": "decide",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "figure",
+    "seconds": 4.9,
+    "state": null
+   },
+   {
+    "step": "reply",
+    "seconds": 0.9,
+    "state": null
+   }
+  ],
+  "reply": "Answer: yes. The changed fraction of 0.0534 is at least the threshold 0.03.",
+  "seconds_total": 30.3,
+  "recorded": "2026-11-22 18:34 CET",
+  "image": "runs/tsmc_construction.jpg"
  },
  {
   "id": "paraguay_cloud",
@@ -230,6 +439,49 @@
     "fraction_pixels_usable": 0.0
    }
   ],
+  "replay": [
+   {
+    "step": "read",
+    "seconds": 2.4,
+    "state": null
+   },
+   {
+    "step": "check_dates",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "images_before",
+    "seconds": 42.1,
+    "state": null
+   },
+   {
+    "step": "images_after",
+    "seconds": 5.1,
+    "state": "bad"
+   },
+   {
+    "step": "measure",
+    "seconds": 0.5,
+    "state": "bad"
+   },
+   {
+    "step": "decide",
+    "seconds": 0.0,
+    "state": null
+   },
+   {
+    "step": "radar",
+    "seconds": null,
+    "state": "bad"
+   },
+   {
+    "step": "reply",
+    "seconds": 1.2,
+    "state": null
+   }
+  ],
+  "reply": "Answer: cannot tell. The decision rule is: too few clear images (only 0% of pixels have >= 2 clear observations before and >= 1 after, need 50%).",
   "seconds_total": 48.0,
   "recorded": "2026-11-22 17:02 CET",
   "image": "runs/paraguay_cloud.jpg"

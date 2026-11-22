@@ -73,10 +73,12 @@
   }
 
   /* ---------------------------------------------------------------- recorded runs */
+  const tidy = s => s ? s.replace(/\s*\((milestones?|B\d)[^)]*\)/g, '').replace(/,? minus/, ', minus') : s;
   function stepsOfRun(r) {
     const a = r.args, res = r.result, tc = r.tool_calls;
     const out = [];
-    out.push(['read', `${KIND[a.kind] || a.kind} · ${ll(a.lat, a.lon)} · ${a.size_km} km × ${a.size_km} km · around ${a.event_date}`, null]);
+    const when = a.event_date ? `around ${a.event_date}` : `${a.before_start} to ${a.before_end} against ${a.after_start} to ${a.after_end}`;
+    out.push(['read', `${KIND[a.kind] || a.kind} · ${ll(a.lat, a.lon)} · ${+a.size_km} km × ${+a.size_km} km · ${when}`, null]);
     out.push(['check_dates', `before ${res.before_period.join(' to ')} · after ${res.after_period.join(' to ')}`, null]);
     const st = tc.filter(c => c.tool === 'cloud_mask_and_stack');
     if (st[0]) out.push(['images_before', `${st[0].images} Sentinel-2 images, ${st[0].clear_images} clear after cloud masking`, st[0].seconds]);
@@ -85,8 +87,8 @@
     if (d) {
       let note;
       if (d.status !== 'ok') note = 'not enough clear ground to measure';
-      else if (a.kind === 'flood') note = `${res.water_detector || 'water detector'}: water ${pct(d.water_fraction_before)} of the area before, ${pct(d.water_fraction_after)} after`;
-      else note = `${res.change_detector || 'change detector'}: ${pct(d.changed_fraction)} of the area changed`;
+      else if (a.kind === 'flood') note = `${tidy(res.water_detector) || 'water detector'}: water ${pct(d.water_fraction_before)} of the area before, ${pct(d.water_fraction_after)} after`;
+      else note = `${tidy(res.change_detector).replace(/, burnt pixels$/, '') || 'change detector'}: ${pct(d.changed_fraction)} of the area ${a.kind === 'vegetation_loss' ? 'burnt or cleared' : 'changed'}`;
       out.push(['measure', note, d.seconds, d.status === 'ok' ? 'done' : 'bad']);
     }
     out.push(['decide', res.rule, null, res.answer === 'cannot_tell' ? 'bad' : 'done']);
@@ -94,6 +96,9 @@
     if (radar.length) out.push(['radar', `Sentinel-1 radar sees through cloud: ${res.n_radar_days_after ? res.n_radar_days_after + ' days' : 'no scene'} in the period after`, null, res.n_radar_days_after ? 'done' : 'bad']);
     const f = tc.find(c => c.tool === 'render_evidence');
     if (f) out.push(['figure', 'before and after, with the detection drawn on the after image', f.seconds]);
+    if (r.reply) out.push(['reply', r.reply, null]);
+    /* real seconds and states recorded per step (language-model steps included) */
+    (r.replay || []).forEach(x => { const o = out.find(y => y[0] === x.step); if (o) { if (x.seconds != null) o[2] = x.seconds; if (x.state) o[3] = x.state; } });
     return out;
   }
   function answerText(r) {
@@ -106,7 +111,7 @@
     const box = $('#replay'), tabs = $('#replay-tabs');
     let runs;
     try { runs = await (await fetch('runs/runs.json')).json(); } catch (e) { box.textContent = 'The recorded runs could not be loaded.'; return; }
-    const names = { conselice_flood: 'Flood · Italy 2023', jasper_fire: 'Wildfire · Canada 2024', paraguay_cloud: 'Under cloud · Paraguay 2018' };
+    const names = { conselice_flood: 'Flood · Italy 2023', jasper_fire: 'Wildfire · Canada 2024', tsmc_construction: 'Construction · Arizona 2020–23', paraguay_cloud: 'Under cloud · Paraguay 2018' };
     let cur = 0, token = 0, visible = true, paused = false;
     runs.forEach((r, i) => {
       const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab');
@@ -293,7 +298,7 @@
       else if (m.type === 'step') {
         askMsg.textContent = 'Running…';
         if (m.state === 'start' && lastKey && lastKey !== m.step) v.step(lastKey, null, null, null, 'done');
-        v.step(m.step, STEP[m.step] || m.step, m.note == null ? null : m.note, m.seconds, m.state === 'start' ? 'on' : (m.state === 'bad' ? 'bad' : 'done'));
+        v.step(m.step, STEP[m.step] || m.step, m.note == null ? (m.step === 'start_model' && m.state === 'start' ? 'starting the open model on our GPU, about 4 to 5 minutes' : null) : m.note, m.seconds, m.state === 'start' ? 'on' : (m.state === 'bad' ? 'bad' : 'done'));
         lastKey = m.step;
       } else if (m.type === 'done') {
         if (lastKey) v.step(lastKey, null, null, null, 'done');

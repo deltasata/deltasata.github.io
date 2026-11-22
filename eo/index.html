@@ -84,7 +84,7 @@
       <div class="models" role="radiogroup" aria-label="Language model">
         <span class="models__label">Language model</span>
         <label class="model"><input type="radio" name="model" value="claude" checked><span><b>Claude</b><small>fast to start</small></span></label>
-        <label class="model"><input type="radio" name="model" value="local"><span><b>Open model on our own GPU</b><small>Qwen3-14B; about a minute to start</small></span></label>
+        <label class="model"><input type="radio" name="model" value="local"><span><b>Open model on our own GPU</b><small>Qwen3-14B; the first question starts it, about 4 to 5 minutes</small></span></label>
       </div>
 
       <div class="runbar">
@@ -95,10 +95,21 @@
     </div>
   </section>
 
+  <section class="card" id="how">
+    <div class="card__head">
+      <h2>2 · How it answers</h2>
+      <p>One real question, start to finish, with the real seconds of each step: the language model reads the question, code checks the dates, the pipeline fetches and cloud-masks every image, a trained network measures the change, a fixed rule decides, and the reply restates the rule with its numbers.</p>
+    </div>
+    <video class="wide" id="explainer" muted playsinline loop preload="metadata" poster="media/explainer_poster.jpg" aria-label="One real question through the pipeline: the question is typed, the seven steps light up with their real seconds, then before and after images with the new water, then the answer with its numbers.">
+      <source src="media/explainer_1280.webm" type="video/webm">
+      <source src="media/explainer_1280.mp4" type="video/mp4">
+    </video>
+  </section>
+
   <section class="card" id="replays">
     <div class="card__head">
-      <h2>2 · Recorded runs</h2>
-      <p>Three real questions, each answered from an empty image store, so every image was downloaded and cloud-masked on the spot. Replayed faster than real time; the seconds shown are the real ones.</p>
+      <h2>3 · Recorded runs</h2>
+      <p>Four real questions, each answered from an empty image store, so every image was downloaded and cloud-masked on the spot. Replayed faster than real time; the seconds shown are the real ones.</p>
     </div>
     <div class="presets replay-tabs" id="replay-tabs" role="tablist"></div>
     <div class="run run--replay" id="replay" aria-live="off"></div>
@@ -106,7 +117,7 @@
 
   <section class="card" id="why">
     <div class="card__head">
-      <h2>3 · Why a trained model?</h2>
+      <h2>4 · Why a trained model?</h2>
       <p>The same fire, checked against the official Copernicus burnt-area map. First the standard burn index (a fixed formula), then the trained network. Amber: burnt and found. Pink: false alarm. Blue: burnt but missed.</p>
     </div>
     <video class="wide" id="compare" muted playsinline loop preload="metadata" poster="media/compare_burn_poster.jpg" aria-label="Burn index against trained network on the same fire: the index marks harvested forest plots as burnt; the network does not.">
