@@ -254,6 +254,12 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
 
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .tile--wide { grid-column: span 2; }   /* personal projects: wide tile (5 tiles = 2 full rows) */
+/* desktop: 24 columns; each pair of tiles shares a row, widths set per tile (master tile_span) so both fill their height */
+@media (min-width: 1081px) {
+  .grid { grid-template-columns: repeat(24, minmax(0, 1fr)); }
+  .grid > .tile { grid-column: span var(--span, 8); }
+  .grid > .tile--wide { grid-column: span var(--span, 16); }
+}
 .tile--wide .tile__art { height: 150px; }
 .tile { padding: 0 24px 26px; display: flex; flex-direction: column; }
 .tile h4 { font-size: 19px; font-weight: 600; margin-top: 22px; }
@@ -268,6 +274,9 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; }
 .ministats b { font: 500 13px/1 var(--mono); color: var(--teal); margin-right: 4px; }
 
 /* dashboard frame for the real-time pipeline (filled later by the pipeline-dashboard animation) */
+.context { margin-top: 22px; padding: 14px 16px; border-radius: var(--radius-s); border: 1px solid var(--line); border-left: 2px solid var(--amber); background: rgba(5, 7, 15, .35); }
+.context__title { margin: 0; font: 500 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
+.context p:last-child { margin: 8px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
 .dash { flex: 1; min-height: 190px; display: flex; flex-direction: column; border-radius: var(--radius-s); border: 1px solid var(--line-2); overflow: hidden; background: rgba(5, 7, 15, .5); }
 .dash__bar { display: flex; align-items: center; gap: 6px; padding: 9px 12px; border-bottom: 1px solid var(--line); font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .dash__bar i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .14); }
@@ -486,3 +495,4 @@ html:not(.dev) .anim-slot[data-anim]:not(.is-live):not(.orbit):not(.echo-video):
 
 /* project boxes reached by a link (/#project-<id> or /p/<id>/): keep the top clear of the fixed menu */
 [id^="project-"] { scroll-margin-top: 90px; }
+.feature__body .echo-links { margin-top: 20px; }
