@@ -92,9 +92,9 @@
   <div class="story">
     <div class="story__text">
       <p class="reveal">I build machine-learning systems that find rare events in large streams of images and time series.</p>
-      <p class="reveal">I have a PhD in astrophysics and 12+ years of analysing large, noisy data where the signal that matters is rare and every result has to hold up in peer review; 7+ of those years with hands-on machine learning.</p>
+      <p class="reveal">I have a PhD in astrophysics and 12+ years of analysing large, noisy data in which the events of interest are rare; 7+ of those years with hands-on machine learning.</p>
       <p class="reveal">Right now that means a real-time pipeline on Google Cloud built for ~10 million events (~1 TB) a night, and deep-learning models (transformers, ConvLSTMs, CNN ensembles) that pick out the handful that matter: about 70% of rare events caught while wrongly flagging only 1 in 10,000 ordinary ones.</p>
-      <p class="reveal">I came to data from theory: theoretical physics and higher mathematics first, then code, statistics and data analysis. I like problems with no off-the-shelf method. Since 1996, the delay between a random signal and its overlapping copy had been thought impossible to find without a model of the signal. I showed that every wrong way to split the sum comes out rougher, turned that into a new statistic and proved why it works. With no template and no training data it finds hidden time-delayed copies at 92% precision under survey-grade noise (53% for the standard autocorrelation), confirmed on real data.</p>
+      <p class="reveal">I came to data from theory: theoretical physics and higher mathematics first, then code, statistics and data analysis. Several of my projects began where no standard method existed. Since 1996, the delay between a random signal and its overlapping copy had been thought impossible to find without a model of the signal. I showed that every wrong way to split the sum comes out rougher, turned that into a new statistic and proved why it works. With no template and no training data it finds hidden time-delayed copies at 92% precision under survey-grade noise (53% for the standard autocorrelation), confirmed on real data.</p>
       <p class="reveal">The data has been astronomical, but the problems are the ones industry has: irregular multi-band image sequences, sensor fusion, extreme class imbalance, predictions that must update with every new observation, and pipelines that must run unattended. They map directly onto Earth observation, forecasting, anomaly detection and computer vision.</p>
       <p class="reveal">I lead one of the rare-event searches in a 10,000-member international collaboration (working-group lead since 2025), aimed at some of its rarest and most demanding targets; my pipeline and models serve it. Alongside: generative models (diffusion, normalizing flows), simulation-based inference and LLM agents (EO-Agent).</p>
       <p class="reveal">Much of my time now goes into agentic AI for research: agents propose, run and log hundreds of experiments, while every claim has to pass quality checks I set in advance (pre-registered comparisons, repeated seeds, locked holdout data, explainability tests that catch false positives and shortcuts).</p>
@@ -179,7 +179,7 @@
         </div>
         <ul class="notes"><li>Radar (TerraMind, 0.611 vs 0.477) answered 14 of 19 flood questions under full cloud cover; all 13 wildfire questions right.</li><li>Small models won: a 14M U-Net beat 100-300M foundation models on optical water; on 44 new fires of 2026 a 1.1M U-TAE (0.859) beat the published 168M TerraMind-base-Fire (0.835).</li></ul>
       </div>
-      <div class="echo-links"><a class="link echo-try" href="eo/?v=202611231025" target="_blank" rel="noopener">Try it yourself: ask the Earth a question <span aria-hidden="true">↗</span></a></div>
+      <div class="echo-links"><a class="link echo-try" href="eo/?v=202611231119" target="_blank" rel="noopener">Try it yourself: ask the Earth a question <span aria-hidden="true">↗</span></a></div>
       <div class="anim-slot anim-slot--wide" data-anim="eo-flood-map" aria-hidden="true"><span class="anim-slot__art anim-slot__art--earth"></span></div>
     </div>
   </article>
@@ -189,7 +189,7 @@
       <h3 class="feature__title">Real-time event pipeline</h3>
       <p class="feature__text">Stream and archive pipelines over six external data providers (REST APIs and Kafka, retries with back-off), a space-time SQL join on BigQuery and DuckDB, Parquet storage, a cost-guarded BigQuery layer and 500+ automated tests (ruff, mypy) in CI.</p>
       <ul class="chips"><li>Python</li><li>REST APIs</li><li>Kafka (Avro)</li><li>SQL</li><li>BigQuery</li><li>DuckDB</li><li>Google Cloud Storage</li><li>Parquet</li><li>pytest</li></ul>
-<div class="context"><p class="context__title">Built for LSST</p><p>The Vera C. Rubin Observatory&#39;s Legacy Survey of Space and Time: ten years of the southern sky, about 10 million alerts a night. This is the official real-time pipeline of the lensed-transient search I lead there, one of the rare-event searches of a 10,000-member collaboration (working-group lead since 2025).</p></div><a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/LSST_alert_pipeline_LSN_search</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><div class="echo-links"><a class="link echo-try" href="pipeline/?v=202611231025" target="_blank" rel="noopener">Try it yourself: pick a time window and start a demo run <span aria-hidden="true">↗</span></a></div>    </div>
+<div class="context"><p class="context__title">Built for LSST</p><p>The Vera C. Rubin Observatory&#39;s Legacy Survey of Space and Time: ten years of the southern sky, about 10 million alerts a night. This is the official real-time pipeline of the lensed-transient search I lead there, one of the rare-event searches of a 10,000-member collaboration (working-group lead since 2025).</p></div><a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/LSST_alert_pipeline_LSN_search</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><div class="echo-links"><a class="link echo-try" href="pipeline/?v=202611231119" target="_blank" rel="noopener">Try it yourself: pick a time window and start a demo run <span aria-hidden="true">↗</span></a></div>    </div>
     <div class="feature__visual">
       <ul class="statgrid">
 <li><span class="statgrid__value">~10M</span><span class="statgrid__label">events per night it is built for, about 1 TB</span></li><li><span class="statgrid__value">6</span><span class="statgrid__label">external data providers (REST APIs and Kafka)</span></li><li><span class="statgrid__value">500+</span><span class="statgrid__label">automated tests, run in CI</span></li>      </ul>
@@ -218,7 +218,7 @@
       </div>
       <p class="echo-note">Simulated survey images; numbers are held-out test-set results from the paper.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="oasis/?v=202611231025" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="oasis/?v=202611231119" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </article>
@@ -239,7 +239,7 @@
       </div>
       <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="echo/?v=202611231025" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="echo/?v=202611231119" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
 <a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>      </div>
     </div>
   </article>
@@ -316,7 +316,7 @@
       <div class="card timeline__card">
         <h3>Data Scientist / ML Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
-<p class="timeline__context">Leads one of the searches for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead a rare-event search in a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025) and built and maintain its official real-time pipeline on Google Cloud, built for <strong>~10M events (~1 TB) per night</strong> from six external APIs and Kafka streams, with BigQuery cost guards, automated tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences frame by frame, chosen from <strong>227 GPU runs</strong> of 100 configurations in 19 architecture families (the 7 published on 10+ seeds each); the best cut the ConvLSTM baseline's loss by <strong>30%</strong> and hit 70% recall at 0.01% false positives after <strong>6 images, not 9</strong>.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, cross-frame tracking, two CNN quality scorers) as a lean container that runs on small image tiles, making training-data generation at scale feasible on HPC.</li></ul>
+<p class="timeline__context">Leads one of the searches for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead a rare-event search in a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025); developed and maintain its official real-time Google Cloud pipeline, built for <strong>~10M events (~1 TB) per night</strong> from six APIs and Kafka streams, with BigQuery cost guards, tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences frame by frame, chosen from <strong>227 GPU runs</strong> of 100 configurations in 19 architecture families (the 7 published on 10+ seeds each). The best cut the ConvLSTM baseline's loss by <strong>30%</strong> and hit 70% recall at 0.01% false positives after <strong>6 images, not 9</strong>.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, cross-frame tracking, two CNN quality scorers) as a lean container that runs on small image tiles, making training-data generation at scale feasible on HPC.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -341,7 +341,7 @@
       <span class="timeline__node" aria-hidden="true"></span>
       <p class="timeline__date">Apr 2019 – Jul 2019</p>
       <div class="card timeline__card">
-        <h3>Visiting Researcher, Data Analysis <span class="official">(Guest Postdoctoral Researcher)</span></h3>
+        <h3>Visiting Researcher – Data Analysis <span class="official">(Guest Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Tartu Observatory, University of Tartu · Tartu, Estonia</p>
 <p class="timeline__context">Short research visit on 3D spatial data analysis.</p>        <ul class="bullets"><li>Measured the 3D shape of 956 large-scale clusters in a point cloud of 584,449 galaxies; open data.</li></ul>
       </div>
@@ -350,7 +350,7 @@
       <span class="timeline__node" aria-hidden="true"></span>
       <p class="timeline__date">Aug 2012 – Mar 2019</p>
       <div class="card timeline__card">
-        <h3>Researcher, Statistics &amp; Data Analysis <span class="official">(PhD Research Scholar in Astrophysics)</span></h3>
+        <h3>Researcher – Statistics &amp; Data Analysis <span class="official">(PhD Research Scholar in Astrophysics)</span></h3>
         <p class="timeline__org">Inter-University Centre for Astronomy and Astrophysics (IUCAA) · Pune, India</p>
 <p class="timeline__context">From theoretical physics and higher mathematics to statistics, scientific computing and Bayesian modelling of large datasets.</p>        <ul class="bullets"><li>Wrote <strong>SURFGEN2</strong>, a C/C++ and MPI package for 3D surface modelling and shape statistics, used by several research groups.</li><li>Strong foundation in mathematics and statistics (differential equations, topology, Bayesian inference); 8 papers.</li></ul>
       </div>
