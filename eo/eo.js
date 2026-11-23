@@ -168,7 +168,7 @@
   /* ---------------------------------------------------------------- live */
   const live = $('#live'), status = $('#live-status'), statusMsg = $('#live-status-msg');
   const askBtn = $('#ask'), askMsg = $('#ask-msg'), askLabel = $('#ask-label');
-  let mode = 'form', up = false, claudeOK = true, busy = false, map, marker, square, parsedFields = null;
+  let mode = 'text', marked = null, up = false, claudeOK = true, busy = false, map, marker, square, parsedFields = null;
 
   function setUp(isUp, hb) {
     up = isUp;
@@ -246,6 +246,7 @@
     } else {
       const t = $('#f-text').value.trim();
       if (t.length < 8) { ok = false; msg = ''; }
+      else if (/\bhere\b/i.test(t) && !marked && !parsedFields) { ok = false; msg = 'Mark the place on the map first (click it), then ask.'; }
       askLabel.textContent = parsedFields ? 'Yes, run it' : 'Read my question';
     }
     const chosen = $('input[name=model]:checked');
@@ -265,11 +266,32 @@
     validate();
   }
 
+  /* text mode: a point the visitor marked on the map; sent with the question so "here" works.
+     Clicking the map after a reading moves the place of that reading (to fix a wrong position). */
+  function markPoint(lat, lon) {
+    if (busy) return;
+    marked = { lat: +lat.toFixed(4), lon: +lon.toFixed(4) };
+    setPoint(marked.lat, marked.lon, false);
+    $('#marked').hidden = false; $('#marked-at').textContent = ll(marked.lat, marked.lon);
+    if (parsedFields) { parsedFields = Object.assign({}, parsedFields, { lat: marked.lat, lon: marked.lon, place: `the marked point (${marked.lat}, ${marked.lon})` }); showParsed(parsedFields); }
+  }
+  function clearPoint() {
+    marked = null; $('#marked').hidden = true;
+    if (square && map) { map.removeLayer(square); square = null; }
+  }
+  function showParsed(f) {
+    const p = $('#parsed'); p.hidden = false;
+    p.innerHTML = `Understood as:<dl><dt>Event</dt><dd>${esc(KIND[f.kind] || f.kind)}</dd><dt>Place</dt><dd>${esc((f.place || '').replace(/\s*\(-?[\d.]+,\s*-?[\d.]+\)/, ''))} (${ll(f.lat, f.lon)}), 5 km × 5 km, shown on the map</dd>${f.before && f.after ? `<dt>Periods</dt><dd>${esc(f.before.join(' to '))} against ${esc(f.after.join(' to '))}</dd>` : `<dt>Date</dt><dd>${esc(f.event_date)}</dd>`}</dl>`;
+  }
+
   function initMap() {
     if (!window.L) { $('#map').innerHTML = '<p class="hint" style="padding:14px">The map could not load; type the latitude and longitude instead.</p>'; return; }
     map = L.map('map', { worldCopyJump: true, scrollWheelZoom: false }).setView([30, 10], 2);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
-    map.on('click', e => setPoint(e.latlng.lat, ((e.latlng.lng + 540) % 360) - 180, false));
+    map.on('click', e => {
+      const lat = e.latlng.lat, lon = ((e.latlng.lng + 540) % 360) - 180;
+      if (mode === 'text') markPoint(lat, lon); else setPoint(lat, lon, false);
+    });
   }
 
   function wireForm() {
@@ -284,6 +306,17 @@
       b.onclick = () => { $('#f-kind').value = e.kind; $('#f-date').value = e.date; setPoint(e.lat, e.lon, true); [...box.children].forEach(x => x.setAttribute('aria-pressed', x === b)); };
       box.appendChild(b);
     });
+    const tq = [
+      'Was there flooding around Conselice, Italy, in May 2023?',
+      'Was there a wildfire near Jasper, Canada, in July 2024?',
+      'Was there flooding here in May 2023?'
+    ];
+    tq.forEach(q => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = /\bhere\b/.test(q) ? 'Mark a point, then: "…flooding here in May 2023?"' : q.replace(/^Was there /, '').replace(/\?$/, '');
+      b.onclick = () => { $('#f-text').value = q; $('#f-text').dispatchEvent(new Event('input')); $('#f-text').focus(); };
+      $('#text-examples').appendChild(b);
+    });
+    $('#clear-point').onclick = () => { clearPoint(); };
     $('#f-date').max = new Date().toISOString().slice(0, 10);
     /* construction: whole summers (June to August) of two years; the last year only once its summer is over */
     const now = new Date(), lastY = now.getUTCFullYear() - (now.getUTCMonth() < 8 ? 1 : 0);
@@ -298,7 +331,8 @@
       mode = b.dataset.mode;
       document.querySelectorAll('.modes button').forEach(x => x.setAttribute('aria-selected', x === b));
       $('#mode-form').hidden = mode !== 'form'; $('#mode-text').hidden = mode !== 'text';
-      if (mode === 'form' && map) map.invalidateSize();
+      parsedFields = null; $('#parsed').hidden = true;
+      if (map) map.invalidateSize();
       validate();
     });
     askBtn.onclick = onAsk;
@@ -375,9 +409,9 @@
       if (done) return;
       if (m.type === 'parsed') {
         done = true; es.close(); parsedFields = m.fields; busy = false;
-        const p = $('#parsed'); p.hidden = false;
-        p.innerHTML = `Understood as:<dl><dt>Event</dt><dd>${esc(KIND[m.fields.kind] || m.fields.kind)}</dd><dt>Place</dt><dd>${esc(m.fields.place || '')} (${ll(m.fields.lat, m.fields.lon)}), 5 km × 5 km</dd>${m.fields.before && m.fields.after ? `<dt>Periods</dt><dd>${esc(m.fields.before.join(' to '))} against ${esc(m.fields.after.join(' to '))}</dd>` : `<dt>Date</dt><dd>${esc(m.fields.event_date)}</dd>`}</dl>`;
-        askMsg.textContent = 'Is this right? Edit the question to change it.';
+        showParsed(m.fields);
+        if (isFinite(m.fields.lat) && isFinite(m.fields.lon)) setPoint(+m.fields.lat, +m.fields.lon, true);
+        askMsg.textContent = 'Is this right? Check the square on the map: click the map to move it, or edit the question.';
         validate();
       } else if (m.type === 'refused' || m.type === 'failed') {
         done = true; es.close(); busy = false; validate(); askMsg.textContent = 'Not run: ' + (m.reason || '');
@@ -385,7 +419,9 @@
     };
     const es = listen(id, handle);
     setTimeout(() => { if (!done) { done = true; es.close(); busy = false; validate(); askMsg.textContent = 'No reply in 3 minutes. Please try again later.'; } }, 180000);
-    try { await send({ action: 'parse', id, model: model(), text }); if (MOCK) setTimeout(() => handle({ id, type: 'parsed', fields: { kind: 'flood', lat: 44.5063, lon: 11.8276, event_date: '2023-05-23', place: 'Conselice, Italy' } }), 1500); }
+    const req = { action: 'parse', id, model: model(), text };
+    if (marked) { req.lat = marked.lat; req.lon = marked.lon; }
+    try { await send(req); if (MOCK) setTimeout(() => handle({ id, type: 'parsed', fields: marked ? { kind: 'flood', lat: marked.lat, lon: marked.lon, event_date: '2023-05-15', place: `the marked point (${marked.lat}, ${marked.lon})` } : /mosul/i.test(text) ? { kind: 'flood', lat: 36.347, lon: 42.667, event_date: '2023-05-15', place: "Mosul Dam, Iraq (the model's position, high confidence: check it on the map)" } : { kind: 'flood', lat: 44.5063, lon: 11.8276, event_date: '2023-05-23', place: 'Conselice, Italy' } }), 1500); }
     catch (e) { done = true; es.close(); busy = false; validate(); askMsg.textContent = 'Could not send the question: ' + e.message; }
   }
 

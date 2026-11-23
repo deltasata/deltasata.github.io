@@ -94,3 +94,10 @@ textarea { resize: vertical; font-size: 15px; }
 }
 
 .ask-fields [hidden], .latlon[hidden] { display: none !important; }
+.ask-side { display: flex; flex-direction: column; min-width: 0; }
+.ask-side .modes { align-self: flex-start; }
+.ask-grid .map { height: 100%; min-height: 360px; }
+.marked { color: var(--ink-2); margin-top: 8px; }
+.linkish { font: inherit; color: var(--teal); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+#text-examples { margin-top: 10px; }
+@media (max-width: 760px) { .ask-grid .map { min-height: 260px; height: 260px; } }

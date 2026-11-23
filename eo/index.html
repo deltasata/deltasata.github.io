@@ -42,47 +42,51 @@
   <section class="card card--accent live" id="live">
     <div class="card__head">
       <h2>1 · Ask it yourself</h2>
-      <p>Pick a place and an event, or type a question. Each question is a fresh run, one at a time. A place nobody has asked about takes 1 to 5 minutes, mostly to download and cloud-mask the images.</p>
+      <p>Ask in your own words, with or without a point marked on the map, or use the form. Each question is a fresh run, one at a time. A place nobody has asked about takes 1 to 5 minutes, mostly to download and cloud-mask the images.</p>
     </div>
     <div class="live__status" id="live-status" role="status"><span class="dot"></span><span id="live-status-msg">Checking whether the server is up…</span></div>
 
     <div class="live__body" id="live-body">
-      <div class="modes" role="tablist">
-        <button type="button" role="tab" aria-selected="true" data-mode="form">Pick on the map</button>
-        <button type="button" role="tab" aria-selected="false" data-mode="text">Type a question</button>
-      </div>
+      <div class="ask-grid">
+        <div class="map" id="map" aria-label="Map: click to mark a place"></div>
+        <div class="ask-side">
+          <div class="modes" role="tablist">
+            <button type="button" role="tab" aria-selected="true" data-mode="text">Type a question</button>
+            <button type="button" role="tab" aria-selected="false" data-mode="form">Use the form</button>
+          </div>
 
-      <div class="mode mode--form" id="mode-form">
-        <div class="ask-grid">
-          <div class="map" id="map" aria-label="Map: click to pick a place"></div>
-          <div class="ask-fields">
-            <label>Event
-              <select id="f-kind">
-                <option value="flood">Flood</option>
-                <option value="vegetation_loss">Wildfire or forest clearing</option>
-                <option value="construction">Construction</option>
-              </select>
-            </label>
-            <label id="lbl-date">Date of the event<input type="date" id="f-date" min="2017-04-01"></label>
-            <div class="latlon" id="years" hidden>
-              <label>Before (year)<select id="f-y0"></select></label>
-              <label>After (year)<select id="f-y1"></select></label>
+          <div class="mode mode--text" id="mode-text">
+            <label class="qlabel" for="f-text">Your question</label>
+            <textarea id="f-text" rows="3" maxlength="300" placeholder="Was there flooding around Conselice, Italy, in May 2023?"></textarea>
+            <p class="hint" id="text-hint">Name the place, or mark it on the map and ask about "here". Floods need a month or a day; construction and clearing can compare two years. The model first turns your question into a place, an event and dates, and you check those on the map before it runs.</p>
+            <p class="hint marked" id="marked" hidden>Marked point: <span id="marked-at"></span> · <button type="button" class="linkish" id="clear-point">clear</button></p>
+            <div class="presets" id="text-examples"></div>
+            <div class="parsed" id="parsed" hidden></div>
+          </div>
+
+          <div class="mode mode--form" id="mode-form" hidden>
+            <div class="ask-fields">
+              <label>Event
+                <select id="f-kind">
+                  <option value="flood">Flood</option>
+                  <option value="vegetation_loss">Wildfire or forest clearing</option>
+                  <option value="construction">Construction</option>
+                </select>
+              </label>
+              <label id="lbl-date">Date of the event<input type="date" id="f-date" min="2017-04-01"></label>
+              <div class="latlon" id="years" hidden>
+                <label>Before (year)<select id="f-y0"></select></label>
+                <label>After (year)<select id="f-y1"></select></label>
+              </div>
+              <div class="latlon">
+                <label>Latitude<input type="number" id="f-lat" step="0.0001" min="-80" max="80"></label>
+                <label>Longitude<input type="number" id="f-lon" step="0.0001" min="-180" max="180"></label>
+              </div>
+              <p class="hint" id="area-hint">Click the map to pick the place (5 km × 5 km around it), or start from a known event:</p>
+              <div class="presets" id="examples"></div>
             </div>
-            <div class="latlon">
-              <label>Latitude<input type="number" id="f-lat" step="0.0001" min="-80" max="80"></label>
-              <label>Longitude<input type="number" id="f-lon" step="0.0001" min="-180" max="180"></label>
-            </div>
-            <p class="hint" id="area-hint">Area: 5 km × 5 km around the point. Or start from a known event:</p>
-            <div class="presets" id="examples"></div>
           </div>
         </div>
-      </div>
-
-      <div class="mode mode--text" id="mode-text" hidden>
-        <label class="qlabel" for="f-text">Your question</label>
-        <textarea id="f-text" rows="2" maxlength="300" placeholder="Was there flooding around Conselice, Italy, in May 2023?"></textarea>
-        <p class="hint">The model first turns it into a place, an event and dates. You check those before it runs.</p>
-        <div class="parsed" id="parsed" hidden></div>
       </div>
 
       <div class="models" role="radiogroup" aria-label="Language model">
