@@ -179,7 +179,7 @@
         </div>
         <ul class="notes"><li>Radar (TerraMind, 0.611 vs 0.477) answered 14 of 19 flood questions under full cloud cover; all 13 wildfire questions right.</li><li>Small models won: a 14M U-Net beat 100-300M foundation models on optical water; on 44 new fires of 2026 a 1.1M U-TAE (0.859) beat the published 168M TerraMind-base-Fire (0.835).</li></ul>
       </div>
-      <div class="echo-links"><a class="link echo-try" href="eo/?v=202611231119" target="_blank" rel="noopener">Try it yourself: ask the Earth a question <span aria-hidden="true">↗</span></a></div>
+      <div class="echo-links"><a class="link echo-try" href="eo/?v=202611251031" target="_blank" rel="noopener">Try it yourself: ask the Earth a question <span aria-hidden="true">↗</span></a></div>
       <div class="anim-slot anim-slot--wide" data-anim="eo-flood-map" aria-hidden="true"><span class="anim-slot__art anim-slot__art--earth"></span></div>
     </div>
   </article>
@@ -189,7 +189,7 @@
       <h3 class="feature__title">Real-time event pipeline</h3>
       <p class="feature__text">Stream and archive pipelines over six external data providers (REST APIs and Kafka, retries with back-off), a space-time SQL join on BigQuery and DuckDB, Parquet storage, a cost-guarded BigQuery layer and 500+ automated tests (ruff, mypy) in CI.</p>
       <ul class="chips"><li>Python</li><li>REST APIs</li><li>Kafka (Avro)</li><li>SQL</li><li>BigQuery</li><li>DuckDB</li><li>Google Cloud Storage</li><li>Parquet</li><li>pytest</li></ul>
-<div class="context"><p class="context__title">Built for LSST</p><p>The Vera C. Rubin Observatory&#39;s Legacy Survey of Space and Time: ten years of the southern sky, about 10 million alerts a night. This is the official real-time pipeline of the lensed-transient search I lead there, one of the rare-event searches of a 10,000-member collaboration (working-group lead since 2025).</p></div><a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/LSST_alert_pipeline_LSN_search</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><div class="echo-links"><a class="link echo-try" href="pipeline/?v=202611231119" target="_blank" rel="noopener">Try it yourself: pick a time window and start a demo run <span aria-hidden="true">↗</span></a></div>    </div>
+<div class="context"><p class="context__title">Built for LSST</p><p>The Vera C. Rubin Observatory&#39;s Legacy Survey of Space and Time: ten years of the southern sky, about 10 million alerts a night. This is the official real-time pipeline of the lensed-transient search I lead there, one of the rare-event searches of a 10,000-member collaboration (working-group lead since 2025).</p></div><a class="link" href="https://github.com/deltasata/LSST_alert_pipeline_LSN_search" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/LSST_alert_pipeline_LSN_search</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><div class="echo-links"><a class="link echo-try" href="pipeline/?v=202611251031" target="_blank" rel="noopener">Try it yourself: pick a time window and start a demo run <span aria-hidden="true">↗</span></a></div>    </div>
     <div class="feature__visual">
       <ul class="statgrid">
 <li><span class="statgrid__value">~10M</span><span class="statgrid__label">events per night it is built for, about 1 TB</span></li><li><span class="statgrid__value">6</span><span class="statgrid__label">external data providers (REST APIs and Kafka)</span></li><li><span class="statgrid__value">500+</span><span class="statgrid__label">automated tests, run in CI</span></li>      </ul>
@@ -203,7 +203,7 @@
     <div class="feature__body">
       <p class="tag">Research · paper on arXiv</p>
       <h3 class="feature__title">OASIS, transformers for asynchronous image streams</h3>
-      <p class="feature__text">Seven transformer architectures, chosen from 227 training runs of 100 model configurations in 19 architecture families and each trained on 10+ seeds, that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style readout, with Time2Vec and causal masking; the best cut the recurrent baseline&#39;s loss by 30% and flags 70% of rare events at a 0.01% false-positive rate after 6 images, where the baseline needs 9; paper on arXiv (2610.17168).</p>
+      <p class="feature__text">Seven transformer architectures, chosen from 227 training runs of 100 model configurations in 19 architecture families and each trained on 10+ seeds, that score each new frame of an irregular multi-band image sequence: factorized vs joint space-time attention, windowed and pyramid variants and a Perceiver-style readout, with Time2Vec and causal masking; the best model cut the recurrent baseline&#39;s loss by 30% and flags 70% of rare events at a 0.01% false-positive rate after 6 images, where the baseline needs 9; paper on arXiv (2610.17168).</p>
       <ul class="chips"><li>PyTorch</li><li>Transformers</li><li>GPU</li></ul>
 <a class="link" href="https://github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/OASIS--On-the-fly_ASynchronous_Image-Stream-classification</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a>    </div>
     <div class="feature__visual">
@@ -218,7 +218,7 @@
       </div>
       <p class="echo-note">Simulated survey images; numbers are held-out test-set results from the paper.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="oasis/?v=202611231119" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="oasis/?v=202611251031" target="_blank" rel="noopener">Try it yourself: watch a stream arrive, image by image <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </article>
@@ -239,7 +239,7 @@
       </div>
       <p class="echo-note">Simulated. On real data: 29.6 ± 1.5 days vs 33.7 ± 2.7 from the separated images.</p>
       <div class="echo-links">
-        <a class="link echo-try" href="echo/?v=202611231119" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
+        <a class="link echo-try" href="echo/?v=202611251031" target="_blank" rel="noopener">Try it yourself: the interactive explorer <span aria-hidden="true">↗</span></a>
 <a class="link" href="https://github.com/deltasata/hidden-echo" target="_blank" rel="noopener"><span class="link__full">github.com/deltasata/hidden-echo</span><span class="link__short">View on GitHub</span> <span aria-hidden="true">↗</span></a><p class="paperlinks"><a class="link link--paper" href="https://arxiv.org/abs/2110.15315" target="_blank" rel="noopener">ApJ 927, 191 (2022): method <span aria-hidden="true">↗</span></a><a class="link link--paper" href="https://arxiv.org/abs/2209.11078" target="_blank" rel="noopener">ApJ 950, 158 (2023): proof <span aria-hidden="true">↗</span></a></p>      </div>
     </div>
   </article>
@@ -250,7 +250,7 @@
       <div class="anim-slot tile__art" data-anim="vit-attention" aria-hidden="true"><span class="anim-slot__art anim-slot__art--grid"></span></div>
       <p class="tile__tag">Research · rare-object search in survey images</p>
       <h4>Self-supervised ViTs for rare-object detection</h4>
-<ul class="ministats"><li><b>0.9998</b> AUC on a locked 30,000-object holdout</li><li><b>90.6%</b> found at a 0.1% false-positive rate</li><li><b>~60</b> architectures compared</li></ul>      <p>Finds rare objects (1 in thousands) in 5-band survey images. Automated model search (~60 architectures, ~300 GPU runs) with pre-registered comparisons; in-domain masked-autoencoder pretraining halved the loss; a ViT + ConvNeXtV2 ensemble reached AUC 0.9998 on a locked 30,000-object holdout, finding 90.6% at a 0.1% false-positive rate.</p>
+<ul class="ministats"><li><b>0.9998</b> AUC on a locked 30,000-object holdout</li><li><b>90.6%</b> found at a 0.1% false-positive rate</li><li><b>~60</b> architectures compared</li></ul>      <p>Finds rare objects (1 in thousands) in 5-band survey images. Automated model search (~60 architectures, ~300 GPU runs) with pre-registered comparisons; in-domain masked-autoencoder pretraining on top of ImageNet weights halved the loss; a ViT + ConvNeXtV2 ensemble reached AUC 0.9998 on a locked 30,000-object holdout, finding 90.6% at a 0.1% false-positive rate.</p>
       <ul class="chips chips--small"><li>PyTorch</li><li>ViT</li><li>ConvNeXtV2</li><li>MAE</li><li>AMD MI300A</li></ul>
       <div class="tile__links">
 <a class="link" href="https://github.com/deltasata/self-supervised-vit-lsst-lenses" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>      </div>
@@ -316,7 +316,7 @@
       <div class="card timeline__card">
         <h3>Data Scientist / ML Researcher <span class="official">(Postdoctoral Researcher)</span></h3>
         <p class="timeline__org">Technical University of Munich (TUM) &amp; Max Planck Institute for Astrophysics (MPA) · Munich, Germany</p>
-<p class="timeline__context">Leads one of the searches for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead a rare-event search in a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025); developed and maintain its official real-time Google Cloud pipeline, built for <strong>~10M events (~1 TB) per night</strong> from six APIs and Kafka streams, with BigQuery cost guards, tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences frame by frame, chosen from <strong>227 GPU runs</strong> of 100 configurations in 19 architecture families (the 7 published on 10+ seeds each). The best cut the ConvLSTM baseline's loss by <strong>30%</strong> and hit 70% recall at 0.01% false positives after <strong>6 images, not 9</strong>.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, cross-frame tracking, two CNN quality scorers) as a lean container that runs on small image tiles, making training-data generation at scale feasible on HPC.</li></ul>
+<p class="timeline__context">Leads one of the searches for rare transient events in a 10-year, petabyte-scale imaging survey; builds its ML and data systems.</p>        <ul class="bullets"><li>Lead a rare-event search in a petabyte-scale imaging survey (working-group lead in a <strong>10,000-member</strong> collaboration since 2025); developed and maintain its official real-time Google Cloud pipeline, built for <strong>~10M events (~1 TB) per night</strong> from six APIs and Kafka streams, with BigQuery cost guards, tests and CI/CD.</li><li>Designed <strong>OASIS</strong>, transformers (PyTorch) that classify irregular multi-band image sequences frame by frame, chosen from <strong>227 GPU runs</strong> of 100 configurations in 19 architecture families (the 7 published on 10+ seeds each). The best model cut the baseline's loss by <strong>30%</strong> and hit 70% recall at 0.01% false positives after <strong>6 images, not 9</strong>.</li><li>Rebuilt the survey's production image-processing chain (change detection, object detection, cross-frame tracking, two CNN quality scorers) as a lean container that runs on small image tiles, making training-data generation at scale feasible on HPC.</li></ul>
       </div>
     </li>
     <li class="timeline__item reveal">
@@ -403,7 +403,7 @@
     </div>
     <div class="card toolkit__group toolkit__group--learning reveal">
       <h3><span class="pulse"></span>Currently learning</h3>
-      <ul class="chips chips--small"><li>MLflow</li><li>Apache Spark</li><li>Google Earth Engine</li></ul>
+      <ul class="chips chips--small"><li>MLflow</li><li>Apache Spark</li><li>Databricks</li><li>Apache Airflow</li><li>Google Earth Engine</li></ul>
       <h3 class="toolkit__lang">Languages</h3>
       <ul class="chips chips--small"><li>English <em>fluent</em></li><li>German <em>basic</em></li><li>Bengali <em>native</em></li><li>Hindi <em>fluent</em></li></ul>
     </div>
