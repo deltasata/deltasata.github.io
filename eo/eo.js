@@ -9,6 +9,10 @@
  *   replies    {id, type:"queued", position} | {id, type:"step", step, state:"start"|"done", seconds?, note?}
  *              {id, type:"done", answer, rule, before_period, after_period}  (image = the message's ntfy attachment)
  *              {id, type:"refused"|"failed", reason}
+ *   compact replies (message budget, 2026-11-25; the old ones above still work):
+ *              {id, type:"progress", position?, steps:[{step, state, seconds?, note?}, ...]}   all steps so far, sent a few times per run
+ *              "done" may carry the same full steps list; the page shows only what changed, new steps one by one
+ *   ping: skipped when a heartbeat or pong is younger than 5 minutes (every visitor shares one pong)
  * No heartbeat or pong for 35 minutes (and no pong within 60 s of a ping) = the server is down: the live box is greyed out and the replays carry the page.
  * ?mock simulates a live worker (tests).
  */
@@ -196,12 +200,14 @@
 
   /* Server state: heartbeat every 30 min; a ping is answered by a pong (same fields) within ~30 s.
      Up = a heartbeat or pong in the last 35 minutes. One ping per page load, again after an hour. */
-  const FRESH = 35 * 60, PING_WAIT = 60000;
+  const FRESH = 35 * 60, PING_WAIT = 60000, PING_SKIP = 5 * 60;
   let lastSign = null, pingedAt = 0, pingTimer = null;
   function note(m, t) {
     if (m && (m.type === 'heartbeat' || m.type === 'pong') && (!lastSign || t >= lastSign.t)) lastSign = Object.assign({ t }, m);
   }
   const fresh = () => !!lastSign && (Date.now() / 1000 - lastSign.t) < FRESH;
+  const recent = () => !!lastSign && (Date.now() / 1000 - lastSign.t) < PING_SKIP;
+  function maybePing() { if (recent()) judge(); else { ping(); judge(); } }
   function judge(final) {
     if (fresh()) { clearTimeout(pingTimer); pingTimer = null; setUp(true, lastSign); }
     else if (final || !pingTimer) setUp(false);
@@ -375,15 +381,30 @@
     const box = $('#live-run'); box.hidden = false;
     const v = runView(box, question);
     let lastKey = null, finished = false;
+    const seen = {}; let reveal = Promise.resolve();
+    const oneStep = (m, opened) => {
+      if (m.state === 'start' && lastKey && lastKey !== m.step) v.step(lastKey, null, null, null, 'done');
+      v.step(m.step, STEP[m.step] || m.step, m.note == null ? (m.step === 'start_model' && m.state === 'start' ? 'starting the open model on our GPU, about 4 to 5 minutes' : null) : m.note, m.seconds, m.state === 'start' ? 'on' : (m.state === 'bad' ? 'bad' : 'done'));
+      lastKey = m.step;
+    };
+    /* a compact message lists every step so far: show only what changed, new steps one after another */
+    const steps = list => {
+      const todo = (list || []).filter(x => x && x.step && seen[x.step] !== JSON.stringify(x));
+      todo.forEach(x => { seen[x.step] = JSON.stringify(x); });
+      reveal = reveal.then(async () => { for (let i = 0; i < todo.length; i++) { if (i) await sleep(reduce ? 0 : 280); oneStep(todo[i]); } });
+      return reveal;
+    };
     const timer = setTimeout(() => { if (!finished) { finish(); askMsg.textContent = 'No answer after 8 minutes. The server may be busy; please try again later.'; } }, 8 * 60 * 1000);
     const handle = (m, att) => {
       if (m.type === 'queued') askMsg.textContent = m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…';
-      else if (m.type === 'step') {
+      else if (m.type === 'progress') {
+        askMsg.textContent = m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…';
+        steps(m.steps);
+      } else if (m.type === 'step') {
         askMsg.textContent = 'Running…';
-        if (m.state === 'start' && lastKey && lastKey !== m.step) v.step(lastKey, null, null, null, 'done');
-        v.step(m.step, STEP[m.step] || m.step, m.note == null ? (m.step === 'start_model' && m.state === 'start' ? 'starting the open model on our GPU, about 4 to 5 minutes' : null) : m.note, m.seconds, m.state === 'start' ? 'on' : (m.state === 'bad' ? 'bad' : 'done'));
-        lastKey = m.step;
+        oneStep(m);
       } else if (m.type === 'done') {
+        if (m.steps) { steps(m.steps).then(() => handle(Object.assign({}, m, { steps: null }), att)); return; }
         if (lastKey) v.step(lastKey, null, null, null, 'done');
         if (att) v.show(att, 'Before and after images for your question');
         v.answer(m.answer, m.reply || (m.answer === 'cannot_tell' ? 'Cannot tell.' : (m.answer === 'yes' ? 'Yes.' : 'No.')), m.reply ? '' : (m.rule || m.reason || ''));
@@ -428,6 +449,7 @@
   /* mock worker: replays the Conselice run through the live code path (tests only) */
   function mockWorker() { return Promise.resolve(); }
   async function mockRun(id, handle) {
+    if (/[?&]mock=compact\b/.test(location.search)) return mockCompact(id, handle);
     const seq = [['queued', { position: 0 }], ['read', 'flood · 44.5063° N, 11.8276° E', 1.8], ['check_dates', 'before 2023-03-24 to 2023-05-13 · after 2023-05-20 to 2023-05-26', 0.1],
       ['images_before', '11 images, 4 clear', 42.1], ['images_after', '1 image, 1 clear', 4.0], ['measure', 'water 0.1% before, 19.6% after', 3.3],
       ['decide', 'new water = 0.1956 - 0.0006 = 0.1950, which is at least the threshold 0.05', 0], ['figure', '', 9.3], ['reply', '', 2.2]];
@@ -441,6 +463,18 @@
     handle({ id, type: 'done', answer: 'yes', rule: 'new water = 0.1956 - 0.0006 = 0.1950, which is at least the threshold 0.05' }, 'runs/conselice_flood.jpg');
   }
 
+  /* the same run with the compact protocol: 4 messages instead of ~19 (?mock=compact) */
+  async function mockCompact(id, handle) {
+    const all = [{ step: 'read', state: 'done', note: 'flood · 44.5063° N, 11.8276° E', seconds: 1.8 }, { step: 'check_dates', state: 'done', note: 'before 2023-03-24 to 2023-05-13 · after 2023-05-20 to 2023-05-26', seconds: 0.1 },
+      { step: 'images_before', state: 'done', note: '11 images, 4 clear', seconds: 42.1 }, { step: 'images_after', state: 'done', note: '1 image, 1 clear', seconds: 4.0 },
+      { step: 'measure', state: 'done', note: 'water 0.1% before, 19.6% after', seconds: 3.3 }, { step: 'decide', state: 'done', note: 'new water = 0.1956 - 0.0006 = 0.1950, which is at least the threshold 0.05', seconds: 0 },
+      { step: 'figure', state: 'done', seconds: 9.3 }, { step: 'reply', state: 'done', seconds: 2.2 }];
+    await sleep(700); handle({ id, type: 'progress', position: 0, steps: [Object.assign({}, all[0], { state: 'start', seconds: null })] });
+    await sleep(1500); handle({ id, type: 'progress', steps: all.slice(0, 2).concat([{ step: 'images_before', state: 'start' }]) });
+    await sleep(2500); handle({ id, type: 'progress', steps: all.slice(0, 5).concat([{ step: 'decide', state: 'start' }]) });
+    await sleep(1500); handle({ id, type: 'done', steps: all, answer: 'yes', rule: all[5].note }, 'runs/conselice_flood.jpg');
+  }
+
   /* ---------------------------------------------------------------- videos: play only while visible */
   function videos() {
     document.querySelectorAll('video').forEach(vd => {
@@ -451,7 +485,7 @@
   }
 
   function start() {
-    wireForm(); initMap(); if (MOCK) heartbeat(); else { watchStatus(); poll().then(() => { ping(); judge(); }); } setInterval(heartbeat, 5 * 60000);
+    wireForm(); initMap(); if (MOCK) heartbeat(); else { watchStatus(); poll().then(maybePing); } setInterval(heartbeat, 5 * 60000);
     replays(); videos();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
