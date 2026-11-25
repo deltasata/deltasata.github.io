@@ -1,25 +1,26 @@
 /* EO-Agent live page. Source: eo_page/eo.js (CV project); copied to website/eo/ by build.py site.
- * Live questions: the page POSTs JSON to an ntfy.sh request topic; a worker answers on the
- * status topic. Protocol (agreed with the EO side, notes/REQUESTS_to_eo.md):
- *   heartbeat  {type:"heartbeat", ts, queue, claude:bool, local:bool, model}    every 30 min while the worker is up (model = open model name or null)
- *   ping -> pong {type:"pong", ...same fields}                                    the page pings once per load (and after an hour)
+ * Live questions over Ably (free plan; request 14 in notes/REQUESTS_to_eo.md): the page publishes on
+ * "eo-live-req" (message name = action, data = the object) and listens on "eo-live-status".
+ * The page key below is public by design: it may only publish requests and read replies.
+ * Every visitor uses the same clientId "visitor" (the app needs one; one id keeps the monthly user count at 1).
+ *   server up  = the worker ("eo-worker") is in the presence set of eo-live-status, data {queue, claude, local, model}
  *   request    {action:"parse", id, model, text}  ->  {id, type:"parsed", fields:{kind,lat,lon,event_date,place}}
  *              {action:"ask", id, model, kind, lat, lon, event_date, size_km, text?, before?:[s,e], after?:[s,e]}
  *              (construction: two periods, June to August of the two years, so seasons do not count as change)
  *   replies    {id, type:"queued", position} | {id, type:"step", step, state:"start"|"done", seconds?, note?}
- *              {id, type:"done", answer, rule, before_period, after_period}  (image = the message's ntfy attachment)
- *              {id, type:"refused"|"failed", reason}
- *   compact replies (message budget, 2026-11-25; the old ones above still work):
+ *              {id, type:"done", answer, rule, before_period, after_period, figure_parts?}
+ *              {id, type:"figure", part, parts, mime, b64}  (the figure in parts, sent before "done")
+ *              {id, type:"refused"|"failed"|"error", reason}
  *              {id, type:"progress", position?, steps:[{step, state, seconds?, note?}, ...]}   all steps so far, sent a few times per run
  *              "done" may carry the same full steps list; the page shows only what changed, new steps one by one
- *   ping: skipped when a heartbeat or pong is younger than 5 minutes (every visitor shares one pong)
- * No heartbeat or pong for 35 minutes (and no pong within 60 s of a ping) = the server is down: the live box is greyed out and the replays carry the page.
+ * Worker not in presence (or no connection to Ably) = the server is down: the live box is greyed out and the replays carry the page.
+ * The connection closes while the tab is hidden for 3 minutes (free plan: 200 connections at once) and reopens when it is shown.
  * ?mock simulates a live worker (tests).
  */
 (function () {
   'use strict';
-  const NTFY = 'https://ntfy.sh/';
-  const REQ = 'eo-live-req-9a22f3caa7', STATUS = 'eo-live-status-9a22f3caa7';
+  const ABLY_KEY = 'xlh-2A.-16yqw:XOIZkfkwuzgduUQ8hdR3QHMCThrEnKws0MrWpf5vCAE';
+  const CH_REQ = 'eo-live-req', CH_STATUS = 'eo-live-status', WORKER = 'eo-worker';
   const MOCK = /[?&]mock\b/.test(location.search);
   const $ = (s, el) => (el || document).querySelector(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -198,44 +199,51 @@
     validate();
   }
 
-  /* Server state: heartbeat every 30 min; a ping is answered by a pong (same fields) within ~30 s.
-     Up = a heartbeat or pong in the last 35 minutes. One ping per page load, again after an hour. */
-  const FRESH = 35 * 60, PING_WAIT = 60000, PING_SKIP = 5 * 60;
-  let lastSign = null, pingedAt = 0, pingTimer = null;
-  function note(m, t) {
-    if (m && (m.type === 'heartbeat' || m.type === 'pong') && (!lastSign || t >= lastSign.t)) lastSign = Object.assign({ t }, m);
+  /* Server state = the worker's presence on the status channel (Ably drops it ~15 s after the worker's
+     connection ends). A short network blip on the visitor's side does not grey the page out at once. */
+  let rt = null, stCh = null, reqCh = null, worker = null, hideTimer = null, blipTimer = null;
+  const listeners = {};
+  const asObj = d => { if (typeof d === 'string') { try { return JSON.parse(d); } catch (e) { return null; } } return d; };
+  function judge() {
+    const ok = !!rt && rt.connection.state === 'connected' && !!worker;
+    if (ok) { clearTimeout(blipTimer); blipTimer = null; setUp(true, worker); }
+    else if (rt && rt.connection.state === 'connecting' || rt && rt.connection.state === 'disconnected') {
+      if (!blipTimer && up) blipTimer = setTimeout(() => { blipTimer = null; if (!(rt && rt.connection.state === 'connected' && worker)) setUp(false); }, 20000);
+      else if (!up) setUp(false);
+    } else setUp(false);
   }
-  const fresh = () => !!lastSign && (Date.now() / 1000 - lastSign.t) < FRESH;
-  const recent = () => !!lastSign && (Date.now() / 1000 - lastSign.t) < PING_SKIP;
-  function maybePing() { if (recent()) judge(); else { ping(); judge(); } }
-  function judge(final) {
-    if (fresh()) { clearTimeout(pingTimer); pingTimer = null; setUp(true, lastSign); }
-    else if (final || !pingTimer) setUp(false);
-  }
-  function watchStatus() {
+  async function readPresence() {
     try {
-      const es = new EventSource(`${NTFY}${STATUS}/sse?since=${Math.floor(Date.now() / 1000) - 5}`);
-      es.onmessage = ev => { try { const e = JSON.parse(ev.data); note(JSON.parse(e.message || '{}'), e.time); if (lastSign && lastSign.t === e.time) judge(); } catch (err) { /* not ours */ } };
-    } catch (e) { /* polling below still works */ }
-  }
-  async function poll() {
-    try {
-      const txt = await (await fetch(`${NTFY}${STATUS}/json?poll=1&since=${FRESH + 60}s`, { cache: 'no-store' })).text();
-      txt.split('\n').forEach(line => { if (!line.trim()) return; try { const ev = JSON.parse(line); note(JSON.parse(ev.message || '{}'), ev.time); } catch (e) { /* not ours */ } });
-    } catch (e) { /* treat as no news */ }
-  }
-  async function ping() {
-    pingedAt = Date.now();
-    clearTimeout(pingTimer);
-    pingTimer = setTimeout(() => { pingTimer = null; judge(true); }, PING_WAIT);
-    try { await send({ action: 'ping', id: newId() }); } catch (e) { /* the timer decides */ }
-  }
-  async function heartbeat() {
-    if (MOCK) { setUp(true, { queue: 0, claude: true }); return; }
-    await poll();
-    if (!fresh() && !pingTimer && Date.now() - pingedAt > 3600 * 1000) { ping(); return; }
+      const members = await stCh.presence.get();
+      const w = members.find(p => p.clientId === WORKER);
+      worker = w ? (asObj(w.data) || {}) : null;
+    } catch (e) { worker = null; }
     judge();
   }
+  function connect() {
+    if (MOCK) { setUp(true, { queue: 0, claude: true }); return; }
+    const lib = window.AblyPubSub; if (!lib || !lib.createClient) { setUp(false); return; }
+    if (rt) { if (rt.connection.state !== 'connected') rt.connection.connect(); return; }
+    rt = lib.createClient({ key: ABLY_KEY, clientId: 'visitor', echoMessages: false, logLevel: 0 });
+    stCh = rt.channels.get(CH_STATUS); reqCh = rt.channels.get(CH_REQ);
+    rt.connection.on(ch => { if (ch.current === 'connected') readPresence(); else { if (ch.current !== 'connecting' && ch.current !== 'disconnected') worker = null; judge(); } });
+    stCh.presence.subscribe(p => {
+      if (p.clientId !== WORKER) return;
+      worker = (p.action === 'leave' || p.action === 'absent') ? null : (asObj(p.data) || {});
+      judge();
+    });
+    stCh.subscribe(msg => {
+      const m = asObj(msg.data);
+      if (m && m.id && listeners[m.id]) listeners[m.id](m);
+    });
+  }
+  /* free plan: at most 200 open connections, so a tab hidden for 3 minutes lets its connection go (never during a run) */
+  document.addEventListener('visibilitychange', () => {
+    if (MOCK || !rt) return;
+    clearTimeout(hideTimer);
+    if (document.hidden) hideTimer = setTimeout(() => { if (!busy && document.hidden) { rt.connection.close(); worker = null; setUp(false); } }, 3 * 60000);
+    else connect();
+  });
 
   function validate() {
     let ok = up && !busy, msg = '';
@@ -345,21 +353,37 @@
   }
 
   /* transport */
+  /* replies for one request id; the figure comes in parts before "done" and is joined into an image */
   function listen(id, onMsg) {
     if (MOCK) return { close() {} };
-    const es = new EventSource(`${NTFY}${STATUS}/sse?since=${Math.floor(Date.now() / 1000) - 5}`);
-    es.onmessage = ev => {
+    const parts = {}; let url = null;
+    const figure = n => {
+      const have = Object.keys(parts).length;
+      if (!n || have < n) return null;
       try {
-        const e = JSON.parse(ev.data); const m = JSON.parse(e.message || '{}');
-        if (m.id === id) onMsg(m, e.attachment && e.attachment.url);
-      } catch (err) { /* ignore other messages */ }
+        const bin = atob(Array.from({ length: n }, (_, i) => parts[i + 1].b64).join(''));
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        url = URL.createObjectURL(new Blob([bytes], { type: parts[1].mime || 'image/jpeg' }));
+        return url;
+      } catch (e) { return null; }
     };
-    return es;
+    listeners[id] = m => {
+      if (m.type === 'figure') { if (m.part >= 1) parts[m.part] = m; return; }
+      if (m.type === 'done' && m.figure_parts) {
+        /* parts are sent first; allow a moment for a late one, then answer without the figure */
+        let tries = 0;
+        const go = () => { const f = figure(m.figure_parts); if (f || tries++ >= 6) onMsg(m, f); else setTimeout(go, 500); };
+        return go();
+      }
+      onMsg(m, null);
+    };
+    return { close() { delete listeners[id]; } };
   }
   async function send(body) {
     if (MOCK) return mockWorker(body);
-    const r = await fetch(NTFY + REQ, { method: 'POST', body: JSON.stringify(body) });
-    if (!r.ok) throw new Error('request not accepted (' + r.status + ')');
+    if (!rt) throw new Error('no connection to the server');
+    await reqCh.publish(body.action, body);
   }
   const newId = () => Math.random().toString(36).slice(2, 10);
   const model = () => $('input[name=model]:checked').value;
@@ -409,7 +433,7 @@
         if (att) v.show(att, 'Before and after images for your question');
         v.answer(m.answer, m.reply || (m.answer === 'cannot_tell' ? 'Cannot tell.' : (m.answer === 'yes' ? 'Yes.' : 'No.')), m.reply ? '' : (m.rule || m.reason || ''));
         v.bar.style.width = '100%'; finish(); askMsg.textContent = 'Done.';
-      } else if (m.type === 'refused' || m.type === 'failed') {
+      } else if (m.type === 'refused' || m.type === 'failed' || m.type === 'error') {
         finish(); askMsg.textContent = (m.type === 'refused' ? 'Not run: ' : 'Something went wrong: ') + (m.reason || '');
       }
     };
@@ -434,7 +458,7 @@
         if (isFinite(m.fields.lat) && isFinite(m.fields.lon)) setPoint(+m.fields.lat, +m.fields.lon, true);
         askMsg.textContent = 'Is this right? Check the square on the map: click the map to move it, or edit the question.';
         validate();
-      } else if (m.type === 'refused' || m.type === 'failed') {
+      } else if (m.type === 'refused' || m.type === 'failed' || m.type === 'error') {
         done = true; es.close(); busy = false; validate(); askMsg.textContent = 'Not run: ' + (m.reason || '');
       }
     };
@@ -485,7 +509,7 @@
   }
 
   function start() {
-    wireForm(); initMap(); if (MOCK) heartbeat(); else { watchStatus(); poll().then(maybePing); } setInterval(heartbeat, 5 * 60000);
+    wireForm(); initMap(); connect();
     replays(); videos();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
