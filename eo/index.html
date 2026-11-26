@@ -19,8 +19,8 @@
 <link rel="stylesheet" href="../pipeline/try.css">
 <link rel="stylesheet" href="eo.css">
 <!-- Source: eo_page/ in the CV project; copied to website/eo/ by build.py site.
-     Live questions go through ntfy.sh to a worker; the recorded runs and videos are real
-     runs of the pipeline. ?mock simulates a live worker (tests). -->
+     Live questions go through Ably to a worker; the recorded runs and videos are real
+     runs of the pipeline. ?mock simulates a live worker (tests; the page says so). -->
 </head>
 <body>
 <a class="back" href="../#work">← deltasata.github.io</a>
@@ -34,7 +34,7 @@
       <source src="media/burn_loop_1280.webm" type="video/webm">
       <source src="media/burn_loop_1280.mp4" type="video/mp4">
     </video>
-    <figcaption>A real wildfire near Bordeaux, summer 2026, seen by Sentinel-2 on 28 clear days. The amber outline is drawn by the burn detector, which scores <b>0.859 IoU</b> on 44 fires of 2026 it never saw.</figcaption>
+    <figcaption>A real wildfire near Bordeaux, summer 2026, seen by Sentinel-2 on 28 clear days. The amber outline is drawn by the burn detector, which scores <b>0.859 IoU</b> on 44 fires of 2026 it never saw. <button type="button" class="linkish" id="loop-toggle" aria-pressed="false">Pause the video</button></figcaption>
   </figure>
 </header>
 
@@ -48,23 +48,23 @@
 
     <div class="live__body" id="live-body">
       <div class="ask-grid">
-        <div class="map" id="map" aria-label="Map: click to mark a place"></div>
+        <div class="map" id="map" aria-label="Map: click to mark a place, or move it with the arrow keys and press Enter to mark its centre"></div>
         <div class="ask-side">
           <div class="modes" role="tablist">
-            <button type="button" role="tab" aria-selected="true" data-mode="text">Type a question</button>
-            <button type="button" role="tab" aria-selected="false" data-mode="form">Use the form</button>
+            <button type="button" role="tab" id="tab-text" aria-controls="mode-text" aria-selected="true" data-mode="text">Type a question</button>
+            <button type="button" role="tab" id="tab-form" aria-controls="mode-form" aria-selected="false" data-mode="form">Use the form</button>
           </div>
 
-          <div class="mode mode--text" id="mode-text">
+          <div class="mode mode--text" id="mode-text" role="tabpanel" aria-labelledby="tab-text">
             <label class="qlabel" for="f-text">Your question</label>
-            <textarea id="f-text" rows="3" maxlength="300" placeholder="Was there flooding around Conselice, Italy, in May 2023?"></textarea>
-            <p class="hint" id="text-hint">Name the place, or mark it on the map and ask about "here". Floods need a month or a day; construction and clearing can compare two years. The model first turns your question into a place, an event and dates, and you check those on the map before it runs.</p>
+            <textarea id="f-text" rows="3" maxlength="300" placeholder="Was there flooding around Conselice, Italy, on 17 May 2023?"></textarea>
+            <p class="hint" id="text-hint">Name the place, or mark it on the map and ask about "here". Floods need the day (within two or three days is enough), because water shows for only a few days; a wildfire can take the month; construction and clearing can compare two years. The model first turns your question into a place, an event and dates, and you check those on the map before it runs.</p>
             <p class="hint marked" id="marked" hidden>Marked point: <span id="marked-at"></span> · <button type="button" class="linkish" id="clear-point">clear</button></p>
             <div class="presets" id="text-examples"></div>
             <div class="parsed" id="parsed" hidden></div>
           </div>
 
-          <div class="mode mode--form" id="mode-form" hidden>
+          <div class="mode mode--form" id="mode-form" role="tabpanel" aria-labelledby="tab-form" hidden>
             <div class="ask-fields">
               <label>Event
                 <select id="f-kind">
@@ -82,6 +82,7 @@
                 <label>Latitude<input type="number" id="f-lat" step="0.0001" min="-80" max="80"></label>
                 <label>Longitude<input type="number" id="f-lon" step="0.0001" min="-180" max="180"></label>
               </div>
+              <p class="hint" id="veg-hint" hidden>To compare two years (forest clearing), type the question instead.</p>
               <p class="hint" id="area-hint">Click the map to pick the place (5 km × 5 km around it), or start from a known event:</p>
               <div class="presets" id="examples"></div>
             </div>
@@ -120,7 +121,7 @@
       <p>Four real questions, each answered from an empty image store, so every image was downloaded and cloud-masked on the spot. Replayed faster than real time; the seconds shown are the real ones.</p>
     </div>
     <div class="presets replay-tabs" id="replay-tabs" role="tablist"></div>
-    <div class="run run--replay" id="replay" aria-live="off"></div>
+    <div class="run run--replay" id="replay" role="tabpanel" aria-live="off"></div>
   </section>
 
   <section class="card" id="why">

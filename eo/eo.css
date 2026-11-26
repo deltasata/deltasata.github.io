@@ -101,3 +101,16 @@ textarea { resize: vertical; font-size: 15px; }
 .linkish { font: inherit; color: var(--teal); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
 #text-examples { margin-top: 10px; }
 @media (max-width: 760px) { .ask-grid .map { min-height: 260px; height: 260px; } }
+
+/* 2026-11-26: user-test fixes */
+.live__status.is-net { border-color: rgba(255, 181, 71, .45); background: rgba(255, 181, 71, .08); color: #ffe2b8; }
+.live__status.is-net .dot { background: var(--amber); }
+textarea[readonly] { opacity: .65; }
+.presets button:disabled, .modes button:disabled, .linkish:disabled { opacity: .45; cursor: not-allowed; }
+select:disabled, input:disabled { opacity: .6; }
+.evidence .zoom { display: block; width: 100%; height: 100%; cursor: zoom-in; }
+.evidence.is-shown::after { content: "full size ↗"; position: absolute; right: 8px; bottom: 8px; font: 500 11px/1 var(--mono); padding: 5px 8px; border-radius: 999px; background: rgba(5, 7, 15, .72); color: var(--ink-2); pointer-events: none; }
+.run--replay .step:not(.is-on):not(.is-done) small { visibility: hidden; }   /* replays never show the notes of steps not reached yet */
+#loop-toggle { font-size: 13px; margin-left: 4px; }
+@media (max-width: 1180px) { .back { position: absolute; } }   /* a fixed link covered the text on narrow screens */
+@media (max-width: 760px) { .ask-grid .map { order: 2; } }        /* phones: the map comes right after the reading it shows */

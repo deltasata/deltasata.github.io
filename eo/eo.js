@@ -15,7 +15,9 @@
  *              "done" may carry the same full steps list; the page shows only what changed, new steps one by one
  * Worker not in presence (or no connection to Ably) = the server is down: the live box is greyed out and the replays carry the page.
  * The connection closes while the tab is hidden for 3 minutes (free plan: 200 connections at once) and reopens when it is shown.
- * ?mock simulates a live worker (tests).
+ * A run in progress survives a reload: its id and question are kept in sessionStorage and the replies so far
+ * are read back from the channel history (Ably keeps it about 2 minutes).
+ * ?mock simulates a live worker (tests); the page then says so.
  */
 (function () {
   'use strict';
@@ -40,12 +42,12 @@
   function runView(el, question) {
     el.innerHTML = `<p class="q"></p>
       <div class="run__grid"><ol class="steps"></ol>
-        <div><div class="evidence"><div class="wait">The evidence appears here.</div><img alt=""></div>
+        <div><div class="evidence"><div class="wait">The evidence appears here.</div><a class="zoom" target="_blank" rel="noopener" tabindex="-1"><img alt=""></a></div>
         <div class="answer"><span class="badge"></span><p></p></div></div></div>
       <div class="progress"><i></i></div>`;
     const v = {
       q: $('.q', el), steps: $('.steps', el), ev: $('.evidence', el), img: $('.evidence img', el),
-      ans: $('.answer', el), bar: $('.progress i', el), items: {},
+      ans: $('.answer', el), bar: $('.progress i', el), zoom: $('.zoom', el), items: {},
       async type(text, cancelled) {
         if (reduce) { v.q.textContent = text; return; }
         v.q.innerHTML = '<span></span><i class="caret"></i><span style="visibility:hidden"></span>';
@@ -66,7 +68,12 @@
         li.className = 'step' + (state === 'on' ? ' is-on' : state === 'done' ? ' is-done' : state === 'bad' ? ' is-done is-bad' : '');
         return li;
       },
-      show(src, alt) { v.img.alt = alt || ''; v.img.onload = () => v.ev.classList.add('is-shown'); v.img.src = src; },
+      show(src, alt) {
+        v.img.alt = alt || ''; v.img.onload = () => v.ev.classList.add('is-shown'); v.img.src = src;
+        v.zoom.href = src; v.zoom.removeAttribute('tabindex'); v.zoom.title = 'Open the full-size image';
+        v.zoom.setAttribute('aria-label', 'Open the full-size image');
+      },
+      wait(text) { $('.wait', v.ev).textContent = text; },
       answer(ans, text, sub, hold) {
         const b = $('.badge', v.ans);
         b.textContent = ans === 'cannot_tell' ? 'cannot tell' : ans;
@@ -121,8 +128,8 @@
     const names = { conselice_flood: 'Flood · Italy 2023', jasper_fire: 'Wildfire · Canada 2024', tsmc_construction: 'Construction · Arizona 2020–23', paraguay_cloud: 'Under cloud · Paraguay 2018' };
     let cur = 0, token = 0, visible = true, paused = false;
     runs.forEach((r, i) => {
-      const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab');
-      b.textContent = names[r.id] || r.id;
+      const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', 'replay');
+      b.id = 'replay-tab-' + i; b.textContent = names[r.id] || r.id;
       b.onclick = () => { cur = i; play(); };
       tabs.appendChild(b);
     });
@@ -147,7 +154,8 @@
     addEventListener('resize', () => { if (Math.abs(innerWidth - rw) > 40) { rw = innerWidth; measure(); play(); } });
     async function play() {
       const t = ++token, r = runs[cur];
-      [...tabs.children].forEach((b, i) => b.setAttribute('aria-pressed', i === cur));
+      [...tabs.children].forEach((b, i) => b.setAttribute('aria-selected', i === cur));
+      box.setAttribute('aria-labelledby', 'replay-tab-' + cur);
       const v = runView(box);
       const steps = stepsOfRun(r);
       fill(v, r);
@@ -173,20 +181,32 @@
   /* ---------------------------------------------------------------- live */
   const live = $('#live'), status = $('#live-status'), statusMsg = $('#live-status-msg');
   const askBtn = $('#ask'), askMsg = $('#ask-msg'), askLabel = $('#ask-label');
-  let mode = 'text', marked = null, up = false, claudeOK = true, busy = false, map, marker, square, parsedFields = null;
+  let mode = 'text', marked = null, up = false, claudeOK = true, busy = false, map, square, parsedFields = null, parsedWithPoint = false;
+  const narrow = () => matchMedia('(max-width: 760px)').matches;
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const fmtDay = d => `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+  /* the server's rule: floods from the event day + 5 days, fires from the last day of the fire + 9 days */
+  const readyFrom = (day, kind) => { const d = new Date(day + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + (kind === 'flood' ? 5 : 9)); return d; };
 
-  function setUp(isUp, hb) {
+  /* the message about a finished, failed or refused run stays until the visitor changes something;
+     server status updates never erase it */
+  let held = '';
+  const say = t => { held = ''; askMsg.textContent = t; };
+  const hold = t => { held = t; askMsg.textContent = t; };
+  const touched = () => { if (held) { held = ''; validate(); } };
+
+  function setUp(isUp, hb, why) {
     up = isUp;
-    live.classList.toggle('is-down', !isUp);
-    status.className = 'live__status ' + (isUp ? 'is-up' : 'is-down');
+    live.classList.toggle('is-down', !isUp && !busy);   /* a run in progress is never greyed out: it goes on at the server */
+    status.className = 'live__status ' + (isUp ? 'is-up' : why === 'net' ? 'is-net' : 'is-down');
+    const c = $('input[name=model][value=claude]'), l = $('input[name=model][value=local]');
     if (isUp) {
       const q = hb && hb.queue ? ` · ${hb.queue} question${hb.queue === 1 ? '' : 's'} waiting` : '';
       statusMsg.textContent = 'The server is up' + q + '.';
       claudeOK = !hb || hb.claude !== false;
-      const c = $('input[name=model][value=claude]');
       c.disabled = !claudeOK; c.closest('.model').classList.toggle('is-off', !claudeOK);
-      $('small', c.closest('.model')).textContent = claudeOK ? 'fast to start' : 'not available right now (usage limit reached)';
-      const l = $('input[name=model][value=local]');
+      $('small', c.closest('.model')).textContent = claudeOK ? 'fast to start' : 'not available right now; try the open model';
       const localOK = !hb || (hb.local !== false && hb.model !== null);
       l.disabled = !localOK; l.closest('.model').classList.toggle('is-off', !localOK);
       const name = hb && typeof hb.model === 'string' && hb.model ? hb.model.slice(0, 40) : 'Qwen3-8B';
@@ -194,23 +214,34 @@
       if (!claudeOK && c.checked && localOK) l.checked = true;
       if (!localOK && l.checked && claudeOK) c.checked = true;
     } else {
-      statusMsg.innerHTML = 'The server is down right now. See the <a href="#replays">recorded runs</a> below.';
+      if (why === 'net') statusMsg.textContent = busy
+        ? 'This page lost its connection. Your question keeps running at the server; the answer appears here when the connection is back.'
+        : 'This page cannot reach the server right now (check your connection); trying again…';
+      else statusMsg.innerHTML = 'The server is down right now. See the <a href="#replays">recorded runs</a> below.';
+      [c, l].forEach(x => { $('small', x.closest('.model')).textContent = 'waiting for the server'; });
     }
     validate();
   }
 
   /* Server state = the worker's presence on the status channel (Ably drops it ~15 s after the worker's
-     connection ends). A short network blip on the visitor's side does not grey the page out at once. */
-  let rt = null, stCh = null, reqCh = null, worker = null, hideTimer = null, blipTimer = null;
+     connection ends). The first check keeps "Checking…" until there is a verdict (no red flash on load);
+     a short network blip on the visitor's side does not grey the page out at once, and a lost connection
+     on the visitor's side is reported as such, not as "the server is down". */
+  let rt = null, stCh = null, reqCh = null, worker = null, hideTimer = null, blipTimer = null, decided = false;
   const listeners = {};
   const asObj = d => { if (typeof d === 'string') { try { return JSON.parse(d); } catch (e) { return null; } } return d; };
+  const quiet = p => { if (p && typeof p.catch === 'function') p.catch(() => {}); return p; };
   function judge() {
-    const ok = !!rt && rt.connection.state === 'connected' && !!worker;
-    if (ok) { clearTimeout(blipTimer); blipTimer = null; setUp(true, worker); }
-    else if (rt && rt.connection.state === 'connecting' || rt && rt.connection.state === 'disconnected') {
-      if (!blipTimer && up) blipTimer = setTimeout(() => { blipTimer = null; if (!(rt && rt.connection.state === 'connected' && worker)) setUp(false); }, 20000);
-      else if (!up) setUp(false);
-    } else setUp(false);
+    const st = rt ? rt.connection.state : 'none';
+    if (st === 'connected' && worker) { clearTimeout(blipTimer); blipTimer = null; decided = true; setUp(true, worker); return; }
+    if (st === 'connected') { decided = true; setUp(false); return; }
+    if (!decided && (st === 'initialized' || st === 'connecting')) return;
+    if (up && (st === 'connecting' || st === 'disconnected')) {
+      if (!blipTimer) blipTimer = setTimeout(() => { blipTimer = null; if (!(rt && rt.connection.state === 'connected' && worker)) { up = false; judge(); } }, 20000);
+      return;
+    }
+    decided = true;
+    setUp(false, null, (st === 'connecting' || st === 'disconnected' || st === 'suspended' || navigator.onLine === false) ? 'net' : '');
   }
   async function readPresence() {
     try {
@@ -221,52 +252,73 @@
     judge();
   }
   function connect() {
-    if (MOCK) { setUp(true, { queue: 0, claude: true }); return; }
-    const lib = window.AblyPubSub; if (!lib || !lib.createClient) { setUp(false); return; }
+    if (MOCK) {
+      setUp(true, { queue: 0, claude: true });
+      statusMsg.textContent = 'Test mode: a simulated server. Every question gets the same recorded run; nothing is measured.';
+      return;
+    }
+    const lib = window.AblyPubSub; if (!lib || !lib.createClient) { decided = true; setUp(false); return; }
     if (rt) { if (rt.connection.state !== 'connected') rt.connection.connect(); return; }
     rt = lib.createClient({ key: ABLY_KEY, clientId: 'visitor', echoMessages: false, logLevel: 0 });
+    setTimeout(() => { if (!decided) { decided = true; setUp(false, null, 'net'); } }, 15000);
     stCh = rt.channels.get(CH_STATUS); reqCh = rt.channels.get(CH_REQ);
     rt.connection.on(ch => { if (ch.current === 'connected') readPresence(); else { if (ch.current !== 'connecting' && ch.current !== 'disconnected') worker = null; judge(); } });
-    stCh.presence.subscribe(p => {
+    quiet(stCh.presence.subscribe(p => {
       if (p.clientId !== WORKER) return;
       worker = (p.action === 'leave' || p.action === 'absent') ? null : (asObj(p.data) || {});
       judge();
-    });
-    stCh.subscribe(msg => {
+    }));
+    quiet(stCh.subscribe(msg => {
       const m = asObj(msg.data);
       if (m && m.id && listeners[m.id]) listeners[m.id](m);
-    });
+    }));
+    resume();
   }
   /* free plan: at most 200 open connections, so a tab hidden for 3 minutes lets its connection go (never during a run) */
   document.addEventListener('visibilitychange', () => {
     if (MOCK || !rt) return;
     clearTimeout(hideTimer);
-    if (document.hidden) hideTimer = setTimeout(() => { if (!busy && document.hidden) { rt.connection.close(); worker = null; setUp(false); } }, 3 * 60000);
+    if (document.hidden) hideTimer = setTimeout(() => { if (!busy && document.hidden) { quiet(rt.connection.close()); worker = null; setUp(false, null, 'net'); } }, 3 * 60000);
     else connect();
   });
 
+  /* nothing can change while a question is read or run (a reading must belong to the question it answers) */
+  function lockInputs(b) {
+    $('#f-text').readOnly = b;
+    document.querySelectorAll('#text-examples button, #examples button, .modes button, #clear-point, #f-kind, #f-date, #f-lat, #f-lon, #f-y0, #f-y1')
+      .forEach(x => { x.disabled = b; });
+  }
+
   function validate() {
     let ok = up && !busy, msg = '';
+    lockInputs(busy);
     if (mode === 'form') {
-      const lat = parseFloat($('#f-lat').value), lon = parseFloat($('#f-lon').value), d = $('#f-date').value;
-      const cons = $('#f-kind').value === 'construction';
-      $('#years').hidden = !cons; $('#lbl-date').hidden = cons;
-      if (!(lat >= -80 && lat <= 80 && lon >= -180 && lon <= 180)) { ok = false; msg = up ? 'Click the map or pick an example.' : ''; }
+      const latS = $('#f-lat').value, lonS = $('#f-lon').value, lat = parseFloat(latS), lon = parseFloat(lonS), d = $('#f-date').value;
+      const kind = $('#f-kind').value, cons = kind === 'construction';
+      $('#years').hidden = !cons; $('#lbl-date').hidden = cons; $('#veg-hint').hidden = kind !== 'vegetation_loss';
+      if (latS === '' || lonS === '' || !isFinite(lat) || !isFinite(lon)) { ok = false; msg = up ? 'Click the map or pick an example.' : ''; }
+      else if (!(lat >= -80 && lat <= 80)) { ok = false; msg = 'The latitude must be between -80 and 80 (80° S to 80° N).'; }
+      else if (!(lon >= -180 && lon <= 180)) { ok = false; msg = 'The longitude must be between -180 and 180.'; }
       else if (cons && !(+$('#f-y0').value < +$('#f-y1').value)) { ok = false; msg = 'The "before" year must come before the "after" year.'; }
       else if (!cons && !d) { ok = false; msg = up ? 'Choose the date of the event.' : ''; }
-      else if (!cons && new Date(d) > new Date()) { ok = false; msg = 'The date is in the future.'; }
+      else if (!cons && d > todayISO()) { ok = false; msg = 'The date is in the future.'; }
       else if (!cons && d < '2017-04-01') { ok = false; msg = 'Sentinel-2 images in this form start in 2017.'; }
+      else if (!cons && readyFrom(d, kind).toISOString().slice(0, 10) > todayISO()) {
+        ok = false; msg = `This is too recent: the satellite images after the event are not all taken yet. Please ask again from ${fmtDay(readyFrom(d, kind))}.`;
+      }
       askLabel.textContent = 'Ask';
     } else {
       const t = $('#f-text').value.trim();
-      if (t.length < 8) { ok = false; msg = ''; }
+      if (!t) ok = false;
+      else if (t.length < 8) { ok = false; msg = 'Please write the whole question: the place, the event and the date.'; }
       else if (/\bhere\b/i.test(t) && !marked && !parsedFields) { ok = false; msg = 'Mark the place on the map first (click it), then ask.'; }
+      else if (t.length >= 300) msg = 'The question has reached the limit of 300 characters.';
       askLabel.textContent = parsedFields ? 'Yes, run it' : 'Read my question';
     }
     const chosen = $('input[name=model]:checked');
     if (up && (!chosen || chosen.disabled)) { ok = false; msg = 'No language model is free right now. Please try again later.'; }
     askBtn.disabled = !ok;
-    if (!busy && !(mode === 'text' && parsedFields)) askMsg.textContent = msg;
+    if (!busy && !(mode === 'text' && parsedFields)) askMsg.textContent = held || msg;
   }
 
   function setPoint(lat, lon, fly) {
@@ -284,27 +336,44 @@
      Clicking the map after a reading moves the place of that reading (to fix a wrong position). */
   function markPoint(lat, lon) {
     if (busy) return;
+    if (Math.abs(lat) > 80) { hold('Points beyond 80° N or 80° S cannot be used; please mark a point closer to the equator.'); return; }
+    touched();
     marked = { lat: +lat.toFixed(4), lon: +lon.toFixed(4) };
     setPoint(marked.lat, marked.lon, false);
     $('#marked').hidden = false; $('#marked-at').textContent = ll(marked.lat, marked.lon);
-    if (parsedFields) { parsedFields = Object.assign({}, parsedFields, { lat: marked.lat, lon: marked.lon, place: `the marked point (${marked.lat}, ${marked.lon})` }); showParsed(parsedFields); }
+    if (parsedFields) { parsedFields = Object.assign({}, parsedFields, { lat: marked.lat, lon: marked.lon, place: `the marked point (${marked.lat}, ${marked.lon})` }); parsedWithPoint = true; showParsed(parsedFields); }
   }
   function clearPoint() {
     marked = null; $('#marked').hidden = true;
     if (square && map) { map.removeLayer(square); square = null; }
+    /* a reading made with the point no longer holds; a reading of a named place keeps its square */
+    if (parsedFields && parsedWithPoint) { parsedFields = null; $('#parsed').hidden = true; }
+    else if (parsedFields) setPoint(+parsedFields.lat, +parsedFields.lon, false);
+    touched(); validate();
   }
   function showParsed(f) {
     const p = $('#parsed'); p.hidden = false;
-    p.innerHTML = `Understood as:<dl><dt>Event</dt><dd>${esc(KIND[f.kind] || f.kind)}</dd><dt>Place</dt><dd>${esc((f.place || '').replace(/\s*\(-?[\d.]+,\s*-?[\d.]+\)/, ''))} (${ll(f.lat, f.lon)}), 5 km × 5 km, shown on the map</dd>${f.before && f.after ? `<dt>Periods</dt><dd>${esc(f.before.join(' to '))} against ${esc(f.after.join(' to '))}</dd>` : `<dt>Date</dt><dd>${esc(f.event_date)}</dd>`}</dl>`;
+    const span = Array.isArray(f.event_span) && f.event_span.length === 2 && f.event_span[0] !== f.event_span[1] ? f.event_span : null;
+    const when = f.before && f.after ? `<dt>Periods</dt><dd>${esc(f.before.join(' to '))} against ${esc(f.after.join(' to '))}</dd>`
+      : span ? `<dt>Dates</dt><dd>${esc(span[0])} to ${esc(span[1])}</dd>` : `<dt>Date</dt><dd>${esc(f.event_date)}</dd>`;
+    const notes = Array.isArray(f.notes) && f.notes.length ? `<dt>Note</dt><dd>${f.notes.map(esc).join('<br>')}</dd>` : '';
+    p.innerHTML = `Understood as:<dl><dt>Event</dt><dd>${esc(KIND[f.kind] || f.kind)}</dd><dt>Place</dt><dd>${esc((f.place || '').replace(/\s*\(-?[\d.]+,\s*-?[\d.]+\)/, ''))} (${ll(f.lat, f.lon)}), 5 km × 5 km, shown on the map</dd>${when}${notes}</dl>`;
   }
 
   function initMap() {
     if (!window.L) { $('#map').innerHTML = '<p class="hint" style="padding:14px">The map could not load; type the latitude and longitude instead.</p>'; return; }
     map = L.map('map', { worldCopyJump: true, scrollWheelZoom: false }).setView([30, 10], 2);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
-    map.on('click', e => {
-      const lat = e.latlng.lat, lon = ((e.latlng.lng + 540) % 360) - 180;
-      if (mode === 'text') markPoint(lat, lon); else setPoint(lat, lon, false);
+    const pick = (lat, lon) => {
+      if (busy) return;
+      lon = ((lon + 540) % 360) - 180;
+      if (mode === 'text') markPoint(lat, lon); else { touched(); setPoint(lat, lon, false); }
+    };
+    map.on('click', e => pick(e.latlng.lat, e.latlng.lng));
+    /* keyboard: the arrow keys move the map (Leaflet), Enter or Space marks its centre */
+    map.getContainer().addEventListener('keydown', e => {
+      if (e.target !== map.getContainer() || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault(); const c = map.getCenter(); pick(c.lat, c.lng);
     });
   }
 
@@ -317,37 +386,44 @@
     const box = $('#examples');
     ex.forEach(e => {
       const b = document.createElement('button'); b.type = 'button'; b.textContent = e.name;
-      b.onclick = () => { $('#f-kind').value = e.kind; $('#f-date').value = e.date; setPoint(e.lat, e.lon, true); [...box.children].forEach(x => x.setAttribute('aria-pressed', x === b)); };
+      b.onclick = () => { touched(); $('#f-kind').value = e.kind; $('#f-date').value = e.date; setPoint(e.lat, e.lon, true); [...box.children].forEach(x => x.setAttribute('aria-pressed', x === b)); };
       box.appendChild(b);
     });
+    /* floods need the day (the server refuses a bare month: water shows for only a few days) */
     const tq = [
-      'Was there flooding around Conselice, Italy, in May 2023?',
+      'Was there flooding around Conselice, Italy, on 17 May 2023?',
       'Was there a wildfire near Jasper, Canada, in July 2024?',
-      'Was there flooding here in May 2023?'
+      'Was there flooding here on 17 May 2023?'
     ];
     tq.forEach(q => {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = /\bhere\b/.test(q) ? 'Mark a point, then: "…flooding here in May 2023?"' : q.replace(/^Was there /, '').replace(/\?$/, '');
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = /\bhere\b/.test(q) ? 'Mark a point, then: "…flooding here on 17 May 2023?"' : q.replace(/^Was there /, '').replace(/\?$/, '');
       b.onclick = () => { $('#f-text').value = q; $('#f-text').dispatchEvent(new Event('input')); $('#f-text').focus(); };
       $('#text-examples').appendChild(b);
     });
     $('#clear-point').onclick = () => { clearPoint(); };
-    $('#f-date').max = new Date().toISOString().slice(0, 10);
+    $('#f-date').max = todayISO();
     /* construction: whole summers (June to August) of two years; the last year only once its summer is over */
     const now = new Date(), lastY = now.getUTCFullYear() - (now.getUTCMonth() < 8 ? 1 : 0);
     const yopts = []; for (let y = 2017; y <= lastY; y++) yopts.push(`<option value="${y}">${y}</option>`);
     $('#f-y0').innerHTML = yopts.join(''); $('#f-y1').innerHTML = yopts.join('');
     $('#f-y0').value = String(Math.max(2017, lastY - 3)); $('#f-y1').value = String(lastY);
-    ['#f-y0', '#f-y1'].forEach(s => $(s).addEventListener('input', validate));
-    ['#f-lat', '#f-lon'].forEach(s => $(s).addEventListener('change', () => { const a = parseFloat($('#f-lat').value), o = parseFloat($('#f-lon').value); if (isFinite(a) && isFinite(o)) setPoint(a, o, true); }));
-    ['#f-date', '#f-kind'].forEach(s => $(s).addEventListener('input', validate));
-    $('#f-text').addEventListener('input', () => { parsedFields = null; $('#parsed').hidden = true; validate(); });
+    ['#f-y0', '#f-y1', '#f-date', '#f-kind'].forEach(s => $(s).addEventListener('input', () => { touched(); validate(); }));
+    ['#f-lat', '#f-lon'].forEach(s => {
+      $(s).addEventListener('input', () => { touched(); validate(); });
+      $(s).addEventListener('change', () => { const a = parseFloat($('#f-lat').value), o = parseFloat($('#f-lon').value); if (isFinite(a) && isFinite(o) && Math.abs(a) <= 80 && Math.abs(o) <= 180) setPoint(a, o, true); else validate(); });
+    });
+    $('#f-text').addEventListener('input', () => { parsedFields = null; $('#parsed').hidden = true; touched(); validate(); });
+    /* Enter sends (as the button would), Shift+Enter starts a new line */
+    $('#f-text').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!askBtn.disabled) onAsk(); }
+    });
     document.querySelectorAll('.modes button').forEach(b => b.onclick = () => {
       mode = b.dataset.mode;
       document.querySelectorAll('.modes button').forEach(x => x.setAttribute('aria-selected', x === b));
       $('#mode-form').hidden = mode !== 'form'; $('#mode-text').hidden = mode !== 'text';
       parsedFields = null; $('#parsed').hidden = true;
       if (map) map.invalidateSize();
-      validate();
+      touched(); validate();
     });
     askBtn.onclick = onAsk;
   }
@@ -360,6 +436,7 @@
     const figure = n => {
       const have = Object.keys(parts).length;
       if (!n || have < n) return null;
+      if (url) return url;
       try {
         const bin = atob(Array.from({ length: n }, (_, i) => parts[i + 1].b64).join(''));
         const bytes = new Uint8Array(bin.length);
@@ -388,27 +465,32 @@
   const newId = () => Math.random().toString(36).slice(2, 10);
   const model = () => $('input[name=model]:checked').value;
 
+  /* a run in progress, kept for a reload (this tab only) */
+  const PENDING = 'eo-live-pending';
+  const pending = {
+    get() { try { return JSON.parse(sessionStorage.getItem(PENDING) || 'null'); } catch (e) { return null; } },
+    set(x) { try { if (x) sessionStorage.setItem(PENDING, JSON.stringify(x)); else sessionStorage.removeItem(PENDING); } catch (e) { /* storage blocked */ } }
+  };
+
   function formFields() {
     const k = $('#f-kind').value, f = { kind: k, lat: +$('#f-lat').value, lon: +$('#f-lon').value, text: null };
     if (k === 'construction') { const y0 = $('#f-y0').value, y1 = $('#f-y1').value; f.before = [`${y0}-06-01`, `${y0}-08-31`]; f.after = [`${y1}-06-01`, `${y1}-08-31`]; f.event_date = f.after[0]; }
     else f.event_date = $('#f-date').value;
     return f;
   }
-  async function onAsk() {
-    if (mode === 'text' && !parsedFields) return parseText();
-    const f = mode === 'form'
-      ? formFields()
-      : Object.assign({ text: $('#f-text').value.trim() }, parsedFields);
-    const question = f.text || `Was there ${f.kind === 'flood' ? 'flooding' : f.kind === 'construction' ? 'construction' : 'a wildfire or forest clearing'} in the 5 km × 5 km area around ${ll(f.lat, f.lon)}, ${f.before ? `between summer ${f.before[0].slice(0, 4)} and summer ${f.after[0].slice(0, 4)}` : `around ${f.event_date}`}?`;
-    const id = newId();
-    busy = true; validate(); askMsg.textContent = 'Sending…';
+
+  /* the run card for one request id: steps, figure, answer; used for a new run and after a reload */
+  function follow(id, question, t0) {
+    busy = true; validate();
     const box = $('#live-run'); box.hidden = false;
     const v = runView(box, question);
     let lastKey = null, finished = false;
     const seen = {}; let reveal = Promise.resolve();
-    const oneStep = (m, opened) => {
+    const oneStep = m => {
       if (m.state === 'start' && lastKey && lastKey !== m.step) v.step(lastKey, null, null, null, 'done');
-      v.step(m.step, STEP[m.step] || m.step, m.note == null ? (m.step === 'start_model' && m.state === 'start' ? 'starting the open model on our GPU, about 4 to 5 minutes' : null) : m.note, m.seconds, m.state === 'start' ? 'on' : (m.state === 'bad' ? 'bad' : 'done'));
+      let note = m.note == null ? (m.step === 'start_model' && m.state === 'start' ? 'starting the open model on our GPU, about 4 to 5 minutes' : null) : m.note;
+      if (m.step === 'reply' && note) note = 'written out next to the answer';   /* the reply is shown once, with the badge */
+      v.step(m.step, STEP[m.step] || m.step, note, m.seconds, m.state === 'start' ? 'on' : (m.state === 'bad' ? 'bad' : 'done'));
       lastKey = m.step;
     };
     /* a compact message lists every step so far: show only what changed, new steps one after another */
@@ -418,56 +500,101 @@
       reveal = reveal.then(async () => { for (let i = 0; i < todo.length; i++) { if (i) await sleep(reduce ? 0 : 280); oneStep(todo[i]); } });
       return reveal;
     };
-    const timer = setTimeout(() => { if (!finished) { finish(); askMsg.textContent = 'No answer after 8 minutes. The server may be busy; please try again later.'; } }, 8 * 60 * 1000);
-    const handle = (m, att) => {
-      if (m.type === 'queued') askMsg.textContent = m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…';
+    const es = listen(id, (m, att) => handle(m, att));
+    const timer = setTimeout(() => fail('No answer after 8 minutes. The server may be busy; please try again later.'), Math.max(0, t0 + 8 * 60000 - Date.now()));
+    function finish() {
+      finished = true; clearTimeout(timer); es.close(); pending.set(null);
+      busy = false; parsedFields = null; $('#parsed').hidden = true;
+      live.classList.toggle('is-down', !up); validate();
+    }
+    function fail(text) {
+      if (finished) return;
+      if (lastKey) v.step(lastKey, null, null, null, 'bad');   /* no spinner left turning */
+      v.wait('No evidence: this question was not answered.');
+      finish(); hold(text);
+    }
+    function handle(m, att) {
+      if (finished) return;
+      if (m.type === 'queued') say(m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…');
       else if (m.type === 'progress') {
-        askMsg.textContent = m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…';
+        say(m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…');
         steps(m.steps);
       } else if (m.type === 'step') {
-        askMsg.textContent = 'Running…';
+        say('Running…');
         oneStep(m);
       } else if (m.type === 'done') {
         if (m.steps) { steps(m.steps).then(() => handle(Object.assign({}, m, { steps: null }), att)); return; }
         if (lastKey) v.step(lastKey, null, null, null, 'done');
-        if (att) v.show(att, 'Before and after images for your question');
+        if (att) v.show(att, 'Before and after images for your question'); else v.wait('No figure came with this answer.');
         v.answer(m.answer, m.reply || (m.answer === 'cannot_tell' ? 'Cannot tell.' : (m.answer === 'yes' ? 'Yes.' : 'No.')), m.reply ? '' : (m.rule || m.reason || ''));
-        v.bar.style.width = '100%'; finish(); askMsg.textContent = 'Done.';
+        v.bar.style.width = '100%'; finish();
+        hold(`Done. The answer is ${m.answer === 'cannot_tell' ? '"cannot tell"' : m.answer === 'yes' ? 'yes' : 'no'}.`);
       } else if (m.type === 'refused' || m.type === 'failed' || m.type === 'error') {
-        finish(); askMsg.textContent = (m.type === 'refused' ? 'Not run: ' : 'Something went wrong: ') + (m.reason || '');
+        const r = (m.reason || '').trim();
+        fail(m.type === 'refused' ? 'Not run: ' + r : /^something went wrong/i.test(r) ? r : 'Something went wrong: ' + (r || 'please try again.'));
       }
-    };
-    const es = listen(id, handle);
-    function finish() { finished = true; clearTimeout(timer); es.close(); busy = false; parsedFields = null; $('#parsed').hidden = true; validate(); }
+    }
+    return { handle, fail, isFinished: () => finished };
+  }
+
+  async function onAsk() {
+    if (mode === 'text' && !parsedFields) return parseText();
+    touched();
+    const f = mode === 'form'
+      ? formFields()
+      : Object.assign({ text: $('#f-text').value.trim() }, parsedFields);
+    const question = f.text || `Was there ${f.kind === 'flood' ? 'flooding' : f.kind === 'construction' ? 'construction' : 'a wildfire or forest clearing'} in the 5 km × 5 km area around ${ll(f.lat, f.lon)}, ${f.before ? `between summer ${f.before[0].slice(0, 4)} and summer ${f.after[0].slice(0, 4)}` : `around ${f.event_date}`}?`;
+    const id = newId(), t0 = Date.now();
+    const run = follow(id, question, t0);
+    say('Sending…');
     try {
-      await send(Object.assign({ action: 'ask', id, model: model(), size_km: 5 }, f), handle);
-      if (MOCK) mockRun(id, handle);
-      else askMsg.textContent = 'Sent. Waiting for the server…';
-    } catch (e) { finish(); askMsg.textContent = 'Could not send the question: ' + e.message; }
+      await send(Object.assign({ action: 'ask', id, model: model(), size_km: 5 }, f));
+      if (MOCK) return mockRun(id, run.handle);
+      pending.set({ id, question, t0 });
+      if (!run.isFinished() && askMsg.textContent === 'Sending…') say('Sent. Waiting for the server…');
+    } catch (e) { run.fail('Could not send the question: ' + e.message); }
+  }
+
+  /* after a reload during a run: follow the same run, with the replies so far from the channel history */
+  async function resume() {
+    const p = pending.get();
+    if (!p || !p.id || !p.t0 || Date.now() - p.t0 > 8 * 60000) { pending.set(null); return; }
+    const run = follow(p.id, p.question, p.t0);
+    say('Your question from before the reload is still running at the server…');
+    try {
+      const page = await stCh.history({ limit: 100 });
+      const mine = page.items.map(x => asObj(x.data)).filter(m => m && m.id === p.id).reverse();
+      mine.forEach(m => { if (listeners[p.id]) listeners[p.id](m); });
+    } catch (e) { /* no history: the live replies still arrive */ }
+    return run;
   }
 
   async function parseText() {
-    const id = newId(), text = $('#f-text').value.trim();
-    busy = true; validate(); askMsg.textContent = 'Reading your question…';
+    const id = newId(), text = $('#f-text').value.trim(), at = marked ? { lat: marked.lat, lon: marked.lon } : null;
+    busy = true; validate(); say('Reading your question…');
     let done = false;
+    const end = t => { done = true; es.close(); busy = false; validate(); if (t) hold(t); };
     const handle = m => {
       if (done) return;
       if (m.type === 'parsed') {
-        done = true; es.close(); parsedFields = m.fields; busy = false;
+        /* inputs are locked while the question is read; a reading of another text is never used */
+        if ($('#f-text').value.trim() !== text) { end('The question changed while it was read; please ask again.'); return; }
+        done = true; es.close(); busy = false; parsedFields = m.fields; parsedWithPoint = !!at;
         showParsed(m.fields);
-        if (isFinite(m.fields.lat) && isFinite(m.fields.lon)) setPoint(+m.fields.lat, +m.fields.lon, true);
-        askMsg.textContent = 'Is this right? Check the square on the map: click the map to move it, or edit the question.';
+        if (isFinite(+m.fields.lat) && isFinite(+m.fields.lon)) setPoint(+m.fields.lat, +m.fields.lon, true);
         validate();
+        say(`Is this right? Check the square on the map${narrow() ? ' below' : ''}: click the map to move it, or edit the question.`);
+        if (narrow()) $('#parsed').scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
       } else if (m.type === 'refused' || m.type === 'failed' || m.type === 'error') {
-        done = true; es.close(); busy = false; validate(); askMsg.textContent = 'Not run: ' + (m.reason || '');
+        end('Not run: ' + (m.reason || ''));
       }
     };
     const es = listen(id, handle);
-    setTimeout(() => { if (!done) { done = true; es.close(); busy = false; validate(); askMsg.textContent = 'No reply in 3 minutes. Please try again later.'; } }, 180000);
+    setTimeout(() => { if (!done) end('No reply in 3 minutes. Please try again later.'); }, 180000);
     const req = { action: 'parse', id, model: model(), text };
-    if (marked) { req.lat = marked.lat; req.lon = marked.lon; }
-    try { await send(req); if (MOCK) setTimeout(() => handle({ id, type: 'parsed', fields: marked ? { kind: 'flood', lat: marked.lat, lon: marked.lon, event_date: '2023-05-15', place: `the marked point (${marked.lat}, ${marked.lon})` } : /mosul/i.test(text) ? { kind: 'flood', lat: 36.347, lon: 42.667, event_date: '2023-05-15', place: "Mosul Dam, Iraq (the model's position, high confidence: check it on the map)" } : { kind: 'flood', lat: 44.5063, lon: 11.8276, event_date: '2023-05-23', place: 'Conselice, Italy' } }), 1500); }
-    catch (e) { done = true; es.close(); busy = false; validate(); askMsg.textContent = 'Could not send the question: ' + e.message; }
+    if (at) { req.lat = at.lat; req.lon = at.lon; }
+    try { await send(req); if (MOCK) setTimeout(() => handle({ id, type: 'parsed', fields: at ? { kind: 'flood', lat: at.lat, lon: at.lon, event_date: '2023-05-17', place: `the marked point (${at.lat}, ${at.lon})` } : /mosul/i.test(text) ? { kind: 'flood', lat: 36.347, lon: 42.667, event_date: '2023-05-15', place: "Mosul Dam, Iraq (the model's position, high confidence: check it on the map)" } : { kind: 'flood', lat: 44.5063, lon: 11.8276, event_date: '2023-05-17', place: 'Conselice, Italy' } }), 1500); }
+    catch (e) { if (!done) end('Could not send the question: ' + e.message); }
   }
 
   /* mock worker: replays the Conselice run through the live code path (tests only) */
@@ -504,8 +631,18 @@
     document.querySelectorAll('video').forEach(vd => {
       if (reduce) { vd.removeAttribute('autoplay'); vd.pause(); vd.controls = true; return; }
       if (!('IntersectionObserver' in window)) return;
-      new IntersectionObserver(es => { es[0].isIntersecting ? vd.play().catch(() => {}) : vd.pause(); }, { threshold: .35 }).observe(vd);
+      new IntersectionObserver(es => { es[0].isIntersecting && !vd.dataset.stopped ? vd.play().catch(() => {}) : vd.pause(); }, { threshold: .35 }).observe(vd);
     });
+    /* the hero loop plays by itself, so it gets a pause button */
+    const t = $('#loop-toggle'), lp = $('#loop');
+    if (t && lp) {
+      if (reduce) { t.hidden = true; return; }
+      t.onclick = () => {
+        const stop = !lp.dataset.stopped;
+        if (stop) { lp.dataset.stopped = '1'; lp.pause(); } else { delete lp.dataset.stopped; lp.play().catch(() => {}); }
+        t.textContent = stop ? 'Play the video' : 'Pause the video'; t.setAttribute('aria-pressed', stop);
+      };
+    }
   }
 
   function start() {
