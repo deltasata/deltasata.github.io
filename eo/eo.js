@@ -389,7 +389,7 @@
       b.onclick = () => { touched(); $('#f-kind').value = e.kind; $('#f-date').value = e.date; setPoint(e.lat, e.lon, true); [...box.children].forEach(x => x.setAttribute('aria-pressed', x === b)); };
       box.appendChild(b);
     });
-    /* floods need the day (the server refuses a bare month: water shows for only a few days) */
+    /* a day is fastest for floods (a bare month is searched day by day: the 15th, 7th and 23rd) */
     const tq = [
       'Was there flooding around Conselice, Italy, on 17 May 2023?',
       'Was there a wildfire near Jasper, Canada, in July 2024?',
@@ -513,14 +513,17 @@
       v.wait('No evidence: this question was not answered.');
       finish(); hold(text);
     }
+    /* a flood asked by month: the server tries one day after another and says "now trying …" in the decide note */
+    const searching = list => (list || []).some(x => x && x.step === 'decide' && /now trying/i.test(x.note || ''));
+    const running = list => searching(list) ? 'Searching the month: trying another day…' : 'Running…';
     function handle(m, att) {
       if (finished) return;
       if (m.type === 'queued') say(m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…');
       else if (m.type === 'progress') {
-        say(m.position ? `In the queue: ${m.position} ahead of you.` : 'Running…');
+        say(m.position ? `In the queue: ${m.position} ahead of you.` : running(m.steps));
         steps(m.steps);
       } else if (m.type === 'step') {
-        say('Running…');
+        say(running([m]));
         oneStep(m);
       } else if (m.type === 'done') {
         if (m.steps) { steps(m.steps).then(() => handle(Object.assign({}, m, { steps: null }), att)); return; }
